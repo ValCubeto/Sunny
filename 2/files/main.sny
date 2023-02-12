@@ -1,0 +1,2 @@
+fun main(args: str[*]):
+	print({ args })

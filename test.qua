@@ -1,0 +1,46 @@
+fun str(value: any?, converter?: ('default' | 'custom') = 'default') -> str:
+	if converter == 'custom':
+		return value.to_string()
+	else:
+		return when typeof(value):
+			'void'    : 'null'
+			'string'  : value
+			(
+					| 'number'
+					| 'boolean'
+				): string(value)
+			'regexp'  : '/$(value.__body__())/$(value.__flags__())'
+			'object'  : '<$(value.__ctor__.name) object>'
+			'array'   : '<array [$(value.size)]>'
+			'function': '<function $(value.name)>'
+
+fun obj.prototype.to_string(self):
+	result = '{\n'
+	for key in self.keys():
+		result += '\t$(key) = $(self[key])'
+	result += '\n}'
+	return result
+
+fun arr.prototype.to_string(self):
+	return self.join()
+
+arr.prototype.to_string = (self: Self) -> str => self.join()
+
+object: obj<str, (self: Self) -> str> = {
+	que(hola):
+		return 'so'
+}
+
+// Params: { [name: str]: Class }, ReturnType: Class
+Function<P = { self = Self }, R = str>
+(self: Self) -> str
+
+arr.prototype.to_string.__xtype__()
+
+class Function<P:  = {}, R: Class = void>
+
+model Pair <K: Class, V: Class>
+
+class obj implements Pair <str, any?> + <size: Range = Range(1, MAX_SIZE)>:
+	static const MAX_SIZE = 2 ** 32 - 1
+	static type AnySize implements Pair<str, any?> = obj<K, V, Range(0, obj.MAX_SIZE)>
