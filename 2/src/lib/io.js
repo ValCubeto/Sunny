@@ -1,4 +1,13 @@
-const io = create.obj()
+import { create } from '../values.js'
+import { print } from '../functions.js'
 
-const write = create.Function()
-io.define('write', write)
+const io = create.object([
+	['read', create.function('read')],
+	['write', create.function('write')],
+	['error', create.function('error')],
+	['print', print],
+])
+
+console.log(io)
+
+export { io }

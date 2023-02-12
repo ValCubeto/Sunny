@@ -1,0 +1,23 @@
+(...)           // list or lambda
+(...: ...)      // lambda
+(... = ...)     // lambda
+(...) =         // lambda or syntax error
+(...) =>        // lambda
+(...) -         // lambda or type error
+(...) -> ...    // type or lambda
+(...) -> ... => // lambda
+
+...<      // operation or class with model
+[class]<  // class with model
+
+class num:
+	static const number_pattern = /^(?:[0-9]+(?:'[0-9]+)*(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)|0x[0-9a-fA-F]+|0b[01]+)$/
+	static type InRange<range: Range> = (number: Self) => number in range
+	public fun __ctor__(value: str) -> Self:
+		if number_pattern.test(value):
+			return $PARSE(value)
+		return nanum
+
+class str:
+	static type Matches<pattern: RegExp> = (value: Self) => pattern.test(value)
+	// how to implement test functions?

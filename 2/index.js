@@ -2,12 +2,35 @@ import { existsSync, lstatSync, readFileSync } from 'node:fs'
 import { join as join_paths } from 'node:path'
 import { key_throw } from './src/keys.js'
 import { EXTENSION } from './src/info.js'
+import { eval_code } from './src/functions.js'
 
 function main(argv) {
+	// Example: sunny --allow-read main some args
 	console.log(`[debug] Executing with argv = ${JSON.stringify(argv, null, 2)}`)
-	const path = argv[1]
+
+	// Parse argv
+	const executor_path = argv[0]
+	const flags = []
+	let i = 1
+	for (; i < argv.length; i++) {
+		if (argv[i][0] !== '-') {
+			break
+		}
+		flags.push(argv[i])
+	}
+	const path = argv[i]
+	const args = argv.slice(i + 1)
+	console.log(`[debug] ${JSON.stringify({ executor_path, flags, path, args }, null, 2)}`)
+
+	// Read file
 	console.log(`[debug] Looking for main file`)
 	const file = try_read([path, path + EXTENSION])
+
+	if (file.length === 0) {
+		key_throw('The file is empty')
+	}
+
+	eval_code(file)
 }
 
 const WORKING_DIR = process.cwd()
