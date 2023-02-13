@@ -8,6 +8,4 @@ const io = create.object([
 	['print', print],
 ])
 
-console.log(io)
-
 export { io }
