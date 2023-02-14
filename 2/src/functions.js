@@ -16,5 +16,5 @@ export function print(values, sep, end) {
 export function eval_code(code, expression, internal, main) {
 	const tokens = tokenize(code)
 	const ast = make_ast(tokens)
-	return exec_ast(ast, g, expression, internal, main)
+	return exec_ast(ast, [g], expression, internal, main)
 }

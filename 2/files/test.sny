@@ -1,0 +1,9 @@
+fun main(args: arr) -> void:
+	print(args.size)
+
+
+/* fun main(args: str[*]) -> void:
+	print({ args }) */
+	// entries.push([key, scope[key]])
+
+// ':' (type | '(' type '|' type ')') '[' (range | number | '*')? ']'

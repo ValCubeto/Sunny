@@ -14,6 +14,9 @@ const create = {
 		}
 	},
 	'number': function (value, internal) {
+		if (!internal && 'number' in cache && value in cache.number) {
+			return cache.number[value]
+		}
 		const n = {
 			type: 'number',
 			value
@@ -21,6 +24,8 @@ const create = {
 		if (internal) {
 			n.data = { internal: true }
 		}
+		cache.number ??= {}
+		cache.number[value] = n
 		return n
 	},
 	'range': function (x, y) {
@@ -84,7 +89,7 @@ const create = {
 			value
 		}
 	},
-	'function': function (name, params, returns, value) {
+	'function': function ({ name, params, returns, value }) {
 		const f = {
 			data: {
 				name: name ?? 'unnamed'
@@ -103,6 +108,8 @@ const create = {
 		return f
 	}
 }
+
+const cache = {}
 
 const UNSET = create.void(0)
 const NULL = create.void(1)
@@ -156,7 +163,7 @@ function to_string(value, indent = '') {
 			string += `${indent}  ${to_string(value.value[i], indent + '  ')}`
 		}
 		string += '\n]'
-		return string
+		return create.string(string)
 	}
 	if (value.type === 'object') {
 		let string = '{'
@@ -167,11 +174,12 @@ function to_string(value, indent = '') {
 			string += `\n${indent}  ${value.value[0][i]} = ${to_string(value.value[1][i], indent + '  ').value}`
 		}
 		string += '\n}'
-		return string
+		return create.string(string)
 	}
 	if (value.type === 'function') {
-		return `fun ${value.data.name}()`
+		return create.string(`fun ${value.data.name}()`)
 	}
+	return create.string('unknown')
 }
 
 function obj_get_value(object, key) {
@@ -190,26 +198,37 @@ function obj_set_value(object, key, value) {
 	object.value[0][index] = key
 	object.value[1][index] = value
 }
-function obj_get_entries(object) {
+function obj_get_entries(object, raw) {
 	const entries = []
 	for (const i in object.value[0]) {
 		const key = object.value[0][i]
 		const value = object.value[1][i]
-		entries.push([key, value])
+		entries.push(raw ? [key, value] : create.array([key, value]))
 	}
-	return entries
+	return raw ? entries : create.array(entries)
 }
 
 const g = create.object([
+	// values
 	['null',  UNSET],
 	['false', FALSE],
 	['true',  TRUE],
 	['nanum', NANUM],
 	['infy',  INFY],
+	// types
 	['void', create.type('void', { type: 'type.in_list', value: [UNSET, NULL] })],
 ])
 
-obj_add_value(g, 'global', g.value)
+const CONSTANT = { constant: true }
+
+const data = {}
+
+// make all global values constants
+for (const i in g.value[0]) {
+	data[g.value[0][i]] = CONSTANT
+}
+
+obj_add_value(g, 'global', g)
 
 export {
 	create,

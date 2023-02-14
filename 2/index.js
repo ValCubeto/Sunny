@@ -24,13 +24,14 @@ function main(argv) {
 
 	// Read file
 	console.log(`[debug] Looking for main file`)
+	// todo: prevent looking for file.sny.sny
 	const file = try_read([path, path + EXTENSION])
 
 	if (file.length === 0) {
 		key_throw('The file is empty')
 	}
 
-	eval_code(file)
+	eval_code(file, false, true, true)
 }
 
 const WORKING_DIR = process.cwd()

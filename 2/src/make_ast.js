@@ -1,5 +1,5 @@
 import { create, INFY } from './values.js'
-import { io } from './lib/io.js'
+
 export function make_ast(tokens) {
 	const ast = []
 	for (const i in tokens) {
@@ -11,31 +11,35 @@ export function make_ast(tokens) {
 			type: 'declare',
 			data: {
 				type: 'function',
-				name: 'main'
+				id: 'main'
 			},
 			value: {
 				name: 'main',
-				params: [
-					{
-						name: 'args',
-						xtype: {
-							name: 'arr',
-							model: [
-								{
-									name: 'I',
-									value: {
-										ref: 'str'
+				data: {
+					params: [
+						{
+							name: 'args',
+							xtype: {
+								id: 'arr',
+								model: [
+									{
+										name: 'I',
+										value: {
+											ref: 'str'
+										}
+									},
+									{
+										name: 'size',
+										value: create.range(create.number('0'), INFY)
 									}
-								},
-								{
-									name: 'size',
-									value: create.range(create.number('0'), INFY)
-								}
-							]
+								]
+							}
 						}
-					}
-				]
+					]
+				}
 			}
 		}
 	]
 }
+
+// type obj = any?[*][2]

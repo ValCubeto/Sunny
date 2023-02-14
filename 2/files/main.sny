@@ -1,12 +1,2 @@
 fun main():
 	print('Hello world!')
-
-
-/* fun main(args: arr) -> void:
-	print(args.size) */
-
-
-/* fun main(args: str[*]) -> void:
-	print({ args }) */
-
-// ':' (type | '(' type '|' type ')') '[' (number | '*')? ']'
