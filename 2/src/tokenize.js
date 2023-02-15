@@ -7,6 +7,7 @@ export function tokenize(chars) {
 	let start = 0
 	let acc = 'none'
 	let escaping = false
+	let quote = ``
 	for (let i = 1; i < chars.length; i++) {
 		const char = chars[i]
 		console.log({ i })
@@ -62,7 +63,7 @@ function token_type(char) {
 const WORD_CHARS = 'abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const NUMBER_CHARS = '0123456789'
 const SYMBOL_CHARS = '.,:+-*/%<>'
-const OTHER_CHARS = `.,:'"`
+const OTHER_CHARS = `.,:`
 
 const SYMBOLS = [
 	'+',
@@ -95,3 +96,8 @@ const TOKEN_TYPES = {
 	Symbol : 'symbol',
 	Number : 'number',
 }
+
+const KEYWORDS = [
+	'if',
+	'else'
+]
