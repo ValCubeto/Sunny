@@ -5,27 +5,27 @@ import { EXTENSION } from './src/info.js'
 import { eval_code } from './src/functions.js'
 
 function main(argv) {
-	// Example: sunny --allow-read main some args
+	// Example: sunny --allow-read=yes main some args
 	console.log(`[debug] Executing with argv = ${JSON.stringify(argv, null, 2)}`)
 
 	// Parse argv
-	const executor_path = argv[0]
-	const flags = []
+	const executor_path = argv[0] // 'sunny'
+	const flags = [] // [['--allow-read', 'yes']]
 	let i = 1
 	for (; i < argv.length; i++) {
 		if (argv[i][0] !== '-') {
 			break
 		}
-		flags.push(argv[i])
+		flags.push(argv[i].split('=', 1))
 	}
-	const path = argv[i]
-	const args = argv.slice(i + 1)
+	const path = argv[i] // 'main'
+	const args = argv.slice(i + 1) // ['some', 'args']
 	console.log(`[debug] ${JSON.stringify({ executor_path, flags, path, args }, null, 2)}`)
 
 	// Read file
 	console.log(`[debug] Looking for main file`)
-	// todo: prevent looking for file.sny.sny
-	const file = try_read([path, path + EXTENSION])
+	// todo: prevent looking for 'file.sny.sny'
+	const file = try_read(path.endsWith(EXTENSION) ? [path] : [path, path + EXTENSION])
 
 	if (file.length === 0) {
 		key_throw('The file is empty')
