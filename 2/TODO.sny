@@ -28,3 +28,19 @@ class str:
 
 class Type:
 	fun __ctor__(checker: (value: any?, model?: dict) -> bool)
+
+class dict<K: Type = str, V: Type = any?>:
+	fun __ctor__(entries: /* any?[*][2] */ [K[], V[]]):
+		return
+
+arr<I = arr<I = (void | any)>, size = 2>
+
+class arr<I: (Type | Type[*]) = any?, size: (Range<min = 0> | num.InRange<Range(0, infy)>) = Range(1, infy)>:
+	static type AnySize<I> = arr<I, Range(0, infy)>
+
+class = {
+	type = 'class'
+	data = {
+		name: str
+	}	
+}
