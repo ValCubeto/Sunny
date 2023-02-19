@@ -48,9 +48,7 @@ function try_read(paths) {
 				key_throw(`"${path}" is not a file`)
 			}
 			try {
-				console.log(`[debug] Reading "${path}"`)
 				const file = readFileSync(path).toString()
-				console.log(`[debug] Working with "${path}"`)
 				return file
 			} catch (error) {
 				key_throw(`Failed to read "${path}" (code: ${error.code})`)

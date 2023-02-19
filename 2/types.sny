@@ -1,0 +1,66 @@
+const null
+const infy
+const nanum
+const true
+const false
+
+type Type
+type TypeOf<value: any?>
+
+type Not<...T: Type[]> = (value) => TypeOf<value> not in T
+
+type void = (null | $UNSET)
+type any = Not<void>
+
+type bool = (true | false)
+type num<range?: Range = (-infy) to infy>
+type Range
+
+type str<size?: Range = 0 to infy>
+type RegExp
+
+type arr<T: (Type | Type[*]), size?: Range = 1 to infy>
+
+type dict<K?: Type = str, V?: Type = any?, size?: Range = 1 to infy>
+
+type Param<T?: Type = any?, optional?: bool = false, default_value?: any?, rest?: bool = false>
+type Function<P?: Param[*] = [], R?: Type = void>
+type ReturnedBy<function: Function> = (value) => $test(function.$rettype, value)
+
+fun print(...values: any?[], sep?: str = ' ', end?: str = $EOL) -> void
+fun typeof(value: any?) -> (
+	| 'void'
+	| 'boolean'
+	| 'number'
+	| 'range'
+	| 'string'
+	| 'regexp'
+	| 'array',
+	| 'dict'
+	| 'function'
+	| 'class'
+	| 'type'
+)
+fun isinstance(value: any?, type: Type) -> bool
+
+class Range:
+	private:
+		const x: num
+		const y: num
+	fun __ctor(x: num, y: num):
+		this += { x, y }
+	fun __fin(self):
+		if self.x == self.y:
+			return self.x
+		i = self.x
+		if self.x < self.y:
+			while i <= self.y:
+				yield i
+				i++
+		else:
+			while i >= self.y:
+				yield i
+				i--
+	fun __incl(self, value: num):
+		[min, max] = sort(self.x, self.y)
+		return min >= value and value <= max

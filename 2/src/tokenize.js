@@ -5,11 +5,12 @@ export function tokenize(chars) {
 	let token = chars[0]
 	let type = token_type(chars[0])
 	let start = 0
-	let acc = 'none'
+	let acc_type = 'none' // none | string | regex | comment
 	let escaping = false
 	let quote = ``
 	for (let i = 1; i < chars.length; i++) {
 		const char = chars[i]
+		// if (char.length !== 1) {} (emojis and special characters)
 		console.log({ i })
 		if (char === ' ') {
 			//if ()
