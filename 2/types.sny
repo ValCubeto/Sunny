@@ -24,7 +24,7 @@ class str<length?: (Range | num) = 1 to infy>:
 
 type RegExp
 
-class list<T?: (Type | Type[*]) = any?, size?: (Range | num) = 1 to infy>:
+class array<T?: (Type | Type[*]) = any?, size?: (Range | num) = 1 to infy>:
 	fun __ctor(...values?: T[size], size?: num)
 	fun at(index: num): T
 	fun remove(index: num) -> void
