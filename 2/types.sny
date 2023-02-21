@@ -25,13 +25,13 @@ class str<length?: (Range | num) = 1 to infy>:
 type RegExp
 
 class array<T?: (Type | Type[*]) = any?, size?: (Range | num) = 1 to infy>:
+	static type AnySize<T> = array<T, 0 to infy>
 	fun __ctor(...values?: T[size], size?: num)
 	fun at(index: num): T
 	fun remove(index: num) -> void
 	fun insert(value: T, index: num) -> void
 	fun add(value: T) -> void
 	fun prepend(value: T) -> void
-
 class dict<K?: Type = str, V?: Type = any?, size?: (Range | num) = 1 to infy>:
 	fun __ctor(...entries?: [K[size], V[size]][*], size?: num)
 	fun keys() -> K[size]
@@ -59,30 +59,40 @@ fun typeof(value: any?) -> (
 fun isinstance(value: any?, type: Type) -> bool
 
 class Range<T?: (num | str) = num>:
-	private:
-		const x: T
-		const y: T
+	const x: T
+	const y: T
 	fun __ctor(self, x: T, y: T):
 		self += { x, y }
 	fun __fin(self):
 		if self.x == self.y:
-			yield self.x
+			Generator.yield(self.x)
 			return
-		[a, b] = T == num
-			? [self.x, self.y]
-			: [self.x.code_at(0), self.y.code_at(0)]
-		if a < b:
-			while a <= b:
-				yield T == num
-					? a
-					: str(code = a)
-				a++
+		if T == num:
+			fun handler(yield):
+				a = self.x
+				b = self.y
+				if a < b:
+					while a <= b:
+						yield(a)
+						a++
+				else:
+					while a >= b:
+						yield(a)
+						a--
+			return Generator(handler)
 		else:
-			while a >= b:
-				yield T == num
-					? a
-					: str(code = a)
-				a--
+			fun handler(yield):
+				a = self.x.code_at(0)
+				b = self.y.code_at(0)
+				if a < b:
+						while a <= b:
+							yield(str.from_code(a))
+							a++
+					else:
+						while a >= b:
+							yield(str.from_code(a))
+							a--
+			return Generator(handler)
 	fun __incl(self, value: T):
 		[min, max] = T == num
 			? sort(self.x, self.y)
