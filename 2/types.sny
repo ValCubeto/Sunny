@@ -5,7 +5,13 @@ const true
 const false
 
 type Type
-type TypeOf<value: any?>
+type TypeOf<src: any?>
+
+type Class = {
+	__super?: Class
+	__static?: dict
+	prototype: dict.AnySize
+}
 
 type Not<...T: Type[]> = (value) => TypeOf<value> not in T
 
@@ -39,7 +45,9 @@ class dict<K?: Type = str, V?: Type = any?, size?: (Range | num) = 1 to infy>:
 	fun entries() -> [K[size], V[size]]
 
 type Param<T?: Type = any?, optional?: bool = false, default_value?: any?, rest?: bool = false>
-type Function<P?: Param[*] = [], R?: Type = void>
+type Function<P?: Param[*] = [], R?: Type = void> = {
+	name: str
+}
 type ReturnedBy<function: Function>
 
 fun print(...values: any?[], sep?: str = ' ', end?: str = $EOL) -> void
