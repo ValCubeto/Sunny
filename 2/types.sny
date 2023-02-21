@@ -33,7 +33,7 @@ class list<T?: (Type | Type[*]) = any?, size?: (Range | num) = 1 to infy>:
 	fun prepend(value: T) -> void
 
 class dict<K?: Type = str, V?: Type = any?, size?: (Range | num) = 1 to infy>:
-	fun __ctor(...entries?: [K[size], V[size]], size?: num)
+	fun __ctor(...entries?: [K[size], V[size]][*], size?: num)
 	fun keys() -> K[size]
 	fun values() -> V[size]
 	fun entries() -> [K[size], V[size]]
