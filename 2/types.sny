@@ -16,16 +16,31 @@ type bool = (true | false)
 type num<range?: Range = (-infy) to infy>
 type Range
 
-type str<size?: Range = 0 to infy>
+class str<length?: (Range | num) = 1 to infy>:
+	static:
+		fun from_code(code: num) -> str<1>
+	fun __ctor(value?: any?)
+	fun code_at(index: num) -> num
+
 type RegExp
 
-type arr<T: (Type | Type[*]), size?: Range = 1 to infy>
+class list<T?: (Type | Type[*]) = any?, size?: (Range | num) = 1 to infy>:
+	fun __ctor(...values?: T[size], size?: num)
+	fun at(index: num): T
+	fun remove(index: num) -> void
+	fun insert(value: T, index: num) -> void
+	fun add(value: T) -> void
+	fun prepend(value: T) -> void
 
-type dict<K?: Type = str, V?: Type = any?, size?: Range = 1 to infy>
+class dict<K?: Type = str, V?: Type = any?, size?: (Range | num) = 1 to infy>:
+	fun __ctor(...entries?: [K[size], V[size]], size?: num)
+	fun keys() -> K[size]
+	fun values() -> V[size]
+	fun entries() -> [K[size], V[size]]
 
 type Param<T?: Type = any?, optional?: bool = false, default_value?: any?, rest?: bool = false>
 type Function<P?: Param[*] = [], R?: Type = void>
-type ReturnedBy<function: Function> = (value) => $test(function.$rettype, value)
+type ReturnedBy<function: Function>
 
 fun print(...values: any?[], sep?: str = ' ', end?: str = $EOL) -> void
 fun typeof(value: any?) -> (
@@ -43,24 +58,33 @@ fun typeof(value: any?) -> (
 )
 fun isinstance(value: any?, type: Type) -> bool
 
-class Range:
+class Range<T?: (num | str) = num>:
 	private:
-		const x: num
-		const y: num
-	fun __ctor(x: num, y: num):
-		this += { x, y }
+		const x: T
+		const y: T
+	fun __ctor(self, x: T, y: T):
+		self += { x, y }
 	fun __fin(self):
 		if self.x == self.y:
-			return self.x
-		i = self.x
-		if self.x < self.y:
-			while i <= self.y:
-				yield i
-				i++
+			yield self.x
+			return
+		[a, b] = T == num
+			? [self.x, self.y]
+			: [self.x.code_at(0), self.y.code_at(0)]
+		if a < b:
+			while a <= b:
+				yield T == num
+					? a
+					: str(code = a)
+				a++
 		else:
-			while i >= self.y:
-				yield i
-				i--
-	fun __incl(self, value: num):
-		[min, max] = sort(self.x, self.y)
+			while a >= b:
+				yield T == num
+					? a
+					: str(code = a)
+				a--
+	fun __incl(self, value: T):
+		[min, max] = T == num
+			? sort(self.x, self.y)
+			: sort(self.x.code_at(0), self.y.code_at(0))
 		return min >= value and value <= max
