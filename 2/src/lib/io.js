@@ -1,7 +1,7 @@
 import { create } from '../values.js'
 import { print } from '../functions.js'
 
-function read() { /* c++ */ }
+function read() { /* sync code */ }
 
 /*
 read()
