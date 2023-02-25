@@ -1,0 +1,80 @@
+fun main(args: str[]):
+	/*parseargs*/
+	file = readfile()
+
+	/*Token[]*/ tokens = []
+
+	tok_acc = ''
+	tok_start_line = 0
+	tok_start_col = 0
+	TokType = {
+		Word: 1
+		Symbol: 2
+		Bracket: 3
+		Tab: 4
+		Eol: 5
+		String: 6
+		Regexp: 7
+		Number: 8
+	}
+	tok_type = '' // word,symbol,bracket,tab,eol,string,regexp,number
+
+	space_count = 0
+	TabType = {
+		None: 0
+		Tab: 1
+		Space: 2
+	}
+	tab_type = TabType.None
+
+	AccType = {
+		None: 0
+		Comment: 1
+		String: 2
+		Regexp: 3
+		Number: 4
+	}
+	acc_type = AccType.None
+	string_quote = ''
+	scaped = false
+
+	for i in file:
+		char = file[i]
+		if i == 0:
+			tok_acc = char
+			tok_type = get_token_type(char)
+			next
+		if acc_type != AccType.None:
+			if acc_type == AccType.Comment:
+				if char == '\n':
+					acc_type = AccType.None
+				next
+			if scaped:
+				tok_acc += char
+				next
+			if acc_type == AccType.String:
+				if char == string_quote:
+					tokens.push(new Token(tok_acc, tok_type, tok_start))
+					acc_type = AccType.None
+					
+				string_quote = ''
+			if acc_type == AccType.Regexp:
+				if char == '/':
+					tokens.push(new Token(tok_acc, tok_type, tok_start))
+					acc_type = AccType.None
+
+class Token:
+	__ctor(text, type, start_line, start_col):
+		print('creating ', type, ' "', text, '" at ', start_line, ':', start_col)
+		this.text = text
+		this.type = type
+		this.start_line = start_line
+		this.start_col = start_col
+
+WORD_CHARS = 'abcdefghijklmnopqrstuvwxyz' + '_' + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+DIGITS = '1234567890'
+NUMBER_CHARS = DIGITS + ".'eE-+"
+
+function get_token_type(char) {
+	return TokType.Word
+}

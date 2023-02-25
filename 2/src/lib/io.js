@@ -1,7 +1,15 @@
 import { create } from '../values.js'
 import { print } from '../functions.js'
 
-function read() {}
+function read() { /* c++ */ }
+
+/*
+read()
+write(...data)
+print
+get_rows() -> num
+get_columns() -> num
+*/
 
 const io = create.object([
 	[

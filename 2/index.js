@@ -59,4 +59,5 @@ function try_read(paths) {
 	key_throw(`File not found`)
 }
 
+// process.execArgv
 main(process.argv.slice(1))
