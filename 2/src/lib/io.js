@@ -9,6 +9,10 @@ write(...data)
 print
 get_rows() -> num
 get_columns() -> num
+set_output(stream)
+set_input(stream)
+get_stdout() -> Stream
+get_stdin() -> Stream
 */
 
 const io = create.object([

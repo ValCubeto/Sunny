@@ -38,13 +38,19 @@ class array<T?: (Type | Type[*]) = any?, size?: (Range | num) = 1 to infy>:
 	fun insert(value: T, index: num) -> void
 	fun add(value: T) -> void
 	fun prepend(value: T) -> void
-class dict<K?: Type = str, V?: Type = any?, size?: (Range | num) = 1 to infy>:
+
+class dict<K?: Not<void> = str, V?: Type = any?, size?: (Range | num) = 1 to infy>:
 	fun __ctor(...entries?: [K[size], V[size]][*], size?: num)
 	fun keys() -> K[size]
 	fun values() -> V[size]
 	fun entries() -> [K[size], V[size]]
 
-type Param<T?: Type = any?, optional?: bool = false, default_value?: any?, rest?: bool = false>
+type Param = {
+	type?: Type = any?
+	optional?: bool = false
+	default_value?: any?
+	rest?: bool = false
+}
 type Function<P?: Param[*] = [], R?: Type = void> = {
 	name: str
 }
@@ -73,8 +79,7 @@ class Range<T?: (num | str) = num>:
 		self += { x, y }
 	fun __fin(self):
 		if self.x == self.y:
-			Generator.yield(self.x)
-			return
+			return Generator.yield(self.x)
 		if T == num:
 			fun handler(yield):
 				a = self.x
