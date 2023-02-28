@@ -1,4 +1,4 @@
-fun main(args: arr) -> void:
+fun main(args: list) -> void:
 	print(args.size)
 
 

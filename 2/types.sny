@@ -26,25 +26,27 @@ type Range
 class str<length?: (Range | num) = 1 to infy>:
 	static:
 		fun from_code(code: num) -> str<1>
-	fun __ctor(value?: any?)
+	fun __ctor__(value?: any?)
 	fun code_at(index: num) -> num
 
-type RegExp
+class RegExp:
+	fun __ctor__(pattern: str, flags: str)
 
-class array<T?: (Type | Type[*]) = any?, size?: (Range | num) = 1 to infy>:
-	static type AnySize<T> = array<T, 0 to infy>
-	fun __ctor(...values?: T[size], size?: num)
+class list<T?: Type = any?, size?: (Range | num) = 1 to infy>:
+	static type AnySize<T> = list<T, 0 to infy>
+	fun __ctor__(...values?: T[size], size?: num)
 	fun at(index: num): T
 	fun remove(index: num) -> void
 	fun insert(value: T, index: num) -> void
 	fun add(value: T) -> void
 	fun prepend(value: T) -> void
 
-class dict<K?: Not<void> = str, V?: Type = any?, size?: (Range | num) = 1 to infy>:
-	fun __ctor(...entries?: [K[size], V[size]][*], size?: num)
+class dict<T?: Type = any?, K?: Not<void> = str, size?: (Range | num) = 1 to infy>:
+	fun __ctor__(...entries?: [K, V][size], size?: num)
 	fun keys() -> K[size]
 	fun values() -> V[size]
 	fun entries() -> [K, V][size]
+
 type Param = {
 	type?: Type = any?
 	optional?: bool = false
@@ -64,7 +66,7 @@ fun typeof(value: any?) -> (
 	| 'range'
 	| 'string'
 	| 'regexp'
-	| 'array',
+	| 'list',
 	| 'dict'
 	| 'function'
 	| 'class'
@@ -75,9 +77,9 @@ fun isinstance(value: any?, type: Type) -> bool
 class Range<T?: (num | str) = num>:
 	const x: T
 	const y: T
-	fun __ctor(self, x: T, y: T):
+	fun __ctor__(self, x: T, y: T):
 		self += { x, y }
-	fun __fin(self):
+	fun __forin__(self):
 		if self.x == self.y:
 			return Generator.yield(self.x)
 		if T == num:
@@ -106,7 +108,7 @@ class Range<T?: (num | str) = num>:
 							yield(str.from_code(a))
 							a--
 			return Generator(handler)
-	fun __incl(self, value: T):
+	fun __incl__(self, value: T):
 		[min, max] = T == num
 			? sort(self.x, self.y)
 			: sort(self.x.code_at(0), self.y.code_at(0))
