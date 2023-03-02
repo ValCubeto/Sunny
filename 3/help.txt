@@ -1,0 +1,2 @@
+-h     | --help        Shows this message
+-e ... | --eval=...    Evaluates the code directly from the command line
