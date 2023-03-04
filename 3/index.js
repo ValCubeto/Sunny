@@ -1,4 +1,6 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
+import { join as join_paths } from 'node:path'
+import { exit } from 'node:process'
 
 /**
  * @param {string[]} args 
@@ -21,12 +23,10 @@ function main(args) {
 		}
 		if (arg[1] !== '-') {
 			if (!ALPHA.includes(arg[1])) {
-				console.log(`Invalid flag at position ${i}`)
-				return 1
+				fail(`Invalid flag at position ${i}`)
 			}
 			if (!SHORT_FLAGS.includes(arg[1])) {
-				console.log(`Unknown flag: ${arg}`)
-				return 1
+				fail(`Unknown flag: ${arg}`)
 			}
 			if (arg[1] === 'h') {
 				display_help()
@@ -42,22 +42,18 @@ function main(args) {
 			continue
 		}
 		if (arg.length < 3) {
-			console.log(`What did you mean with ${arg} lol`)
-			return 1
+			fail(`What did you mean with ${arg} lol`)
 		}
 		if (arg.length > 21) {
-			console.log(`Flag name too long: ${arg}`)
-			return 1
+			fail(`Flag name too long: ${arg}`)
 		}
 		const flag = arg.slice(2).split('=', 1)
 		const flag_name = flag[0]
 		if (!FLAGS.includes(flag_name)) {
-			console.log(`Unknown flag: --${flag_name}`)
-			return 1
+			fail(`Unknown flag: --${flag_name}`)
 		}
 		if (FLAGS_WITH_VALUES.includes(flag_name) && flag.length < 2) {
-			console.log(`Missing flag value for --${flag_name}`)
-			return 1
+			fail(`Missing flag value for --${flag_name}`)
 		}
 		if (flag_name === 'help') {
 			display_help()
@@ -69,26 +65,36 @@ function main(args) {
 		}
 	}
 	if (expected_flag) {
-		console.log(`Missing flag value for -${expected_flag}`)
-		return 1
+		fail(`Missing flag value for -${expected_flag}`)
 	}
-	/* if (flags[0].name === 'help') {
-		return 0
-	} */
+
 	let code = ''
 	if (from_cmd_line) {
 		code = exec_flags['e']
 	} else {
 		if (i >= args.length) {
-			console.log('Missing file path')
-			return 1
+			fail('Missing file path')
 		}
 		const file_relative_path = args[i]
+
+		const path = join_paths(process.cwd(), file_relative_path)
+		const has_extension = file_relative_path.length >= EXTENSION.length && file_relative_path.slice(-EXTENSION.length).toLowerCase() === EXTENSION
+		code = try_read(has_extension ? [path] : [path, path + EXTENSION])
 	}
 	const exec_args = args.slice(i + 1)
 	console.log({ executor_path, exec_flags, exec_args, code })
 	return 0
 }
+
+function fail(message) {
+	console.error(message)
+	console.error('')
+	console.error(`${PROGRAM_NAME} ${VERSION}`)
+}
+
+const PROGRAM_NAME = 'Sunny'
+const VERSION = '1.0'
+const EXTENSION = '.sny'
 
 function display_help() {
 	const text = readFileSync('./help.txt').toString()
@@ -118,6 +124,26 @@ const ALPHA_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const ALPHA = ALPHA_LOWER + ALPHA_UPPER
 const IDENTIFIER_CHARS = ALPHA_LOWER + '_' + ALPHA_UPPER
 const DIGITS = '1234567890'
+const NUMBER_CHARS = DIGITS + `.'e-+`
 
-const exit_code = main(process.argv.slice(1))
-process.exit(exit_code)
+function try_read(paths) {
+	for (const path of paths) {
+		if (!existsSync(path)) {
+			continue
+		}
+		if (!statSync(path).isFile()) {
+			console.log(`"${paths[0]}" is not a file`)
+			exit(1)
+		}
+		try {
+			const file = readFileSync(path).toString()
+			return file
+		} catch (error) {
+			fail(`Failed to read "${path}" (code: ${error.code})`)
+		}
+	}
+	console.log(`File "${paths[0]}" not found`)
+	exit(1)
+}
+
+main(process.argv.slice(1))
