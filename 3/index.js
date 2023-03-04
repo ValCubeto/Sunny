@@ -125,6 +125,13 @@ const ALPHA = ALPHA_LOWER + ALPHA_UPPER
 const IDENTIFIER_CHARS = ALPHA_LOWER + '_' + ALPHA_UPPER
 const DIGITS = '1234567890'
 const NUMBER_CHARS = DIGITS + `.'e-+`
+const OPERATORS = '+-*/'
+const KEYWORDS = [
+	'if', 'else',
+	'var', 'const',
+	'class', 'fun',
+	'import'
+]
 
 function try_read(paths) {
 	for (const path of paths) {
