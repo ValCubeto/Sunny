@@ -7,17 +7,18 @@ import { exit } from 'node:process'
  */
 function main(args) {
 	const executor_path = args[0]
-	const exec_flags = {}
-	let expected_flag = ''
-	let i = 0
-	let from_cmd_line = false
-	for (i = 1; i < args.length; i++) {
-		if (args[i][0] !== '-') break
-		if (args[i] === '-h' || args[i] === '--help') {
+	const flags = []
+	// let expected_flag = ''
+	let args_index = 0
+	let code = ''
+	let file = '' // '<eval>'
+	for (args_index = 1; args_index < args.length; args_index++) {
+		if (args[args_index][0] !== '-') break
+		if (args[args_index] === '-h' || args[args_index] === '--help') {
 			display_help()
 			return
 		}
-		exec_flags.push()
+		flags.push(args[args_index])
 		/* const arg = args[i]
 		if (expected_flag !== '') {
 			exec_flags[expected_flag] = arg
@@ -75,21 +76,71 @@ function main(args) {
 		fail(`Missing flag value for -${expected_flag}`) */
 	}
 
-	let code = ''
-	if (from_cmd_line) {
-		code = exec_flags['e']
-	} else {
-		if (i >= args.length) {
+	if (code === '') {
+		if (args_index >= args.length) {
 			fail('Missing file path')
 		}
-		const file_relative_path = args[i]
+		const relative_path = args[args_index]
 
-		const path = join_paths(process.cwd(), file_relative_path)
-		const has_extension = file_relative_path.length >= EXTENSION.length && file_relative_path.slice(-EXTENSION.length).toLowerCase() === EXTENSION
-		code = try_read(has_extension ? [path] : [path, path + EXTENSION])
+		const path = join_paths(process.cwd(), relative_path)
+		const has_extension = relative_path.length >= EXTENSION.length && relative_path.slice(-EXTENSION.length).toLowerCase() === EXTENSION
+		if (has_extension) {
+			[code, file] = try_read([path])
+		} else {
+			[code, file] = try_read([path, path + EXTENSION])
+		}
 	}
-	const exec_args = args.slice(i + 1)
-	console.log({ executor_path, exec_flags, exec_args, code })
+	const exec_args = args.slice(args_index + 1)
+	console.log('[debug]', { executor_path, /* exec_ */flags, exec_args, code })
+
+	function get_token_type(char) {
+		if (char === ' ')
+			return TokenType.Space
+		if (char === '\t')
+			return TokenType.Tab
+		if (char === '\n')
+			return TokenType.Eol
+		if (DIGITS.includes(char))
+			return TokenType.Number
+		if (IDENTIFIER_CHARS.includes(char))
+			return TokenType.Word
+		if (QUOTES.includes(char))
+			return TokenType.String
+		if (OPERATOR_CHARS.includes(char))
+			return TokenType.Operator
+		fail(`SyntaxError: unexpected char \\${char.charCodeAt(0).toString(16)}\n\tat ${file}:${line}:${column}`)
+	}
+
+	let line = 0
+	let column = 0
+	let tokens = []
+	let token_text = code[0]
+	let token_type = get_token_type(token_text)
+	let space_count = TokenType.Eol === token_type ? 0 : 1
+
+	for (let i = 1; i < code.length; i++) {
+		const char = code[i]
+		if (token_type === TokenType.None) {
+			token_type = get_token_type(char)
+			token_text = char
+			console.log({ line, column, token_type })
+			continue
+		}
+		if (token_type === TokenType.Space) {}
+		console.log('ignored', char)
+	}
+}
+
+const TokenType = {
+	None: 0,
+	Space: 4,
+	Tab: 2,
+	Eol: 3,
+	Word: 1,
+	Number: 5,
+	String: 6,
+	// Regexp: 7,
+	Operator: 8
 }
 
 function fail(message) {
@@ -131,13 +182,21 @@ const ALPHA_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const ALPHA = ALPHA_LOWER + ALPHA_UPPER
 const IDENTIFIER_CHARS = ALPHA_LOWER + '_' + ALPHA_UPPER
 const DIGITS = '1234567890'
-const NUMBER_CHARS = DIGITS + `.'e-+`
-const OPERATORS = '+-*/'
+const QUOTES = `'"`
+const OPERATOR_CHARS = '+-*/'
+const OPERATORS = [
+	'+',
+	'-',
+	'*',
+	'/',
+	'**'
+]
 const KEYWORDS = [
 	'if', 'else',
+	'match',
 	'var', 'const',
 	'class', 'fun',
-	'import'
+	'import', 'as', 'from'
 ]
 
 function try_read(paths) {
@@ -146,18 +205,16 @@ function try_read(paths) {
 			continue
 		}
 		if (!statSync(path).isFile()) {
-			console.log(`"${paths[0]}" is not a file`)
-			exit(1)
+			fail(`"${paths[0]}" is not a file`)
 		}
 		try {
 			const file = readFileSync(path).toString()
-			return file
+			return [file, path]
 		} catch (error) {
 			fail(`Failed to read "${path}" (code: ${error.code})`)
 		}
 	}
-	console.log(`File "${paths[0]}" not found`)
-	exit(1)
+	fail(`File "${paths[0]}" not found`)
 }
 
 main(process.argv.slice(1))
