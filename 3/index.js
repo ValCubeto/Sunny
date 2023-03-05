@@ -12,7 +12,13 @@ function main(args) {
 	let i = 0
 	let from_cmd_line = false
 	for (i = 1; i < args.length; i++) {
-		const arg = args[i]
+		if (args[i][0] !== '-') break
+		if (args[i] === '-h' || args[i] === '--help') {
+			display_help()
+			return
+		}
+		exec_flags.push()
+		/* const arg = args[i]
 		if (expected_flag !== '') {
 			exec_flags[expected_flag] = arg
 			expected_flag = ''
@@ -36,9 +42,10 @@ function main(args) {
 				from_cmd_line = true
 			}
 			if (SHORT_FLAGS_WITH_VALUES.includes(arg[1])) {
-				expected_flag = arg[1]
+				expected_flag = arg
 				continue
 			}
+			exec_flags[arg[1]] = 'y'
 			continue
 		}
 		if (arg.length < 3) {
@@ -65,7 +72,7 @@ function main(args) {
 		}
 	}
 	if (expected_flag) {
-		fail(`Missing flag value for -${expected_flag}`)
+		fail(`Missing flag value for -${expected_flag}`) */
 	}
 
 	let code = ''
@@ -83,13 +90,11 @@ function main(args) {
 	}
 	const exec_args = args.slice(i + 1)
 	console.log({ executor_path, exec_flags, exec_args, code })
-	return 0
 }
 
 function fail(message) {
 	console.error(message)
-	console.error('')
-	console.error(`${PROGRAM_NAME} ${VERSION}`)
+	exit(1)
 }
 
 const PROGRAM_NAME = 'Sunny'
@@ -104,11 +109,13 @@ function display_help() {
 const FLAGS = [
 	'help',
 	'eval',
+	'test',
 ]
 
 const SHORT_FLAGS = [
 	'h',
 	'e',
+	't',
 ]
 
 const FLAGS_WITH_VALUES = [
