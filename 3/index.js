@@ -116,7 +116,7 @@ function main(args) {
 	let tokens = []
 	let token_text = code[0]
 	let token_type = get_token_type(token_text)
-	let space_count = TokenType.Eol === token_type ? 0 : 1
+	let space_count = TokenType.Eol === token_type ? 1 : 0
 
 	for (let i = 1; i < code.length; i++) {
 		const char = code[i]
@@ -126,7 +126,9 @@ function main(args) {
 			console.log({ line, column, token_type })
 			continue
 		}
-		if (token_type === TokenType.Space) {}
+		if (token_type === TokenType.Space) {
+			//
+		}
 		console.log('ignored', char)
 	}
 }
