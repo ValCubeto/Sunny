@@ -108,7 +108,9 @@ function main(args) {
 			return TokenType.String
 		if (OPERATOR_CHARS.includes(char))
 			return TokenType.Operator
-		fail(`SyntaxError: unexpected char \\${char.charCodeAt(0).toString(16)}\n\tat ${file}:${line}:${column}`)
+		if (BRACKET_CHARS.includes(char))
+			return TokenType.Bracket
+		fail(`SyntaxError: unexpected char \\${char.charCodeAt(0).toString(16)} "${char}"\n\tat ${file}:${line}:${column}`)
 	}
 
 	let line = 0
@@ -116,6 +118,10 @@ function main(args) {
 	let tokens = []
 	let token_text = code[0]
 	let token_type = get_token_type(token_text)
+	if (token_type === TokenType.Space || token_type === TokenType.Tab) {
+		fail(`SyntaxError: unexpected indentation\n\tat ${file}:1:1`)
+	}
+	console.log({ token_text, token_type })
 	let space_count = TokenType.Eol === token_type ? 1 : 0
 
 	for (let i = 1; i < code.length; i++) {
@@ -123,13 +129,26 @@ function main(args) {
 		if (token_type === TokenType.None) {
 			token_type = get_token_type(char)
 			token_text = char
-			console.log({ line, column, token_type })
+			console.log({ i, token_text, token_type })
 			continue
 		}
-		if (token_type === TokenType.Space) {
-			//
+		if (token_type === TokenType.Eol) {
+			space_count++
+			continue
 		}
-		console.log('ignored', char)
+		const current_type = get_token_type(char)
+		if (tokens.length > 0 && tokens.at(-1).type === TokenType.Eol && token_type === TokenType.Space && current_type === TokenType.Tab || token_type === TokenType.Tab && current_type === TokenType.Space) {
+			fail(`SyntaxError: uncompatible indentation\n\tat ${file}:${line}:${column}`)
+		}
+		if (token_type !== get_token_type(char)) {
+			const token = { text: token_text, type: token_type, start: [line, column] }
+			console.log('[debug] pushing', token)
+			tokens.push(token)
+			token_text = ''
+			token_type = TokenType.None
+			continue
+		}
+		token_text += char
 	}
 }
 
@@ -141,6 +160,7 @@ const TokenType = {
 	Word: 1,
 	Number: 5,
 	String: 6,
+	Bracket: 9,
 	// Regexp: 7,
 	Operator: 8
 }
@@ -186,6 +206,7 @@ const IDENTIFIER_CHARS = ALPHA_LOWER + '_' + ALPHA_UPPER
 const DIGITS = '1234567890'
 const QUOTES = `'"`
 const OPERATOR_CHARS = '+-*/'
+const BRACKET_CHARS = '()[]{}'
 const OPERATORS = [
 	'+',
 	'-',
