@@ -110,7 +110,7 @@ function main(args) {
 			return TokenType.Operator
 		if (BRACKET_CHARS.includes(char))
 			return TokenType.Bracket
-		fail(`SyntaxError: unexpected char \\${char.charCodeAt(0).toString(16)} "${char}"\n\tat ${file}:${line}:${column}`)
+		fail(`SyntaxError: unknown char '\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}'\n\tat ${file}:${line}:${column}`)
 	}
 
 	let line = 0
@@ -121,7 +121,6 @@ function main(args) {
 	if (token_type === TokenType.Space || token_type === TokenType.Tab) {
 		fail(`SyntaxError: unexpected indentation\n\tat ${file}:1:1`)
 	}
-	console.log({ token_text, token_type })
 	let space_count = TokenType.Eol === token_type ? 1 : 0
 
 	for (let i = 1; i < code.length; i++) {
@@ -129,7 +128,7 @@ function main(args) {
 		if (token_type === TokenType.None) {
 			token_type = get_token_type(char)
 			token_text = char
-			console.log({ i, token_text, token_type })
+			//console.log({ i, token_text, token_type })
 			continue
 		}
 		if (token_type === TokenType.Eol) {
