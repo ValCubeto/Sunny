@@ -25,7 +25,7 @@ fn main() -> ExitCode {
 
 	let exec_args = args.section(last_flag_index, args.len() - 1);
 	let file_relative_path = args[args.len() - 1];
-	let file_path = realpath(file_relative_path);
+	let mut file_path = realpath(file_relative_path); // add the extension if necesary
 
 	// check if exists
 	// check is a file
@@ -33,7 +33,7 @@ fn main() -> ExitCode {
 	let file: fs::File = match fs::File::open(file_path) {
 		Ok(file) => file,
 		Err(error) => {
-			eprintln!("Failed to read: {error}");
+			eprintln!("Failed to read \"{file_relative_path}\": {error}");
 			return ExitCode::FAILURE;
 		}
 	};
