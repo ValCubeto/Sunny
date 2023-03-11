@@ -1,6 +1,7 @@
 use std::process::ExitCode;
 use std::env;
 use std::path::Path;
+use std::ffi::OsString;
 use std::fs;
 use std::collections::HashMap;
 
@@ -29,10 +30,12 @@ fn main() -> ExitCode {
 	dbg!(&path_arg);
 	dbg!(&args);
 
-	let code = match try_read([&path_arg, &(path_arg.clone() + EXTENSION)]) {
-		Ok(data) => data,
+	let (file_path, code): (OsString, String) = match try_read([&path_arg, &(path_arg.clone() + EXTENSION)]) {
+		Ok(file) => file,
 		Err(exit_code) => return exit_code
 	};
+
+	dbg!(&file_path);
 
 	/*
 	let mut tokens: Vec<Token> = Vec::new();
@@ -46,7 +49,8 @@ fn main() -> ExitCode {
 	return ExitCode::SUCCESS;
 }
 
-fn try_read(paths: [&String; 2]) -> Result<String, ExitCode> {
+// returns the path read and the content of the file
+fn try_read(paths: [&String; 2]) -> Result<(OsString, String), ExitCode> {
 	for path in paths.clone() {
 		if !Path::new(&path).exists() {
 			continue;
@@ -62,7 +66,14 @@ fn try_read(paths: [&String; 2]) -> Result<String, ExitCode> {
 				return Err(ExitCode::FAILURE);
 			}
 		};
-		return Ok(file);
+		let real_path = match Path::new(&path).canonicalize() {
+			Ok(new) => new.into_os_string(),
+			Err(_) => {
+				eprintln!("[cannot canonicalize the path argument]");
+				OsString::from(path.clone())
+			}
+		};
+		return Ok((real_path, file));
 	}
 	eprintln!("File \"{}\" not found", paths[0]);
 	return Err(ExitCode::FAILURE);
@@ -83,5 +94,5 @@ struct Token {
 #[derive(Debug)]
 struct Flag {
 	name: String,
-	value: Option<String> // OsString | None
+	value: Option<String>
 }
