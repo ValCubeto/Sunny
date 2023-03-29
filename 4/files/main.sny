@@ -1,31 +1,29 @@
-# = 'hola'
+# This is a comment
+'hello world'
+123 # a number
+''
+12# 'a'
 
-fun main() {
+fun main(args) {
 	println('Hello world!')
-	for i in 0 to 10 {
-		println({ i })
+}
+
+fun require(f, ...modules: str[]) -> Copy<f> {
+	fun handler(...args) {
+		for module in modules {
+			unless exists(module) {
+				throw ReferenceError::new('module ${module} required')
+			}
+		}
+		f(...args)
 	}
 }
 
-
-if logged_in {
-	println({ user })
-	# {
-	# 	user := User {
-	# 		name := 'Jhon'
-	# 		age := 30
-	# 	}
-	# }
-} else if age >= 18 {
-	println('allowed')
+@require('random::new as get_random')
+fun pick_an_item(items: list) {
+	return items.at(random::new(0 to items.len()))
 }
 
-try {
-	list(0 to 10)
-	(0 to 10).to_list()
-} # <$(typeof(src) != 'object' ? typeof(src) : src.<proto>.constructor.name)>.$(prop_name) is not a function
-
-infinity
--infinity
-none
-
+fun main(args: str[*]) -> none {
+	return 0
+}

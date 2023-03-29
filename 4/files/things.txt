@@ -1,0 +1,45 @@
+spaces = ' '* | '\t'* | ['\r'? '\n']*
+identifier = ['a'...'z' | '_' | 'A'...'Z']{>0}
+eol = '\n'
+semicol = ';'
+code_block = '{' spaces '}' | '{' spaces code spaces '}'
+operator = '+' | '-' | '*' | '/' | '**' | '%'
+operation = value spaces operator spaces [value | operation]
+string = '\'' ** '\'' | '"' ** '"'
+number = 
+	| [0...9]{>0} ['\'' [0...9]{>0}]? ['.' [0...9]{>0}]? [['E' | 'e'] ['+' | '-']? [0...9]{>0}]?
+	| '0x' [0...9 | 'a'...'f' | 'A'...'F']{>0}
+	| '0b' [0 | 1]{>0}
+optionally_repeated(text) = text [spaces ',' spaces text]*
+dict = '{' spaces optionally_repeated(declaration) spaces '}'
+list = '[' spaces optionally_repeated(expression) spaces ']'
+value = string | number | lambda | dict | list
+get_property = expression spaces ['.' identifier | '[' spaces expression spaces ']']
+call = [identifier | '(' expression ')' | get_property] spaces arg_list
+expression = identifier | value | operation | call | get_property
+if_statment = 'if' expression code_block
+if_else_statment = if_statment 'else' [if_statment | if_else_statment | code_block]
+try_catch_statment =
+	'try' spaces code_block spaces
+	'catch ' spaces expression spaces [' as ' spaces identifier spaces]? code_block
+argument = [identifier spaces ':' spaces]? expression
+arg_list = '('spaces')' | '(' spaces optionally_repeated(argument) spaces ')'
+param = identifier spaces ['=' spaces expression]? [':' spaces expression]?
+param_list = '(' spaces ')' | '(' spaces optionally_repeated(param) spaces ')'
+optional_return_type = (spaces '->' spaces expression)?
+fun_declaration = 'fun ' identifier param_list optional_return_type spaces code_block
+lambda = param_list optional_return_type spaces '=>' spaces code_block
+class_declaration = 'class ' spaces identifier [spaces ' extends ' spaces identifier]? spaces [
+	| '{' spaces '}'
+	| '{' [
+			| ['test' | 'new'] spaces param_list optional_return_type spaces code_block
+			| ['private' | 'static' | 'public']? declaration
+		] '}'
+]
+declaration_no_kw = identifier spaces [':' spaces expression spaces]? '=' spaces expression
+var_declaration = 'var ' spaces [declaration_no_kw | identifier] | 'var ' spaces identifier spaces ':' spaces expression
+var_declaration = 'const ' spaces declaration_no_kw
+declaration = declaration_no_kw | var_declaration | const_declaration | fun_declaration | type_declaration | class_declaration
+statment = expression | if_statment | if_else_statment | try_catch_statment | function_declaration | class_declaration | declaration
+code = statment [spaces [eol | semicol] spaces [statment]]*
+errors = ['Syntax' | 'Range' | 'Internal' | 'Load' | 'Argument' | 'Type']? 'Error'
