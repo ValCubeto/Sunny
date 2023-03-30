@@ -12,10 +12,11 @@ const VERSION: &str = "1.0.0";
 
 const EXTENSION: &str = "sny";
 
-const SPACES: &str = " \r\t";
+const SPACES: &str = "\u{20}\r\t";
 const WORD_CHARS: &str = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const DIGITS: &str = "1234567890";
 
+#[allow(clippy::print_literal)] // bug when using file!()
 fn main() {
 	let mut args: Vec<String> = vec![];
 	// env::args() will panic if there is an invalid input
@@ -116,27 +117,21 @@ fn main() {
 
 	let mut tokens: Vec<(TokenType, Option<String>)> = vec![];
 
-	// let mut line_index: usize = 1;
 	#[allow(unused)]
 	let mut expression_done: bool = true;
 	
 	// TODO: put it into the 'eval' function
-	for (mut line_index, line) in file.lines().enumerate() {
-		line_index += 1; // one-based
-		let next_char = |chars: &mut std::str::Chars, column: usize| -> char {
-			match chars.next() {
-				None => {
-					eprintln!("InternalError: failed to read the character\n    at {}:{}:{}", file_path, line_index, column);
-					exit(1);
-				},
-				Some(c) => c
-			}
-		};
+	for (line_index, line) in file.lines().enumerate() {
+		let line_index: usize = line_index + 1; // one-based
 		let line: &str = line.trim();
+
+		dbg!(&line_index);
+
 		if line.is_empty() {
 			println!("empty line");
 			continue;
 		}
+
 		println!("line {}: {:?}", line_index, line);
 		let mut column: usize = 1;
 		
@@ -145,12 +140,17 @@ fn main() {
 			exit(1);
 		}
 
-		let mut chars: std::str::Chars = line.chars();
+		let chars: Vec<char> = line.chars().collect::<Vec<char>>();
+		let mut char_index: usize = 0;
+		let mut c: char = chars[char_index];
+
 		/* 'main_loop: */
 		while column < line.len() {
-			// let token_start: usize;
-			let mut c: char = next_char(&mut chars, column);
-			// println!("column {}: '{}'", column, c);
+			char_index += 1;
+			c = chars[char_index];
+
+			dbg!(&char_index);
+
 			if c == ';' {
 				eprintln!("SyntaxError: semicolons are not allowed\n    at {}:{}:{}", file_path, line_index, column);
 				exit(1);
@@ -164,7 +164,8 @@ fn main() {
 			} else if c == '\'' || c == '"' {
 				println!("[{}:{}:{}] {} at {}:{}:{}", file!(), line!(), column!(), c, file_path, line_index, column);
 				let quote: char = c;
-				c = next_char(&mut chars, column);
+				char_index += 1;
+				c = chars[char_index];
 				let string_start: usize = column;
 				column += 1;
 				let mut string: String = String::new();
@@ -175,7 +176,8 @@ fn main() {
 						exit(1);
 					}
 					string.push(c);
-					c = next_char(&mut chars, column);
+					char_index += 1;
+					c = chars[char_index];
 					column += 1;
 				}
 				println!("[{}:{}:{}] {} at {}:{}:{}", file!(), line!(), column!(), c, file_path, line_index, column);
@@ -191,7 +193,8 @@ fn main() {
 						break;
 					}
 					if c == '\'' {
-						c = next_char(&mut chars, column);
+						char_index += 1;
+						c = chars[char_index];
 						column += 1;
 						continue;
 					}
@@ -199,13 +202,16 @@ fn main() {
 						while DIGITS.contains(c) {
 							println!("[{}:{}:{}] {} at {}:{}:{}", file!(), line!(), column!(), c, file_path, line_index, column);
 							number.push(c); 
-							c = next_char(&mut chars, column);
+							char_index += 1;
+							c = chars[char_index];
 							column += 1;
 						}
 					}
+					char_index -= 1;
 					println!("[{}:{}:{}] {} at {}:{}:{}", file!(), line!(), column!(), c, file_path, line_index, column);
 					number.push(c);
-					c = next_char(&mut chars, column);
+					char_index += 1;
+					c = chars[char_index];
 					column += 1;
 				}
 				println!("tokens.push Number {}", number);
