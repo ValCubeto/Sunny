@@ -5,23 +5,18 @@
 12# 'a'
 
 fun main(args) {
-	println('Hello world!')
+	println('Hello world')
 }
 
-fun require(f, ...modules: str[]) -> Copy<f> {
-	fun handler(...args) {
-		for module in modules {
-			unless exists(module) {
-				throw ReferenceError::new('module ${module} required')
-			}
-		}
-		f(...args)
-	}
-}
 
-@require('random::new as get_random')
-fun pick_an_item(items: list) {
+@require({ random: 'random' })
+fun pick(items: list) {
 	return items.at(random::new(0 to items.len()))
+}
+
+class range<T: num + Not<(-infinity), infinity> | str::char> {
+	static fun new(x: T, y: T);
+
 }
 
 fun main(args: str[*]) -> none {

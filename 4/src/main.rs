@@ -24,9 +24,10 @@ fn main() {
 		args.push(arg_os.to_string_lossy().to_string());
 	}
 
-	#[allow(unused)]
 	let executor_path: String = resolve_path(PathBuf::from(args.remove(0)));
-	
+
+	println!("[debug] executor_path = {:?}", executor_path);
+
 	if args.is_empty() {
 		println!("TODO: interactive mode");
 		eprintln!("ArgumentError: no arguments provided");
@@ -105,132 +106,127 @@ fn main() {
 		exit(0);
 	}
 
-	dbg!(&flags);
+	println!("[debug] flags = {:?}", flags);
 	// #endregion flags
 	
-	let (file_path, file): (String, String) = import(args.remove(0));
+	let (file_path, file): (String, String) = read_file(args.remove(0));
 	
-	dbg!(&args);
-	dbg!(&file_path);
+	println!("[debug] args = {:?}", args);
+	println!("[debug] file_path = {:?}", file_path);
 
-	println!();
+	#[allow(unused)]
+	#[derive(PartialEq, Debug)]
+	enum TokenType {
+		Eol,
+		Semicol,
+		Word,
+		Number,
+		String,
+		Operator,
+		Bracket
+	}
 
 	let mut tokens: Vec<(TokenType, Option<String>)> = vec![];
 
 	#[allow(unused)]
-	let mut expression_done: bool = true;
-	
+	#[derive(PartialEq)]
+	enum ExpressionStatus {
+		Done,
+		Maybe,
+		Must,
+	}
+
+	let mut expression_status: ExpressionStatus = ExpressionStatus::Done;
+
+	let lines: Vec<&str> = file.lines().collect::<Vec<&str>>();
+
 	// TODO: put it into the 'eval' function
-	for (line_index, line) in file.lines().enumerate() {
-		let line_index: usize = line_index + 1; // one-based
+	for (row, line) in lines.iter().enumerate() {
+		println!();
+
+		let row: usize = row + 1; // one-based
 		let line: &str = line.trim();
 
-		dbg!(&line_index);
-
 		if line.is_empty() {
-			println!("empty line");
+			println!("[debug] lines[{}] = \"\"", row);
 			continue;
 		}
 
-		println!("line {}: {:?}", line_index, line);
-		let mut column: usize = 1;
-		
-		if line.len() > 255 {
-			eprintln!("SyntaxError: max line length\n    at {}:{}:255", file_path, line_index);
-			exit(1);
-		}
+		println!("[debug] lines[{}] = {:?}", row - 1, line);
 
 		let chars: Vec<char> = line.chars().collect::<Vec<char>>();
-		let mut char_index: usize = 0;
-		let mut c: char = chars[char_index];
+		let mut column: usize = 0;
+		let mut current: char = chars[column];
 
-		/* 'main_loop: */
 		while column < line.len() {
-			char_index += 1;
-			c = chars[char_index];
+			println!("[debug] column = {}", column);
 
-			dbg!(&char_index);
-
-			if c == ';' {
-				eprintln!("SyntaxError: semicolons are not allowed\n    at {}:{}:{}", file_path, line_index, column);
-				exit(1);
-			} else if c == '#' {
-				// println!("Comment found, breaking the sub-loop");
-				break;
-			} else if SPACES.contains(c) {
-				println!("[{}:{}:{}] space at {}:{}:{}", file!(), line!(), column!(), file_path, line_index, column);
-				column += 1;
-				continue;
-			} else if c == '\'' || c == '"' {
-				println!("[{}:{}:{}] {} at {}:{}:{}", file!(), line!(), column!(), c, file_path, line_index, column);
-				let quote: char = c;
-				char_index += 1;
-				c = chars[char_index];
-				let string_start: usize = column;
-				column += 1;
-				let mut string: String = String::new();
-				while c != quote {
-					println!("[{}:{}:{}] {} at {}:{}:{}", file!(), line!(), column!(), c, file_path, line_index, column);
-					if column >= line.len() {
-						eprintln!("SyntaxError: unclosed string\n    at {}:{}:{}", file_path, line_index, string_start);
+			if current == ';' {
+				if expression_status != ExpressionStatus::Done {
+					if expression_status == ExpressionStatus::Must {
+						eprintln!("SyntaxError: unexpected semicolon");
 						exit(1);
 					}
-					string.push(c);
-					char_index += 1;
-					c = chars[char_index];
-					column += 1;
+					expression_status = ExpressionStatus::Done;
 				}
-				println!("[{}:{}:{}] {} at {}:{}:{}", file!(), line!(), column!(), c, file_path, line_index, column);
+				continue;
+			} else if current == '#' {
+				println!("[debug] comment found");
+				break;
+			} else if SPACES.contains(current) {
+				println!("[debug] space found");
 				column += 1;
-				println!("tokens.push String {:?}", string);
-				tokens.push((TokenType::String, Some(string)));
-			} else if WORD_CHARS.contains(c) {
-				panic!("word");
-			} else if DIGITS.contains(c) {
-				let mut number: String = String::new();
-				loop {
-					if !DIGITS.contains(c) {
-						break;
-					}
-					if c == '\'' {
-						char_index += 1;
-						c = chars[char_index];
-						column += 1;
-						continue;
-					}
-					if c == '.' {
-						while DIGITS.contains(c) {
-							println!("[{}:{}:{}] {} at {}:{}:{}", file!(), line!(), column!(), c, file_path, line_index, column);
-							number.push(c); 
-							char_index += 1;
-							c = chars[char_index];
-							column += 1;
-						}
-					}
-					char_index -= 1;
-					println!("[{}:{}:{}] {} at {}:{}:{}", file!(), line!(), column!(), c, file_path, line_index, column);
-					number.push(c);
-					char_index += 1;
-					c = chars[char_index];
+				continue;
+			} else if current == '\'' || current == '"' {
+				let quote: char = current;
+				column += 1;
+				current = chars[column];
+				let string_start: usize = column;
+				let mut string: String = String::new();
+				while current != quote {
 					column += 1;
+					if column >= chars.len() {
+						eprintln!("SyntaxError: unclosed string\n    at {}:{}:{}", file_path, row, string_start);
+						exit(1);
+					}
+					string.push(current);
+					current = chars[column];
 				}
-				println!("tokens.push Number {}", number);
+				println!("[debug] tokens.push((String, {:?}))", string);
+				tokens.push((TokenType::String, Some(string)));
+			} else if WORD_CHARS.contains(current) {
+				panic!("word");
+			} else if DIGITS.contains(current) {
+				let mut number: String = String::from(current);
+				column += 1;
+				current = chars[column];
+				while DIGITS.contains(current) {
+					println!("[debug] pushing {}", current);
+					number.push(current);
+					column += 1;
+					current = chars[column];
+				}
+				column -= 1;
+				current = chars[column];
+				println!("[debug] tokens.push((Number, {}))", number);
 				tokens.push((TokenType::Number, Some(number)));
 			} else {
-				eprintln!("SyntaxError: invalid character \"{}\"\n    at {}:{}:{}", c, file_path, line_index, column);
+				eprintln!("SyntaxError: invalid character \"{}\"\n    at {}:{}:{}", current, file_path, row, column);
 				exit(1);
 			}
 			column += 1;
 		}
-		if expression_done {
+		if expression_status != ExpressionStatus::Must {
 			tokens.push((TokenType::Eol, None));
-			println!("tokens.push Eol");
+			println!("[debug] tokens.push((Eol, None))");
 		}
-		// line_index += 1;
+		// row += 1;
 	}
 	println!();
-	dbg!(&tokens);
+	println!("[debug] tokens = {:?}", tokens);
 	println!();
+	// for (token_type, value) in tokens {
+	// }
 }
 
 fn get_full_path(relative: String) -> String {
@@ -262,9 +258,9 @@ fn resolve_path(path: PathBuf) -> String {
 	}
 } 
 
-fn import(relative: String) -> (String, String) {
+fn read_file(relative: String) -> (String, String) {
 	let mut path: PathBuf = PathBuf::from(&relative);
-	let full_path = get_full_path(relative);
+	let full_path: String = get_full_path(relative);
 	if !path.exists() {
 		path.set_extension(EXTENSION);
 		if !path.exists() {
@@ -283,16 +279,4 @@ fn import(relative: String) -> (String, String) {
 		}
 		Ok(file) => (resolve_path(path), file)
 	}
-}
-
-#[allow(unused)]
-#[derive(PartialEq, Debug)]
-enum TokenType {
-	Eol,
-	Semicol,
-	Word,
-	Number,
-	String,
-	Operator,
-	Bracket
 }
