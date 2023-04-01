@@ -14,7 +14,7 @@ fun pick(items: list) {
 	return items.at(random::new(0 to items.len()))
 }
 
-class range<T: num + Not<(-infinity), infinity> | str::char> {
+class range<T: Not<(-infinity), infinity> + num | str::char> {
 	static fun new(x: T, y: T);
 
 }
