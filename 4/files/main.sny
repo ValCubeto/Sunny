@@ -14,10 +14,23 @@ fun pick(items: list) {
 	return items.at(random::new(0 to items.len()))
 }
 
-class range<T: Not<(-infinity), infinity> + num | str::char> {
-	static fun new(x: T, y: T);
-
+class range {
+	private const T = Not<(-infinity), infinity> + num
+	static class CharRange {
+		private const T = str::char
+		static fun new(x: T, y: T) {}
+	}
+	private {
+		const x: T;
+		const y: T;
+	}
+	static fun new(self: Self, x: T, y: T) {
+		self += { x, y }
+	};
+	fun set_inclusive(inclusive: bool as IsInclusive);
 }
+
+const int: range = range<str::char>::new()
 
 fun main(args: str[*]) -> none {
 	return 0
