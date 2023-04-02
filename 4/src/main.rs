@@ -111,8 +111,8 @@ fn main() {
 	
 	let (file_path, file): (String, String) = read_file(args.remove(0));
 	
-	println!("[debug] args = {:?}", args);
 	println!("[debug] file_path = {:?}", file_path);
+	println!("[debug] args = {:?}", args);
 
 	#[allow(unused)]
 	#[derive(PartialEq, Debug)]
@@ -131,28 +131,29 @@ fn main() {
 	#[allow(unused)]
 	#[derive(PartialEq)]
 	enum ExpressionStatus {
-		Done,
-		Maybe,
-		Must,
+		Done,  // println('hello world');
+		Maybe, // println('hello world')
+		Must,  // println('hello world'
 	}
 
 	let mut expression_status: ExpressionStatus = ExpressionStatus::Done;
 
-	let lines: Vec<&str> = file.lines().collect::<Vec<&str>>();
+	// for errors
+	let mut lines: Vec<&str> = vec![];
 
 	// TODO: put it into the 'eval' function
-	for (row, line) in lines.iter().enumerate() {
+	for (row, line) in file.lines().enumerate() {
 		println!();
 
-		let row: usize = row + 1; // one-based
 		let line: &str = line.trim();
+		lines.push(line);
 
 		if line.is_empty() {
 			println!("[debug] lines[{}] = \"\"", row);
 			continue;
 		}
 
-		println!("[debug] lines[{}] = {:?}", row - 1, line);
+		println!("[debug] lines[{}] = {:?}", row, line);
 
 		let chars: Vec<char> = line.chars().collect::<Vec<char>>();
 		let mut column: usize = 0;
@@ -181,12 +182,12 @@ fn main() {
 				let quote: char = current;
 				column += 1;
 				current = chars[column];
-				let string_start: usize = column;
+				let token_start: usize = column;
 				let mut string: String = String::new();
 				while current != quote {
 					column += 1;
 					if column >= chars.len() {
-						eprintln!("SyntaxError: unclosed string\n    at {}:{}:{}", file_path, row, string_start);
+						eprintln!("SyntaxError: unclosed string\n    at {}:{}:{}", file_path, row + 1, token_start + 1);
 						exit(1);
 					}
 					string.push(current);
@@ -211,7 +212,7 @@ fn main() {
 				println!("[debug] tokens.push((Number, {}))", number);
 				tokens.push((TokenType::Number, Some(number)));
 			} else {
-				eprintln!("SyntaxError: invalid character \"{}\"\n    at {}:{}:{}", current, file_path, row, column);
+				eprintln!("SyntaxError: invalid character \"{}\"\n    at {}:{}:{}", current, file_path, row + 1, column + 1);
 				exit(1);
 			}
 			column += 1;
@@ -220,11 +221,12 @@ fn main() {
 			tokens.push((TokenType::Eol, None));
 			println!("[debug] tokens.push((Eol, None))");
 		}
-		// row += 1;
 	}
+
 	println!();
 	println!("[debug] tokens = {:?}", tokens);
 	println!();
+
 	// for (token_type, value) in tokens {
 	// }
 }

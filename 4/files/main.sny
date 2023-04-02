@@ -4,22 +4,22 @@
 ''
 12# 'a'
 
-fun main(args) {
+fun main(args: str[*]) {
 	println('Hello world')
 }
 
 
-@require({ random: 'random' })
+@require({ 'random' })
 fun pick(items: list) {
 	return items.at(random::new(0 to items.len()))
 }
 
 class range {
-	private const T = Not<(-infinity), infinity> + num
 	static class CharRange {
-		private const T = str::char
-		static fun new(x: T, y: T) {}
+		private typedef T = str::char
+		static fun new(self: Self, x: T, y: T);
 	}
+	private typedef T = Not<(-infinity), infinity> + num
 	private {
 		const x: T;
 		const y: T;
@@ -27,7 +27,7 @@ class range {
 	static fun new(self: Self, x: T, y: T) {
 		self += { x, y }
 	};
-	fun set_inclusive(inclusive: bool as IsInclusive);
+	fun set_inclusive(inclusive: bool);
 }
 
 const int: range = range<str::char>::new()
