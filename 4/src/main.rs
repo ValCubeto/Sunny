@@ -19,7 +19,7 @@ const DIGITS: &str = "1234567890";
 #[allow(clippy::print_literal)] // bug when using file!()
 fn main() {
 	let mut args: Vec<String> = vec![];
-	// env::args() will panic if there is an invalid input
+	// env::args() will panic when invalid input
 	for arg_os in args_os() {
 		args.push(arg_os.to_string_lossy().to_string());
 	}
@@ -28,10 +28,12 @@ fn main() {
 
 	println!("[debug] executor_path = {:?}", executor_path);
 
-	if args.is_empty() {
-		println!("TODO: interactive mode");
-		eprintln!("ArgumentError: no arguments provided");
-		exit(1);
+	fn red(text: &str) -> String {
+		String::from("\x1B[31m") + text + "\x1B[0m"
+	}
+
+	fn yellow(text: &str) -> String {
+		String::from("\x1B[33m") + text + "\x1B[0m"
 	}
 
 	// #region flags
@@ -108,7 +110,13 @@ fn main() {
 
 	println!("[debug] flags = {:?}", flags);
 	// #endregion flags
-	
+
+	if args.is_empty() {
+		println!("{}: TODO interactive mode", yellow("Warning"));
+		eprintln!("{}: no arguments provided", red("ArgumentError"));
+		exit(1);
+	}
+
 	let (file_path, file): (String, String) = read_file(args.remove(0));
 	
 	println!("[debug] file_path = {:?}", file_path);
@@ -149,7 +157,7 @@ fn main() {
 		lines.push(line);
 
 		if line.is_empty() {
-			println!("[debug] lines[{}] = \"\"", row);
+			println!("[debug] lines[{}] = (empty)", row);
 			continue;
 		}
 
@@ -160,7 +168,7 @@ fn main() {
 		let mut current: char = chars[column];
 
 		while column < line.len() {
-			println!("[debug] column = {}", column);
+			println!("[debug] column = {}, current = {:#?}", column, current);
 
 			if current == ';' {
 				if expression_status != ExpressionStatus::Done {
@@ -175,16 +183,63 @@ fn main() {
 				println!("[debug] comment found");
 				break;
 			} else if SPACES.contains(current) {
-				println!("[debug] space found");
+				println!("[debug] space found: {:#?}", current);
 				column += 1;
+				current = chars[column];
 				continue;
-			} else if current == '\'' || current == '"' {
-				let quote: char = current;
+			} else if current == '\'' {
+				let token_start: usize = column;
+				column += 1;
+				current = chars[column];
+				let mut string: String = String::new();
+				while current != '\'' {
+					column += 1;
+					if column >= chars.len() {
+						eprintln!("SyntaxError: unclosed string\n    at {}:{}:{}", file_path, row + 1, token_start + 1);
+						exit(1);
+					}
+					if current == '\\' {
+						column += 1;
+						if column >= chars.len() {
+							eprintln!("SyntaxError: cannot escape new lines");
+							exit(1);
+						}
+						current = chars[column];
+						if current == 'n' {
+							string.push('\n');
+						} else if current == 't' {
+							string.push('\t')
+						} else if current == 'r' {
+							string.push('\r')
+						} else if current == 'u' {
+							column += 1;
+							if column >= chars.len() {
+								eprintln!("SyntaxError: '{{' expected");
+								exit(1);
+							}
+							while current != '}' {
+								if !DIGITS.contains(current) {
+									eprintln!("SyntaxError: invalid unicode");
+									exit(1);
+								}
+							}
+							current = chars[column];
+						} else {
+							eprintln!("{}: invalid escape secuence \\{}", red("SyntaxError"), current);
+							exit(1);
+						}
+					}
+					string.push(current);
+					current = chars[column];
+				}
+				println!("[debug] tokens.push((String, {:?}))", string);
+				tokens.push((TokenType::String, Some(string)));
+			} else if current == '"' {
 				column += 1;
 				current = chars[column];
 				let token_start: usize = column;
 				let mut string: String = String::new();
-				while current != quote {
+				while current != '"' {
 					column += 1;
 					if column >= chars.len() {
 						eprintln!("SyntaxError: unclosed string\n    at {}:{}:{}", file_path, row + 1, token_start + 1);
@@ -198,19 +253,17 @@ fn main() {
 			} else if WORD_CHARS.contains(current) {
 				panic!("word");
 			} else if DIGITS.contains(current) {
-				let mut number: String = String::from(current);
-				column += 1;
-				current = chars[column];
+				let mut number: String = String::new();
 				while DIGITS.contains(current) {
-					println!("[debug] pushing {}", current);
 					number.push(current);
 					column += 1;
 					current = chars[column];
 				}
-				column -= 1;
-				current = chars[column];
+				// column -= 1;
+				// current = chars[column];
 				println!("[debug] tokens.push((Number, {}))", number);
 				tokens.push((TokenType::Number, Some(number)));
+				continue;
 			} else {
 				eprintln!("SyntaxError: invalid character \"{}\"\n    at {}:{}:{}", current, file_path, row + 1, column + 1);
 				exit(1);
