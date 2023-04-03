@@ -1,3 +1,5 @@
+// [[autofolding="${COMM}\s*#region**"]]
+
 use std::collections::HashMap;
 use std::env::{
 	args_os,
@@ -27,14 +29,6 @@ fn main() {
 	let executor_path: String = resolve_path(PathBuf::from(args.remove(0)));
 
 	println!("[debug] executor_path = {:?}", executor_path);
-
-	fn red(text: &str) -> String {
-		String::from("\x1B[31m") + text + "\x1B[0m"
-	}
-
-	fn yellow(text: &str) -> String {
-		String::from("\x1B[33m") + text + "\x1B[0m"
-	}
 
 	// #region flags
 	let valid_flags = [
@@ -76,13 +70,13 @@ fn main() {
 		}
 		if arg.len() == 2 {
 			if !flag_map.contains_key(&args.remove(0)) {
-				eprintln!("ArgumentError: unknown flag '{}'", arg);
+				eprintln!("{}: unknown flag '{}'", red("ArgumentError"), arg);
 				exit(1);
 			}
-			arg = &flag_map[arg];
+			arg = &(flag_map[arg]);
 		}
 		if !valid_flags.contains(arg) {
-			eprintln!("ArgumentError: unknown flag '{}'", arg);
+			eprintln!("{}: unknown flag '{}'", red("ArgumentError"), arg);
 			exit(1);
 		}
 		// if arg == "--eval" {
@@ -93,7 +87,7 @@ fn main() {
 			continue;
 		}
 		if i != 0 {
-			eprintln!("ArgumentError: unexpected flag '{}' at position {}", arg, i);
+			eprintln!("{}: unexpected flag '{}' at position {}", red("ArgumentError"), arg, i);
 			exit(1);
 		}
 		if arg == "--help" {
@@ -103,7 +97,7 @@ fn main() {
 		} else if arg == "--version" {
 			println!("{} {}", NAME, VERSION);
 		} else {
-			println!("Flag not implemented yet: {}", arg);
+			println!("{}: flag '{}' not implemented yet", red("ArgumentError"), arg);
 		}
 		exit(0);
 	}
@@ -173,7 +167,7 @@ fn main() {
 			if current == ';' {
 				if expression_status != ExpressionStatus::Done {
 					if expression_status == ExpressionStatus::Must {
-						eprintln!("SyntaxError: unexpected semicolon");
+						eprintln!("{}: unexpected semicolon", red("SyntaxError"));
 						exit(1);
 					}
 					expression_status = ExpressionStatus::Done;
@@ -195,13 +189,15 @@ fn main() {
 				while current != '\'' {
 					column += 1;
 					if column >= chars.len() {
-						eprintln!("SyntaxError: unclosed string\n    at {}:{}:{}", file_path, row + 1, token_start + 1);
+						eprintln!("{}: unclosed string\n    at {}:{}:{}", red("SyntaxError"), file_path, row + 1, token_start + 1);
 						exit(1);
 					}
+					current = chars[column];
 					if current == '\\' {
+						println!("escaping {}:{}:{}", file_path, row + 1, column + 1);
 						column += 1;
 						if column >= chars.len() {
-							eprintln!("SyntaxError: cannot escape new lines");
+							eprintln!("{}: cannot escape new lines", red("SyntaxError"));
 							exit(1);
 						}
 						current = chars[column];
@@ -214,23 +210,29 @@ fn main() {
 						} else if current == 'u' {
 							column += 1;
 							if column >= chars.len() {
-								eprintln!("SyntaxError: '{{' expected");
+								eprintln!("{}: '{{' expected", red("SyntaxError"));
 								exit(1);
 							}
+							current = chars[column];
 							while current != '}' {
+								dbg!(current);
 								if !DIGITS.contains(current) {
-									eprintln!("SyntaxError: invalid unicode");
+									eprintln!("{}: invalid unicode", red("SyntaxError"));
 									exit(1);
 								}
+								column += 1;
+								if column >= chars.len() {
+									eprintln!("{}: unexpected end of line", red("SyntaxError"));
+									exit(1);
+								}
+								current = chars[column];
 							}
-							current = chars[column];
 						} else {
 							eprintln!("{}: invalid escape secuence \\{}", red("SyntaxError"), current);
 							exit(1);
 						}
 					}
 					string.push(current);
-					current = chars[column];
 				}
 				println!("[debug] tokens.push((String, {:?}))", string);
 				tokens.push((TokenType::String, Some(string)));
@@ -242,7 +244,7 @@ fn main() {
 				while current != '"' {
 					column += 1;
 					if column >= chars.len() {
-						eprintln!("SyntaxError: unclosed string\n    at {}:{}:{}", file_path, row + 1, token_start + 1);
+						eprintln!("{}: unclosed string\n    at {}:{}:{}", red("SyntaxError"), file_path, row + 1, token_start + 1);
 						exit(1);
 					}
 					string.push(current);
@@ -265,7 +267,7 @@ fn main() {
 				tokens.push((TokenType::Number, Some(number)));
 				continue;
 			} else {
-				eprintln!("SyntaxError: invalid character \"{}\"\n    at {}:{}:{}", current, file_path, row + 1, column + 1);
+				eprintln!("{}: invalid character \"{}\"\n    at {}:{}:{}", red("SyntaxError"), current, file_path, row + 1, column + 1);
 				exit(1);
 			}
 			column += 1;
@@ -284,10 +286,18 @@ fn main() {
 	// }
 }
 
+fn red(text: &str) -> String {
+	String::from("\x1B[31m") + text + "\x1B[0m"
+}
+
+fn yellow(text: &str) -> String {
+	String::from("\x1B[33m") + text + "\x1B[0m"
+}
+
 fn get_full_path(relative: String) -> String {
 	let current_dir: PathBuf = match get_current_dir() {
 		Err(error) => {
-			eprintln!("InternalError: failed to get the current directory, {}", error);
+			eprintln!("{}: failed to get the current directory, {}", red("InternalError"), error);
 			exit(1);
 		}
 		Ok(dir) => dir

@@ -1,7 +1,11 @@
-# This is a comment
-'hello world\r\n\t\u{123}'
+# comment
+"Hola\sexo"
+'hello world${{println()}}\r\n\t\u{65}'
 123 # a number
 
+# fun main(args: str[*])
 fun main(args: list<str, range(1, *)>) -> none {
 	println('Hello world')
 }
+
+
