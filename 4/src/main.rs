@@ -15,6 +15,7 @@ const VERSION: &str = "1.0.0";
 const EXTENSION: &str = "sny";
 
 const SPACES: &str = "\u{20}\r\t";
+const ALPHA: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const WORD_CHARS: &str = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const DIGITS: &str = "1234567890";
 
@@ -162,8 +163,6 @@ fn main() {
 		let mut current: char = chars[column];
 
 		while column < line.len() {
-			println!("[debug] column = {}, current = {:#?}", column, current);
-
 			if current == ';' {
 				if expression_status != ExpressionStatus::Done {
 					if expression_status == ExpressionStatus::Must {
@@ -173,19 +172,22 @@ fn main() {
 					expression_status = ExpressionStatus::Done;
 				}
 				continue;
-			} else if current == '#' {
+			}
+			if current == '#' {
 				println!("[debug] comment found");
 				break;
-			} else if SPACES.contains(current) {
+			}
+			if SPACES.contains(current) {
 				println!("[debug] space found: {:#?}", current);
 				column += 1;
 				current = chars[column];
 				continue;
-			} else if current == '\'' {
+			}
+			if current == '\'' {
 				let token_start: usize = column;
 				column += 1;
 				current = chars[column];
-				let mut string: String = String::new();
+				let mut string: String = String::from(current);
 				while current != '\'' {
 					column += 1;
 					if column >= chars.len() {
@@ -194,32 +196,48 @@ fn main() {
 					}
 					current = chars[column];
 					if current == '\\' {
-						println!("escaping {}:{}:{}", file_path, row + 1, column + 1);
 						column += 1;
 						if column >= chars.len() {
 							eprintln!("{}: cannot escape new lines", red("SyntaxError"));
 							exit(1);
 						}
 						current = chars[column];
+						println!("[debug] escaping \\{} at {}:{}:{}", current, file_path, row + 1, column);
 						if current == 'n' {
 							string.push('\n');
-						} else if current == 't' {
-							string.push('\t')
-						} else if current == 'r' {
-							string.push('\r')
-						} else if current == 'u' {
+							continue;
+						}
+						if current == 't' {
+							string.push('\t');
+							continue;
+						}
+						if current == 'r' {
+							string.push('\r');
+							continue;
+						}
+						if current == 'u' {
 							column += 1;
-							if column >= chars.len() {
+							current = chars[column];
+							if current != '{' || column >= chars.len() {
 								eprintln!("{}: '{{' expected", red("SyntaxError"));
 								exit(1);
 							}
+							column += 1;
+							if column >= chars.len() {
+								eprintln!("{}: unexpected end of line", red("SyntaxError"));
+								exit(1);
+							}
 							current = chars[column];
+							let mut unicode: String = String::new();
 							while current != '}' {
-								dbg!(current);
-								if !DIGITS.contains(current) {
-									eprintln!("{}: invalid unicode", red("SyntaxError"));
+								if !DIGITS.contains(current) && !ALPHA.contains(current) {
+									eprintln!("{}: invalid unicode character '{}'", red("SyntaxError"), current);
+									eprintln!("    at {}:{}:{}", file_path, row + 1, column + 1);
+									eprintln!("        {}", lines[row]);
+									eprintln!("        {: >1$}", "^", column + 1);
 									exit(1);
 								}
+								unicode.push(current);
 								column += 1;
 								if column >= chars.len() {
 									eprintln!("{}: unexpected end of line", red("SyntaxError"));
@@ -227,15 +245,32 @@ fn main() {
 								}
 								current = chars[column];
 							}
-						} else {
-							eprintln!("{}: invalid escape secuence \\{}", red("SyntaxError"), current);
-							exit(1);
+							match u32::from_str_radix(&unicode[..], 16) {
+								Err(error) => {
+									eprintln!("SyntaxError: failed to parse unicode secuence '\\u{{{}}}', {}", unicode, error);
+								},
+								Ok(code) => {
+									let character: char = match char::from_u32(code) {
+										None => {
+											eprintln!("InternalError: failed to parse unicode secuence '\\u{{{}}}'", unicode);
+											exit(1);
+										},
+										Some(character) => character
+									};
+									string.push(character)
+								}
+							};
+							continue;
 						}
+						eprintln!("{}: invalid escape secuence \\{}", red("SyntaxError"), current);
+						exit(1);
 					}
 					string.push(current);
 				}
 				println!("[debug] tokens.push((String, {:?}))", string);
 				tokens.push((TokenType::String, Some(string)));
+				column += 1;
+				continue;
 			} else if current == '"' {
 				column += 1;
 				current = chars[column];
@@ -252,9 +287,13 @@ fn main() {
 				}
 				println!("[debug] tokens.push((String, {:?}))", string);
 				tokens.push((TokenType::String, Some(string)));
-			} else if WORD_CHARS.contains(current) {
+				column += 1;
+				continue;
+			}
+			if WORD_CHARS.contains(current) {
 				panic!("word");
-			} else if DIGITS.contains(current) {
+			}
+			if DIGITS.contains(current) {
 				let mut number: String = String::new();
 				while DIGITS.contains(current) {
 					number.push(current);
@@ -266,11 +305,9 @@ fn main() {
 				println!("[debug] tokens.push((Number, {}))", number);
 				tokens.push((TokenType::Number, Some(number)));
 				continue;
-			} else {
-				eprintln!("{}: invalid character \"{}\"\n    at {}:{}:{}", red("SyntaxError"), current, file_path, row + 1, column + 1);
-				exit(1);
 			}
-			column += 1;
+			eprintln!("{}: invalid character \"{}\"\n    at {}:{}:{}", red("SyntaxError"), current, file_path, row + 1, column + 1);
+			exit(1);
 		}
 		if expression_status != ExpressionStatus::Must {
 			tokens.push((TokenType::Eol, None));

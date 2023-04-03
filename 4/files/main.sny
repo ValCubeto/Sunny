@@ -1,6 +1,6 @@
 # comment
 "Hola\sexo"
-'hello world${{println()}}\r\n\t\u{65}'
+'char = \u{41}' # \u{41} = A
 123 # a number
 
 # fun main(args: str[*])
@@ -8,4 +8,12 @@ fun main(args: list<str, range(1, *)>) -> none {
 	println('Hello world')
 }
 
+typedef Lit<...values: list> = Type::new((value) => value in values)
+
+class Type {
+	static fun new(test: (value) -> bool) {
+		class _ { test }
+		return _
+	}
+}
 
