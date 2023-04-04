@@ -160,9 +160,11 @@ fn main() {
 
 		let chars: Vec<char> = line.chars().collect::<Vec<char>>();
 		let mut column: usize = 0;
-		let mut current: char = chars[column];
+		let mut current: char;
 
 		while column < line.len() {
+			current = chars[column];
+			println!("[debug] lines[{}][{}] = {:?}", row, column, current);
 			if current == ';' {
 				if expression_status != ExpressionStatus::Done {
 					if expression_status == ExpressionStatus::Must {
@@ -180,7 +182,6 @@ fn main() {
 			if SPACES.contains(current) {
 				println!("[debug] space found: {:#?}", current);
 				column += 1;
-				current = chars[column];
 				continue;
 			}
 			if current == '\'' {
@@ -245,6 +246,7 @@ fn main() {
 								}
 								current = chars[column];
 							}
+							println!("[debug] end of unicode secuence, collected \\u{{{}}}", unicode);
 							match u32::from_str_radix(&unicode[..], 16) {
 								Err(error) => {
 									eprintln!("SyntaxError: failed to parse unicode secuence '\\u{{{}}}', {}", unicode, error);
@@ -257,9 +259,10 @@ fn main() {
 										},
 										Some(character) => character
 									};
+									println!("[debug] pushing character '{}'", character);
 									string.push(character)
 								}
-							};
+							}
 							continue;
 						}
 						eprintln!("{}: invalid escape secuence \\{}", red("SyntaxError"), current);
@@ -271,7 +274,8 @@ fn main() {
 				tokens.push((TokenType::String, Some(string)));
 				column += 1;
 				continue;
-			} else if current == '"' {
+			}
+			if current == '"' {
 				column += 1;
 				current = chars[column];
 				let token_start: usize = column;
@@ -306,7 +310,8 @@ fn main() {
 				tokens.push((TokenType::Number, Some(number)));
 				continue;
 			}
-			eprintln!("{}: invalid character \"{}\"\n    at {}:{}:{}", red("SyntaxError"), current, file_path, row + 1, column + 1);
+			eprintln!("{}: invalid character \"{}\"", red("SyntaxError"), current);
+			stack(file_path, row, column);
 			exit(1);
 		}
 		if expression_status != ExpressionStatus::Must {
@@ -321,6 +326,10 @@ fn main() {
 
 	// for (token_type, value) in tokens {
 	// }
+}
+
+fn stack(path: String, row: usize, column: usize) {
+	eprintln!("    at {}:{}:{}", path, row + 1, column + 1);
 }
 
 fn red(text: &str) -> String {
@@ -366,17 +375,17 @@ fn read_file(relative: String) -> (String, String) {
 	if !path.exists() {
 		path.set_extension(EXTENSION);
 		if !path.exists() {
-			eprintln!("LoadError: file \"{}\" not found", full_path);
+			eprintln!("{}: file \"{}\" not found", red("LoadError"), full_path);
 			exit(1);
 		}
 	}
 	if !path.is_file() {
-		eprintln!("LoadError: \"{}\" is not a file", full_path);
+		eprintln!("{}: \"{}\" is not a file", red("LoadError"), full_path);
 		exit(1);
 	}
 	match read_to_string(&path) {
 		Err(error) => {
-			eprintln!("LoadError: failed to read \"{}\", {}", full_path, error);
+			eprintln!("{}: failed to read \"{}\", {}", red("LoadError"), full_path, error);
 			exit(1);
 		}
 		Ok(file) => (resolve_path(path), file)

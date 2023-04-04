@@ -1,6 +1,6 @@
 # comment
 "Hola\sexo"
-'char = \u{41}' # \u{41} = A
+'char = \u{42}' # \r\u{41} = A
 123 # a number
 
 # fun main(args: str[*])
