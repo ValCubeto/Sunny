@@ -1,19 +1,12 @@
 # comment
-"Hola\sexo"
-'char = \u{42}' # \r\u{41} = A
-123 # a number
+"raw\string"
+'h\u{65}llo\n\''
+'hola'
+123 + 2;
 
-# fun main(args: str[*])
+fun main(args: str[*])
 fun main(args: list<str, range(1, *)>) -> none {
-	println('Hello world')
+	println('Hello world');
 }
 
 typedef Lit<...values: list> = Type::new((value) => value in values)
-
-class Type {
-	static fun new(test: (value) -> bool) {
-		class _ { test }
-		return _
-	}
-}
-
