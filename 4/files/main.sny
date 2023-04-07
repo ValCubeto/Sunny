@@ -10,3 +10,10 @@ fun main(args: list<str, range(1, *)>) -> none {
 }
 
 typedef Lit<...values: list> = Type::new((value) => value in values)
+
+
+fun test<T: Class::HasConstructor>() -> T {
+	return T::new()
+}
+
+some: num = test()
