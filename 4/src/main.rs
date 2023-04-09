@@ -156,6 +156,7 @@ fn main() {
 		Fn(F),
 		Ast(R)
 	}
+	let a: &Fn(String) -> bool = read_file;
 
 	#[allow(unused)]
 	#[derive(Copy)]
