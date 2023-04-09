@@ -130,6 +130,7 @@ fn main() {
 		Bracket
 	}
 
+	#[allow(unused)]
 	let mut tokens: Vec<(TokenType, Option<String>)> = vec![];
 
 	#[allow(unused)]
@@ -140,24 +141,75 @@ fn main() {
 		Must,  // println('hello world'
 	}
 
+	#[allow(unused)]
 	let mut expression_status: ExpressionStatus = ExpressionStatus::Done;
 
 	// for errors
+	#[allow(unused)]
 	let mut lines: Vec<&str> = vec![];
 
-	let chars: Vec<char> = file.chars().collect::<Vec<char>>();
+	#[allow(unused)]
+	let chars: Vec<char> = file.chars().collect();
+
+	#[allow(unused)]
+	#[derive(Copy)]
+	enum Test<F, R> where F: Fn(Value) -> bool {
+		Fn(F),
+		Ast(R)
+	}
+
+	#[allow(unused)]
+	#[derive(Copy)]
+	struct Type {
+		test: Test<Box<dyn Fn(Value) -> bool>, HashMap<String, String>>
+	}
+
+	#[allow(unused)]
+	let tests: HashMap<&str, _> = HashMap::from([
+		("str", Type {
+			test: Test::Fn(
+				Box::from(
+					|value: Value| -> bool {
+						match value {
+							Value::Str(_) => true,
+							_ => false
+						}
+					}
+				)
+			)
+		})
+	]);
+
+	struct Variable {
+		r#type: Type,
+		value: Value
+	}
+
+	let var = Variable { r#type: tests["str"], value: Value::Str(String::from("hello")) };
+
+	#[allow(unused)]
+	struct Class {
+		name: String,
+		statics: HashMap<String, (Type, Value)>,
+		publics: HashMap<String, (Type, Value)>,
+		privates: HashMap<String, (Type, Value)>
+	}
 
 	enum Value {
 		None,
+		// true, false
 		Bool(bool),
 		Num(String),
 		Range(String, String),
 		Str(String),
 		List(Vec<Value>),
-		Dict(HashMap<String, Value>)
+		Dict(HashMap<String, Value>),
+		Class(Class)
 	}
 
-	fn eval(code: String) -> Value {
+	fn eval(code: String) {}
+
+	fn eval_expr(code: String) -> Value {
 		Value::None
 	}
 	// for (row, line) in file.lines().enumerate() {
