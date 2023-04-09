@@ -152,8 +152,7 @@ fn main() {
 	let chars: Vec<char> = file.chars().collect();
 
 	#[allow(unused)]
-	#[derive(Copy)]
-	enum Test<F, R> where F: Fn(Value) -> bool {
+	enum Test<F = dyn Fn(Value) -> bool, R = HashMap<String, String>> where F: Fn(Value) -> bool {
 		Fn(F),
 		Ast(R)
 	}
