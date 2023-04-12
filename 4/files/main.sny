@@ -1,8 +1,26 @@
 # comment
-"raw\string"
+"raw\string"? que : so
+'\u{1b}[3m'
+?'${que}\u{1b}[0m'
 'h\u{65}llo\n\''
 'hola'
 123 + 2;
+
+namespace sunny {
+	class regex {
+		static {
+			fun new(pat: str) -> Self;
+			namespace patterns {
+				const url: regex = new(
+					"(?<protocol>https?://)?" +
+					"(?<domain>[^/]+)" +
+					"(?<pathname>(?:/[^/?#]+)+)?" +
+					"(?<search>\?(?<name>[^=&#]+)(?:=(?<value>[^&#]))?)?"
+				) # const url
+			} # namespace patterns
+		} # static
+	} # class regex
+} # namespace sunny
 
 fun main(args: str[*])
 fun main(args: list<str, range(1, *)>) -> none {
