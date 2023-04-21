@@ -20,10 +20,10 @@ const WORD_CHARS: &str = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const DIGITS: &str = "1234567890";
 const BRACKETS: &str = "(){}[]";
 
-#[allow(clippy::print_literal)] // bug when using file!()
 fn main() {
 	let mut args: Vec<String> = vec![];
-	// env::args() will panic when invalid input
+
+	// env::args() panics on invalid utf-8
 	for arg_os in args_os() {
 		args.push(arg_os.to_string_lossy().to_string());
 	}
@@ -67,6 +67,11 @@ fn main() {
 	let mut flags: Vec<String> = vec![];
 
 	for (i, mut arg) in args.clone().iter().enumerate() {
+		let i: usize = i + 1;
+		if arg == "-" {
+			eprintln!("{}: invalid flag at position {}", red("ArgumentError"), i);
+			exit(1);
+		}
 		if arg.len() < 2 || !arg.starts_with('-') {
 			break;
 		}
@@ -88,7 +93,7 @@ fn main() {
 			flags.push(arg.clone());
 			continue;
 		}
-		if i != 0 {
+		if i != 1 {
 			eprintln!("{}: unexpected flag '{}' at position {}", red("ArgumentError"), arg, i);
 			exit(1);
 		}
@@ -108,7 +113,7 @@ fn main() {
 	// #endregion flags
 
 	if args.is_empty() {
-		println!("{}: TODO interactive mode", yellow("Warning"));
+		println!("{}: interactive mode not yet implemented", yellow("Warning"));
 		eprintln!("{}: no arguments provided", red("ArgumentError"));
 		exit(1);
 	}
