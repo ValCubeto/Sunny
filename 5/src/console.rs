@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+#[allow(unused)]
 pub fn init() -> HashMap<&'static str, HashMap<&'static str, [&'static str; 2]>> {
 	[
 		(
