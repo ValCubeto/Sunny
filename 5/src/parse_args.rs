@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 use std::env::args_os;
 use std::process::exit;
-
-use crate::info::{NAME, VERSION};
+use crate::about::{NAME, VERSION};
 
 fn error(text: &str) -> String {
 	format!("\u{1b}[31m\u{1b}[1m{}\u{1b}[22m\u{1b}[39m", text)

@@ -1,6 +1,6 @@
 mod parse_args;
-mod info;
-mod console;
+mod about;
+mod std;
 
 fn main() {
 	#[allow(unused)]
