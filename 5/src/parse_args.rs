@@ -7,7 +7,7 @@ fn error(text: &str) -> String {
 	format!("\u{1b}[31m\u{1b}[1m{}\u{1b}[22m\u{1b}[39m", text)
 }
 
-pub fn new() -> (String, Vec<String>, String, Vec<String>) {
+pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 	let mut args: Vec<String> = vec![];
 	for arg_os in args_os() {
 		// env::args() panics on invalid unicode

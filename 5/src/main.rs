@@ -4,7 +4,7 @@ mod std;
 
 fn main() {
 	#[allow(unused)]
-	let (executor_path, flags, file_path, args): _ = parse_args::new();
+	let (executor_path, flags, file_path, args): _ = parse_args::parse();
 
 	let size: crossterm::Result<(u16, u16)> = crossterm::terminal::size();
 
