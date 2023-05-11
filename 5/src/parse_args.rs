@@ -1,5 +1,5 @@
+use std::env::args_os as get_args_os;
 use std::collections::HashMap;
-use std::env::args_os;
 use std::process::exit;
 use crate::about::{NAME, VERSION};
 
@@ -8,20 +8,13 @@ fn error(text: &str) -> String {
 }
 
 pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
+	let args_os: _ = get_args_os();
+	let mut flags: Vec<String> = vec![];
 	let mut args: Vec<String> = vec![];
-	for arg_os in args_os() {
-		// env::args() panics on invalid unicode
-		args.push(arg_os.to_string_lossy().to_string());
-	}
 
 	let exec_path: String = args.remove(0);
 
 	println!("[debug] exec_path = {:?}", exec_path);
-
-	if args.is_empty() {
-		eprintln!("{}: REPL not implemented", error("ArgumentError"));
-		exit(1);
-	}
 
 	// #region flags
 	let flag_map: HashMap<&str, &str> = HashMap::from([
@@ -43,12 +36,12 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 		"--version",
 	];
 
-	let mut flags: Vec<String> = vec![];
-
-	for (i, arg) in args.clone().iter().enumerate() {
+	for (i, arg) in args_os.enumerate() {
+		// env::args() panics
+		let arg: String = arg.to_string_lossy().to_string();
 		println!("[debug] args[{}] = {:?}", i, arg);
 		let i: usize = i + 1;
-
+		
 		if arg.len() < 2 || !arg.starts_with('-') {
 			break;
 		}
@@ -58,7 +51,7 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 			exit(1);
 		}
 
-		let mut flag: &str = &args.remove(0)[..];
+		let mut flag: &str = &arg[..];
 
 		if flag.len() == 2 {
 			if !flag_map.contains_key(flag) {
@@ -79,18 +72,27 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 			eprintln!("{}: unexpected flag '{}' at position {}", error("ArgumentError"), flag, i);
 			exit(1);
 		}
-		if flag == "--help" {
-			println!("{}", String::new()
-				+ "\x1B[90m-h\x1B[0m | \x1B[90m--help   \x1B[0m    Shows this message\n"
-				+ "\x1B[90m-v\x1B[0m | \x1B[90m--version\x1B[0m    Prints the current " + NAME + " version");
-		} else if flag == "--version" {
-			println!("{} {}", NAME, VERSION);
-		} else {
-			println!("{}: flag '{}' not implemented yet", error("ArgumentError"), flag);
+		match flag {
+			"--help" => {
+				println!("{}", String::new()
+					+ "\x1B[90m-h\x1B[0m | \x1B[90m--help   \x1B[0m    Shows this message\n"
+					+ "\x1B[90m-v\x1B[0m | \x1B[90m--version\x1B[0m    Prints the current " + NAME + " version");
+			}
+			"--version" => {
+				println!("{} {}", NAME, VERSION);
+			}
+			_ => {
+				println!("{}: flag '{}' not implemented yet", error("ArgumentError"), flag);
+			}
 		}
 		exit(0);
 	}
 	// #endregion flags
+	if args_os.len() != 0 {
+		for arg in args_os {
+			args.push(arg.to_string_lossy().to_string());
+		}
+	}
 
 	if args.is_empty() {
 		eprintln!("{}: missing file path", error("ArgumentError"));

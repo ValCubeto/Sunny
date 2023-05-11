@@ -1,2 +1,1 @@
-suffix = ".sny"
 main = "main" # cwd + main + suffix
