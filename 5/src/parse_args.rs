@@ -14,9 +14,9 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 		args.push(arg_os.to_string_lossy().to_string());
 	}
 
-	let executor: String = args.remove(0);
+	let exec_path: String = args.remove(0);
 
-	println!("[debug] executor_path = {:?}", executor);
+	println!("[debug] exec_path = {:?}", exec_path);
 
 	if args.is_empty() {
 		eprintln!("{}: REPL not implemented", error("ArgumentError"));
@@ -97,7 +97,7 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 		exit(1);
 	}
 
-	let file_path: String = args.remove(0);
+	let file: String = args.remove(0);
 
-	(executor, flags, file_path, args)
+	(exec_path, flags, file, args)
 }
