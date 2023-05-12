@@ -1,16 +1,18 @@
-use std::env::args_os as get_args_os;
+use std::env::args_os;
 use std::collections::HashMap;
 use std::process::exit;
 use crate::about::{NAME, VERSION};
-
-fn error(text: &str) -> String {
-	format!("\u{1b}[31m\u{1b}[1m{}\u{1b}[22m\u{1b}[39m", text)
-}
+use crate::colors::{error, gray};
 
 pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
-	let args_os: _ = get_args_os();
 	let mut flags: Vec<String> = vec![];
 	let mut args: Vec<String> = vec![];
+
+	for arg_os in args_os() {
+		args.push(arg_os.to_string_lossy().to_string());
+	}
+
+	drop(args_os);
 
 	let exec_path: String = args.remove(0);
 
@@ -36,9 +38,9 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 		"--version",
 	];
 
-	for (i, arg) in args_os.enumerate() {
+	for (i, arg) in args.clone().iter().enumerate() {
 		// env::args() panics
-		let arg: String = arg.to_string_lossy().to_string();
+
 		println!("[debug] args[{}] = {:?}", i, arg);
 		let i: usize = i + 1;
 		
@@ -51,7 +53,7 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 			exit(1);
 		}
 
-		let mut flag: &str = &arg[..];
+		let mut flag: &str = &args.remove(0)[..];
 
 		if flag.len() == 2 {
 			if !flag_map.contains_key(flag) {
@@ -74,9 +76,8 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 		}
 		match flag {
 			"--help" => {
-				println!("{}", String::new()
-					+ "\x1B[90m-h\x1B[0m | \x1B[90m--help   \x1B[0m    Shows this message\n"
-					+ "\x1B[90m-v\x1B[0m | \x1B[90m--version\x1B[0m    Prints the current " + NAME + " version");
+				println!("{} | {:9 } Shows this message", gray("-h"), gray("--help"));
+				println!("{} | {:9 } Prints the current {} version", gray("-v"), gray("--version"), NAME);
 			}
 			"--version" => {
 				println!("{} {}", NAME, VERSION);
@@ -88,11 +89,6 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 		exit(0);
 	}
 	// #endregion flags
-	if args_os.len() != 0 {
-		for arg in args_os {
-			args.push(arg.to_string_lossy().to_string());
-		}
-	}
 
 	if args.is_empty() {
 		eprintln!("{}: missing file path", error("ArgumentError"));

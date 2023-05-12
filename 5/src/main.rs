@@ -1,31 +1,30 @@
-use ::std::process::exit;
 
 mod parse_args;
 mod about;
-mod std;
+mod stdlib;
 mod types;
+mod colors;
 
-use types::{Dict, Any};
+#[allow(unused)]
+use std::process::exit;
+#[allow(unused)]
+use types::{Any, Dict};
+
+// auto-imported toml, crossterm
 
 fn main() {
 	#[allow(unused)]
 	let (exec_path, flags, file, args): _ = parse_args::parse();
 
+	// let exec_path = resolve(exec_path);
+	// let file = resolve_filename(file);
+	// let workspace = path::dirname(file);
+	// let cfg_path = path::join(workspace, "Sunny.toml");
+	// if exists(config_path) {
+	//   let cfg = read_to_string(cfg_path).parse::<toml::Table>();
+	// }
+
 	// let std = std::init();
-
-	use toml::Table;
-
-	let value: Table = match "foo = \n'bar'".parse::<Table>() {
-		Ok(data) => {
-			data
-		},
-		Err(err) => {
-			eprintln!("erro {}", err);
-			exit(1);
-		}
-	};
-
-	dbg!(&value);
 
 	#[allow(unused)]
 	let mut global: Dict = Dict::from([
