@@ -13,51 +13,51 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 		args.push(arg.to_string_lossy().to_string());
 	}
 
-	// drop args_os?
+	debug!("args = {:?}", args);
 
 	let exec_path: String = args.remove(0);
 
 	// #region flags
-	let flag_map: HashMap<&str, &str> = HashMap::from([
-		// ("--eval", "-e"),
-		("--help", "-h"),
-		("--test", "-t"),
-		("--version", "-v"),
-	]);
-
 	let valid_flags: _ = [
 		// "-e",
+		"--help",
+		"--test",
+		"--version",
+	];
+
+	let valid_flags_short: _ = [
 		"-h",
 		"-t",
 		"-v",
 	];
 
 	let unique_flags: _ = [
-		"-h",
-		"-v",
+		"--help",
+		"--version",
 	];
 
 	// env::args() panics
 	for (i, arg) in args.clone().iter().enumerate() {
-
-		debug!("args[{}] = {:?}", i, arg);
+		// one-based
 		let i: usize = i + 1;
-		
+
+		// is not a flag
 		if arg.len() < 2 || !arg.starts_with('-') {
 			break;
 		}
 
-		if arg == "-" {
-			ArgumentError!("invalid flag at position {}", i);
-		}
-
-		let mut flag: &str = &args.remove(0)[..];
+		args.remove(0);
+		let mut flag: &str = arg.as_str();
 
 		if flag.len() == 2 {
-			if !flag_map.contains_key(flag) {
-				ArgumentError!("unknown flag '{}'", flag);
+			// no hay ganas de buscar un find_index
+			for (i, short) in valid_flags_short.clone().iter().enumerate() {
+				let short: &str = *short;
+				if flag == short {
+					debug!("\"{}\" -> \"{}\"", gray(flag), gray(valid_flags[i]));
+					flag = valid_flags[i];
+				}
 			}
-			flag = flag_map[flag];
 		}
 		if !valid_flags.contains(&flag) {
 			ArgumentError!("unknown flag '{}'", flag);
@@ -67,18 +67,28 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 			continue;
 		}
 		if i != 1 {
-			ArgumentError!("unexpected flag '{}' at position {}", flag, i);
+			ArgumentError!("unexpected flag \"{}\" at position {}", flag, i);
 		}
 		match flag {
-			"-h" => {
-				for flag in valid_flags.clone().iter() {
-					flag_map.values().find(|long| long.to_string() == flag.to_string());
-				}
-				println!("{}, {:9 }   Shows this message", gray("-h"), gray("--help"));
-				println!("{}, {:9 }   Prints the current {} version", gray("-v"), gray("--version"), NAME);
+			"--help" => {
+				let descriptions: HashMap<&str, String> = HashMap::from([
+					("--help", "Shows this message".to_string()),
+					("--version", format!("Prints the current {} version", NAME))
+				]);
+
+				let max_flag_len: usize = match descriptions.keys()
+					.max_by(|a: &&&str, b: &&&str| { a.len().cmp(&b.len()) })
+				{
+					None => exit(1),
+					Some(n) => n
+				}.len();
+
+				for (flag, description) in descriptions {
+					println!("{}{}   {}", gray(flag), " ".repeat(max_flag_len - flag.len()), description);
+				};
 				exit(0);
 			}
-			"-v" => {
+			"--version" => {
 				println!("{} {}", NAME, VERSION);
 			}
 			_ => {
