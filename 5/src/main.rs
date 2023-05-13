@@ -33,7 +33,6 @@ fn main() {
 	  let cfg: toml::map::Map<String, toml::Value> = toml_stuff::parse_toml(cfg_file);
 		debug!("cfg = {:?}", cfg);
 	}
-	return;
 	// let std = std::init();
 
 	#[allow(unused)]
