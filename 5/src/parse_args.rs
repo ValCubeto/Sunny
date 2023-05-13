@@ -8,15 +8,13 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 	let mut flags: Vec<String> = vec![];
 	let mut args: Vec<String> = vec![];
 
-	for arg_os in args_os() {
-		args.push(arg_os.to_string_lossy().to_string());
+	for arg in args_os() {
+		args.push(arg.to_string_lossy().to_string());
 	}
 
-	drop(args_os);
+	// drop args_os?
 
 	let exec_path: String = args.remove(0);
-
-	println!("[debug] exec_path = {:?}", exec_path);
 
 	// #region flags
 	let flag_map: HashMap<&str, &str> = HashMap::from([

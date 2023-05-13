@@ -1,29 +1,37 @@
-
 mod parse_args;
 mod about;
 mod stdlib;
 mod types;
 mod colors;
+mod paths;
+mod files;
+mod toml_stuff;
 
-#[allow(unused)]
-use std::process::exit;
-#[allow(unused)]
 use types::{Any, Dict};
 
 // auto-imported toml, crossterm
+#[allow(unreachable_code)]
 
 fn main() {
 	#[allow(unused)]
 	let (exec_path, flags, file, args): _ = parse_args::parse();
 
-	// let exec_path = resolve(exec_path);
-	// let file = resolve_filename(file);
-	// let workspace = path::dirname(file);
-	// let cfg_path = path::join(workspace, "Sunny.toml");
-	// if exists(config_path) {
-	//   let cfg = read_to_string(cfg_path).parse::<toml::Table>();
-	// }
+	let exec_path: String = paths::resolve(exec_path);
+	println!("[debug] exec_path = {:?}", exec_path);
 
+	let file: String = paths::resolve_filename(file);
+	println!("[debug] main_file = {}", file);
+
+	let workspace: _ = paths::dirname(file.clone());
+
+	let cfg_path: _ = workspace.join("Sunny.toml");
+	if cfg_path.exists() {
+		println!("[debug] cfg file found: {:?}", cfg_path);
+		let cfg_file: String = files::read(cfg_path.to_string_lossy().to_string());
+	  let cfg: toml::map::Map<String, toml::Value> = toml_stuff::parse_toml(cfg_file);
+		println!("[debug] cfg = {:?}", cfg);
+	}
+	return;
 	// let std = std::init();
 
 	#[allow(unused)]
