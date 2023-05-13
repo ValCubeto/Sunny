@@ -1,8 +1,8 @@
 use std::env::args_os;
 use std::collections::HashMap;
-use std::process::exit;
 use crate::about::{NAME, VERSION};
-use crate::colors::{error, gray};
+use crate::colors::gray;
+use crate::errors::ArgumentError;
 
 pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 	let mut flags: Vec<String> = vec![];
@@ -47,30 +47,26 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 		}
 
 		if arg == "-" {
-			eprintln!("{}: invalid flag at position {}", error("ArgumentError"), i);
-			exit(1);
+			ArgumentError!("invalid flag at position {}", i);
 		}
 
 		let mut flag: &str = &args.remove(0)[..];
 
 		if flag.len() == 2 {
 			if !flag_map.contains_key(flag) {
-				eprintln!("{}: unknown flag '{}'", error("ArgumentError"), flag);
-				exit(1);
+				ArgumentError!("unknown flag '{}'", flag);
 			}
 			flag = flag_map[flag];
 		}
 		if !valid_flags.contains(&flag) {
-			eprintln!("{}: unknown flag '{}'", error("ArgumentError"), flag);
-			exit(1);
+			ArgumentError!("unknown flag '{}'", flag);
 		}
 		if !unique_flags.contains(&flag) {
 			flags.push(flag.to_string());
 			continue;
 		}
 		if i != 1 {
-			eprintln!("{}: unexpected flag '{}' at position {}", error("ArgumentError"), flag, i);
-			exit(1);
+			ArgumentError!("unexpected flag '{}' at position {}", flag, i);
 		}
 		match flag {
 			"--help" => {
@@ -81,16 +77,14 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 				println!("{} {}", NAME, VERSION);
 			}
 			_ => {
-				println!("{}: flag '{}' not implemented yet", error("ArgumentError"), flag);
+				ArgumentError!("flag '{}' not implemented yet", flag);
 			}
 		}
-		exit(0);
 	}
 	// #endregion flags
 
 	if args.is_empty() {
-		eprintln!("{}: missing file path", error("ArgumentError"));
-		exit(1);
+		ArgumentError!("missing file path");
 	}
 
 	let file: String = args.remove(0);

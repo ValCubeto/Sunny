@@ -6,11 +6,11 @@ mod colors;
 mod paths;
 mod files;
 mod toml_stuff;
+mod errors;
 
 use types::{Any, Dict};
 
 // auto-imported toml, crossterm
-#[allow(unreachable_code)]
 
 fn main() {
 	#[allow(unused)]
