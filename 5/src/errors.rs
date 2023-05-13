@@ -1,3 +1,10 @@
+macro_rules! debug {
+	($($args:expr),+) => {
+		eprint!("[{}] ", crate::colors::yellow("debug"));
+		eprintln!($($args),+);
+	};
+}
+
 macro_rules! Error {
 	($name:ident, $($args:expr),+) => {
 		eprint!("{}: ", crate::colors::error(stringify!($name)));
@@ -18,6 +25,7 @@ macro_rules! ArgumentError {
 	};
 }
 
+pub(crate) use debug;
 pub(crate) use Error;
 pub(crate) use LoadError;
 pub(crate) use ArgumentError;

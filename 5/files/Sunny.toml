@@ -1,2 +1,5 @@
+[sunny]
 sunny-version = "1.0.0"
-aasdsdadsadad = 'hola'
+
+[meta]
+authors = ["Val Cubeta"]

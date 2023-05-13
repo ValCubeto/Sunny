@@ -1,3 +1,7 @@
+pub fn yellow(text: &str) -> String {
+	format!("\x1B[33m{}\x1B[39m", text)
+}
+
 pub fn gray(text: &str) -> String {
 	format!("\x1B[90m{}\x1B[39m", text)
 }

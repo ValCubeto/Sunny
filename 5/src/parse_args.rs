@@ -1,8 +1,9 @@
 use std::env::args_os;
 use std::collections::HashMap;
+use std::process::exit;
 use crate::about::{NAME, VERSION};
 use crate::colors::gray;
-use crate::errors::ArgumentError;
+use crate::errors::{ArgumentError, debug};
 
 pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 	let mut flags: Vec<String> = vec![];
@@ -18,28 +19,28 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 
 	// #region flags
 	let flag_map: HashMap<&str, &str> = HashMap::from([
-		// ("-e", "--eval"),
-		("-h", "--help"),
-		("-t", "--test"),
-		("-v", "--version"),
+		// ("--eval", "-e"),
+		("--help", "-h"),
+		("--test", "-t"),
+		("--version", "-v"),
 	]);
 
 	let valid_flags: _ = [
-		// "--eval",
-		"--help",
-		"--test",
-		"--version",
+		// "-e",
+		"-h",
+		"-t",
+		"-v",
 	];
 
 	let unique_flags: _ = [
-		"--help",
-		"--version",
+		"-h",
+		"-v",
 	];
 
+	// env::args() panics
 	for (i, arg) in args.clone().iter().enumerate() {
-		// env::args() panics
 
-		println!("[debug] args[{}] = {:?}", i, arg);
+		debug!("args[{}] = {:?}", i, arg);
 		let i: usize = i + 1;
 		
 		if arg.len() < 2 || !arg.starts_with('-') {
@@ -69,11 +70,15 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 			ArgumentError!("unexpected flag '{}' at position {}", flag, i);
 		}
 		match flag {
-			"--help" => {
-				println!("{} | {:9 } Shows this message", gray("-h"), gray("--help"));
-				println!("{} | {:9 } Prints the current {} version", gray("-v"), gray("--version"), NAME);
+			"-h" => {
+				for flag in valid_flags.clone().iter() {
+					flag_map.values().find(|long| long.to_string() == flag.to_string());
+				}
+				println!("{}, {:9 }   Shows this message", gray("-h"), gray("--help"));
+				println!("{}, {:9 }   Prints the current {} version", gray("-v"), gray("--version"), NAME);
+				exit(0);
 			}
-			"--version" => {
+			"-v" => {
 				println!("{} {}", NAME, VERSION);
 			}
 			_ => {
