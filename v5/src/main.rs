@@ -62,12 +62,30 @@ fn main() {
 				debug!("{:?} is a space", curr);
 			}
 			'a'..='z' | '_' | 'A'..='Z' => {
-				debug!("{:?} is an identifier char", curr);
+				debug!("{:?} is a word char", curr);
+				let mut word: String = String::from(curr);
 				i += 1;
 				while i < code.len() {
 					let curr: char = code[i];
-					debug!("code[{}] = {:?}", i, curr);
+					match curr {
+						'a'..='z' | '_' | 'A'..='Z' => {
+							word.push(curr);
+						}
+						_ => {
+							i -= 1;
+							break
+						}
+					};
 					i += 1;
+				}
+				debug!("collected word: {:?}", word);
+				match word.as_str() {
+					"fun" => {
+						debug!("todo: collect identifier + params + body");
+					}
+					_ => {
+						debug!("{:?} is an identifier", word);
+					}
 				}
 			}
 			'0'..='9' => {
