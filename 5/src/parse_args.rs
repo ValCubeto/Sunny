@@ -52,8 +52,7 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 		if flag.len() == 2 {
 			// no hay ganas de buscar un find_index
 			for (i, short) in valid_flags_short.clone().iter().enumerate() {
-				let short: &str = *short;
-				if flag == short {
+				if flag == *short {
 					debug!("\"{}\" -> \"{}\"", gray(flag), gray(valid_flags[i]));
 					flag = valid_flags[i];
 				}

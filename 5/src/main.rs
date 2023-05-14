@@ -46,17 +46,12 @@ fn main() {
 		("infinity".to_string(), Any::Infinity),
 	]);
 
-	let code: String = read(file_path.clone());
+	let code: Vec<char> = read(file_path).chars().collect();
 	debug!("code = {:?}", code);
 		
 	let mut i: usize = 0;
 	while i < code.len() {
-		let curr: char = match code.chars().nth(i) {
-			None => {
-				InternalError!("\"{}\" out of bounds", i);
-			}
-			Some(c) => c
-		};
+		let curr: char = code[i];
 		debug!("code[{}] = {:?}", i, curr);
 		i += 1;
 	}
