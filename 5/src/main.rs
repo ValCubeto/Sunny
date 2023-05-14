@@ -10,7 +10,8 @@ mod errors;
 
 use types::{Any, Dict};
 
-use crate::{errors::{debug, InternalError}, files::read};
+use crate::errors::{debug, SyntaxError};
+use crate::files::read;
 
 // auto-imported toml, crossterm
 
@@ -35,6 +36,7 @@ fn main() {
 	}
 	// let std = std::init();
 
+	#[allow(unused)]
 	let mut global: Dict = Dict::from([
 		("process".to_string(), Any::Dict(Dict::from([
 			("exec_path".to_string(), Any::String(exec_path)),
@@ -47,12 +49,20 @@ fn main() {
 	]);
 
 	let code: Vec<char> = read(file_path).chars().collect();
-	debug!("code = {:?}", code);
+	debug!("code = {:?}", code.iter().collect::<String>());
 		
 	let mut i: usize = 0;
 	while i < code.len() {
 		let curr: char = code[i];
 		debug!("code[{}] = {:?}", i, curr);
+		match curr {
+			'a'..='z' => {
+				debug!("word char");
+			}
+			_ => {
+				SyntaxError!("invalid character '{}'   # todo: unicode", curr);
+			}
+		}
 		i += 1;
 	}
 }

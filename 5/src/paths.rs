@@ -13,7 +13,16 @@ pub fn cwd() -> PathBuf {
 }
 
 pub fn resolve(path: String) -> String {
-	cwd().join(path).to_string_lossy().to_string()
+	// no hay errores porque join elimina todo lo anterior despues de una raiz
+	let path = match cwd().canonicalize() {
+		Err(_) => { LoadError!("que"); },
+		Ok(p) => p
+	}.join(path);
+	if cfg!(windows) {
+		path.to_string_lossy()[4..].to_string()
+	} else {
+		path.to_string_lossy().to_string()
+	}
 }
 
 pub fn dirname(path: String) -> PathBuf {
