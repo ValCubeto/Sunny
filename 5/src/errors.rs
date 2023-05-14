@@ -25,7 +25,14 @@ macro_rules! ArgumentError {
 	};
 }
 
+macro_rules! InternalError {
+	($($args:expr),+) => {
+		crate::errors::Error!(InternalError, $($args),+);
+	};
+}
+
 pub(crate) use debug;
 pub(crate) use Error;
 pub(crate) use LoadError;
 pub(crate) use ArgumentError;
+pub(crate) use InternalError;

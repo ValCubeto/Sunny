@@ -10,7 +10,7 @@ mod errors;
 
 use types::{Any, Dict};
 
-use crate::{errors::debug, files::read};
+use crate::{errors::{debug, InternalError}, files::read};
 
 // auto-imported toml, crossterm
 
@@ -51,7 +51,12 @@ fn main() {
 		
 	let mut i: usize = 0;
 	while i < code.len() {
-		let curr = code.chars().nth(i);
+		let curr: char = match code.chars().nth(i) {
+			None => {
+				InternalError!("\"{}\" out of bounds", i);
+			}
+			Some(c) => c
+		};
 		debug!("code[{}] = {:?}", i, curr);
 		i += 1;
 	}
