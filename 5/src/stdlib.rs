@@ -1,3 +1,6 @@
+#[allow(unused)]
+fn init() {}
+
 /*
 io {
 	write(data: str)
@@ -7,6 +10,4 @@ io {
 	read() -> str
 	read_key() -> num
 }
-
-
 */
