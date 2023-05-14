@@ -35,7 +35,12 @@ pub fn resolve_filename(path: String) -> String {
 		if !path_buf.is_file() {
 			LoadError!("\"{}\" is not a file", path);
 		}
-		return path;
+		return /* match */ path/* _buf.canonicalize() {
+			Err(err) => {
+				LoadError!("the path \"{}\" exists, but something went wrong resolving it. {}", path, err);
+			}
+			Ok(path) => path.to_string_lossy().to_string()
+		}; */
 	}
 	
 	path_buf.set_extension(EXTENSION);
@@ -43,7 +48,12 @@ pub fn resolve_filename(path: String) -> String {
 		if !path_buf.is_file() {
 			LoadError!("\"{}\" is not a file", path);
 		}
-		return path_buf.to_string_lossy().to_string();
+		return /* match */ path_buf.to_string_lossy().to_string()/* _buf.canonicalize() {
+			Err(err) => {
+				LoadError!("the path \"{}\" exists, but something went wrong resolving it. {}", path, err);
+			}
+			Ok(path) => path.to_string_lossy().to_string()
+		}; */
 	}
 	LoadError!("file \"{}\" not found", path);
 }
