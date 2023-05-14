@@ -1,11 +1,9 @@
-use std::process::exit;
-use crate::colors::error;
+use crate::errors::LoadError;
 
 pub fn parse_toml(string: String) -> toml::map::Map<String, toml::Value> {
 	match string.parse::<toml::Table>() {
 		Err(err) => {
-			eprintln!("{}: {}", error("LoadError"), err);
-			exit(1);
+			LoadError!("{}", err);
 		}
 		Ok(table) => table
 	}
