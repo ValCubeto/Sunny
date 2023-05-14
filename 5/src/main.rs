@@ -42,7 +42,9 @@ fn main() {
 			("exec_path".to_string(), Any::String(exec_path)),
 			("flags".to_string(), Any::List(flags.iter().map(|v: &String| Any::String(v.clone())).collect())),
 			("file_path".to_string(), Any::String(file_path.clone())),
-			("args".to_string(), Any::List(args.iter().map(|v: &String| Any::String(v.clone())).collect()))
+			("args".to_string(), Any::List(args.iter().map(|v: &String| Any::String(v.clone())).collect())),
+			// ("get_title")
+			// ("set_title", |title: String|)
 		]))),
 		("none".to_string(), Any::None),
 		("infinity".to_string(), Any::Infinity),
@@ -56,11 +58,30 @@ fn main() {
 		let curr: char = code[i];
 		debug!("code[{}] = {:?}", i, curr);
 		match curr {
-			'a'..='z' => {
-				debug!("word char");
+			'\n' | ' ' | '\t' | '\r' => {
+				debug!("{:?} is a space", curr);
+			}
+			'a'..='z' | '_' | 'A'..='Z' => {
+				debug!("{:?} is an identifier char", curr);
+				i += 1;
+				while i < code.len() {
+					let curr: char = code[i];
+					debug!("code[{}] = {:?}", i, curr);
+					i += 1;
+				}
+			}
+			'0'..='9' => {
+				debug!("{:?} is a number", curr);
+			}
+			'{' | '}' | '[' | ']' | '(' | ')' => {
+				debug!("{:?} is a bracket", curr);
+			}
+			'\'' | '"' => {
+				debug!("{:?} is a quote", curr);
 			}
 			_ => {
-				SyntaxError!("invalid character '{}'   # todo: unicode", curr);
+				// \\u{{{:06X}}}
+				SyntaxError!("invalid character \\u{{{:x}}}", curr as u32);
 			}
 		}
 		i += 1;
