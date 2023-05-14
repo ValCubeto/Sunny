@@ -21,8 +21,8 @@ fn main() {
 	let exec_path: String = paths::resolve(exec_path);
 	debug!("exec_path = {:?}", exec_path);
 
-	let file: String = paths::resolve_filename(file);
-	debug!("main_file = {}", file);
+	let file: String = paths::resolve_filename(if file == "." { String::from("main.sny") } else { file });
+	debug!("main_file = {:?}", file);
 
 	let workspace: _ = paths::dirname(file.clone());
 

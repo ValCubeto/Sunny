@@ -32,11 +32,17 @@ pub fn resolve_filename(path: String) -> String {
 	let mut path_buf: PathBuf = PathBuf::from(path.clone());
 
 	if path_buf.exists() {
+		if !path_buf.is_file() {
+			LoadError!("\"{}\" is not a file", path);
+		}
 		return path;
 	}
-
+	
 	path_buf.set_extension(EXTENSION);
 	if path_buf.exists() {
+		if !path_buf.is_file() {
+			LoadError!("\"{}\" is not a file", path);
+		}
 		return path_buf.to_string_lossy().to_string();
 	}
 	LoadError!("file \"{}\" not found", path);
