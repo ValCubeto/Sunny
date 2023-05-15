@@ -86,6 +86,15 @@ fn main() {
 					i += 1;
 				}
 				debug!("collected word: {:?}", word);
+				i += 1;
+				let chr: char = chars[i];
+				match chr {
+					' ' | '\n' | '\t' | '\r' => {
+						i += 1;
+					}
+					_ => invalid_character(chr)
+				}
+				// debug!("chr = {:?}", chr);
 				match word.as_str() {
 					"fun" => {
 						while i < chars.len() {
