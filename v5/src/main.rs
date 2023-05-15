@@ -101,7 +101,6 @@ fn main() {
 							}
 							i += 1;
 						}
-						debug!("todo: collect identifier + params + body");
 					}
 					_ => {
 						debug!("{:?} is an identifier", word);
