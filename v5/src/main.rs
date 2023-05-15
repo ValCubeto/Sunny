@@ -92,7 +92,7 @@ fn main() {
 							let chr: char = chars[i];
 							match chr {
 								'\n' | ' ' | '\t' | '\r' => {
-                                         i += 1;
+                                i += 1;
 									continue;
 								}
 								'a'..='z' | '_' | 'A'..='Z' => {
