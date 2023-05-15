@@ -97,20 +97,21 @@ fn main() {
 				// debug!("chr = {:?}", chr);
 				match word.as_str() {
 					"fun" => {
+						let mut name: String = String::new();
 						while i < chars.len() {
 							let chr: char = chars[i];
 							match chr {
-								'\n' | ' ' | '\t' | '\r' => {
-									i += 1;
-									continue;
+								' ' | '\n' | '\t' | '\r' => {
+									// ignore
 								}
 								'a'..='z' | '_' | 'A'..='Z' => {
-									//zzzzzzzzzzzzzzzzzzzzzzz
+									name.push(chr);
 								}
 								_ => invalid_character(chr)
 							}
 							i += 1;
 						}
+						debug!("name = {:?}", name);
 					}
 					_ => {
 						debug!("{:?} is an identifier", word);
