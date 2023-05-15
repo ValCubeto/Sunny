@@ -50,30 +50,37 @@ fn main() {
 		("infinity".to_string(), Any::Infinity),
 	]);
 
-	let code: Vec<char> = read(file_path).chars().collect();
-	debug!("code = {:?}", code.iter().collect::<String>());
+	let chars: Vec<char> = read(file_path).chars().collect();
+	debug!("code = {:?}", chars.iter().collect::<String>());
+
+	println!();
 		
+	fn invalid_character(chr: char) {
+		// \\u{{{:06X}}}
+		SyntaxError!("invalid character \\u{{{:x}}}", chr as u32);
+	}
+
 	let mut i: usize = 0;
-	while i < code.len() {
-		let curr: char = code[i];
-		debug!("code[{}] = {:?}", i, curr);
-		match curr {
+	while i < chars.len() {
+		let chr: char = chars[i];
+		debug!("chars[{}] = {:?}", i, chr);
+		match chr {
 			'\n' | ' ' | '\t' | '\r' => {
-				debug!("{:?} is a space", curr);
+				debug!("{:?} is a space", chr);
 			}
 			'a'..='z' | '_' | 'A'..='Z' => {
-				debug!("{:?} is a word char", curr);
-				let mut word: String = String::from(curr);
+				// debug!("{:?} is a word char", curr);
+				let mut word: String = String::from(chr);
 				i += 1;
-				while i < code.len() {
-					let curr: char = code[i];
-					match curr {
+				while i < chars.len() {
+					let chr: char = chars[i];
+					match chr {
 						'a'..='z' | '_' | 'A'..='Z' => {
-							word.push(curr);
+							word.push(chr);
 						}
 						_ => {
 							i -= 1;
-							break
+							break;
 						}
 					};
 					i += 1;
@@ -81,6 +88,19 @@ fn main() {
 				debug!("collected word: {:?}", word);
 				match word.as_str() {
 					"fun" => {
+						while i <= chars.len() {
+							let chr: char = chars[i];
+							match chr {
+								'\n' | ' ' | '\t' | '\r' => {
+									continue;
+								}
+								'a'..='z' | '_' | 'A'..='Z' => {
+									//zzzzzzzzzzzzzzzzzzzzzzz
+								}
+								_ => invalid_character(chr)
+							}
+							i += 1;
+						}
 						debug!("todo: collect identifier + params + body");
 					}
 					_ => {
@@ -89,18 +109,15 @@ fn main() {
 				}
 			}
 			'0'..='9' => {
-				debug!("{:?} is a number", curr);
+				debug!("{:?} is a number", chr);
 			}
 			'{' | '}' | '[' | ']' | '(' | ')' => {
-				debug!("{:?} is a bracket", curr);
+				debug!("{:?} is a bracket", chr);
 			}
 			'\'' | '"' => {
-				debug!("{:?} is a quote", curr);
+				debug!("{:?} is a quote", chr);
 			}
-			_ => {
-				// \\u{{{:06X}}}
-				SyntaxError!("invalid character \\u{{{:x}}}", curr as u32);
-			}
+			_ => invalid_character(chr)
 		}
 		i += 1;
 	}
