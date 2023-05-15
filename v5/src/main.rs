@@ -88,7 +88,7 @@ fn main() {
 				debug!("collected word: {:?}", word);
 				match word.as_str() {
 					"fun" => {
-						while i <= chars.len() {
+						while i < chars.len() {
 							let chr: char = chars[i];
 							match chr {
 								'\n' | ' ' | '\t' | '\r' => {
