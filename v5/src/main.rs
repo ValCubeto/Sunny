@@ -77,6 +77,12 @@ fn main() {
 		}
 	}
 
+	fn collect_word(chars: &Vec<char>, i: &mut usize) -> String {
+		let mut word: String = String::new();
+		//
+		word
+	}
+
 	let mut i: usize = 0;
 	while i < chars.len() {
 		let chr: char = chars[i];
