@@ -77,6 +77,10 @@ fn main() {
 		}
 	}
 
+	fn collect_comment(chars: &Vec<char>, i: &mut usize) {
+		*i += 1;
+	}
+
 	fn collect_word(chars: &Vec<char>, i: &mut usize) -> String {
 		let mut word: String = String::new();
 		//
