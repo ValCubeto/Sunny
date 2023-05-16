@@ -55,9 +55,26 @@ fn main() {
 
 	println!();
 		
-	fn invalid_character(chr: char) {
-		// \\u{{{:06X}}}
-		SyntaxError!("invalid character \\u{{{:x}}}", chr as u32);
+	fn unknown(chr: char) {
+		match chr {
+			| 'a'..='z' | '_' | 'A'..='Z'
+			| '0'..='9'
+			| '(' | ')' | '{' | '}' | '[' | ']'
+			| '.' | ',' | ':' | ';'
+			| '+' | '-' | '*' | '/' | '%'
+			| '<' | '>'
+			| '&' | '|' | '!'
+			| '\'' | '"'
+			| '=' | '?' | '@'
+				=>
+			{
+				SyntaxError!("character '{}' unexpected here", chr);
+			}
+			_ => {
+				// U+{{{:06X}}}
+				SyntaxError!("invalid character \\u{{{:x}}}", chr as u32);
+			}
+		}
 	}
 
 	let mut i: usize = 0;
@@ -92,7 +109,7 @@ fn main() {
 					' ' | '\n' | '\t' | '\r' => {
 						i += 1;
 					}
-					_ => invalid_character(chr)
+					_ => unknown(chr)
 				}
 				// debug!("chr = {:?}", chr);
 				match word.as_str() {
@@ -102,16 +119,33 @@ fn main() {
 							let chr: char = chars[i];
 							match chr {
 								' ' | '\n' | '\t' | '\r' => {
-									// ignore
+									// ignore spaces before and after
 								}
 								'a'..='z' | '_' | 'A'..='Z' => {
 									name.push(chr);
 								}
-								_ => invalid_character(chr)
+								_ => unknown(chr)
 							}
 							i += 1;
 						}
 						debug!("name = {:?}", name);
+
+						let chr: char = chars[i];
+						if chr != '(' {
+							unknown(chr);
+						}
+
+						i += 1;
+						while i < chars.len() {
+							let chr: char = chars[i];
+							match chr {
+								'a'..='z' | '_' | 'A'..='Z' => {}
+								'(' => {}
+								'.' => {}
+								_ => unknown(chr)
+							}
+							i += 1;
+						}
 					}
 					_ => {
 						debug!("{:?} is an identifier", word);
@@ -127,7 +161,7 @@ fn main() {
 			'\'' | '"' => {
 				debug!("{:?} is a quote", chr);
 			}
-			_ => invalid_character(chr)
+			_ => unknown(chr)
 		}
 		i += 1;
 	}
