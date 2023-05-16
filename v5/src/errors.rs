@@ -38,7 +38,7 @@ macro_rules! InternalError {
 
 macro_rules! SyntaxError {
 	($($args:expr),+) => {
-		crate::errors::Error!(InternalError, $($args),+);
+		crate::errors::Error!(SyntaxError, $($args),+);
 	};
 }
 
