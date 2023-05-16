@@ -80,10 +80,13 @@ fn main() {
 	fn collect_word(chars: &Vec<char>, i: &mut usize) -> String {
 		let mut word: String = String::new();
 		//
+		*i += 1;
 		word
 	}
 
+	
 	let mut i: usize = 0;
+	collect_word(&chars, &mut i);
 	while i < chars.len() {
 		let chr: char = chars[i];
 		debug!("chars[{}] = {:?}", i, chr);
