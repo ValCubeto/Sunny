@@ -78,7 +78,11 @@ fn main() {
 	}
 
 	fn collect_comment(chars: &Vec<char>, i: &mut usize) {
-		*i += 1;
+		while *i < chars.len() {
+			let chr: char = chars[*i];
+			debug!("chr = {:?}", chr);
+			*i += 1;
+		}
 	}
 
 	fn collect_word(chars: &Vec<char>, i: &mut usize) -> String {
