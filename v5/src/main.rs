@@ -7,6 +7,7 @@ mod paths;
 mod files;
 mod toml_stuff;
 mod errors;
+mod namespaces;
 
 use types::{Any, Dict};
 
@@ -77,109 +78,34 @@ fn main() {
 		}
 	}
 
-	fn collect_comment(chars: &Vec<char>, i: &mut usize) {
-		while *i < chars.len() {
-			let chr: char = chars[*i];
-			debug!("chr = {:?}", chr);
-			*i += 1;
+	let mut i: usize = 0;
+
+	macro_rules! collect_comment {
+		() => {
+			while i < chars.len() {
+				let chr: char = chars[i];
+				debug!("chr = {:?}", chr);
+				i += 1;
+			}
 		}
 	}
 
-	fn collect_word(chars: &Vec<char>, i: &mut usize) -> String {
-		let mut word: String = String::new();
-		//
-		*i += 1;
-		word
-	}
-
-	
-	let mut i: usize = 0;
-	collect_word(&chars, &mut i);
-	while i < chars.len() {
-		let chr: char = chars[i];
-		debug!("chars[{}] = {:?}", i, chr);
-		match chr {
-			'\n' | ' ' | '\t' | '\r' => {
-				debug!("{:?} is a space", chr);
-			}
-			'a'..='z' | '_' | 'A'..='Z' => {
-				// debug!("{:?} is a word char", curr);
-				let mut word: String = String::from(chr);
-				i += 1;
-				while i < chars.len() {
-					let chr: char = chars[i];
-					match chr {
-						'a'..='z' | '_' | 'A'..='Z' => {
-							word.push(chr);
-						}
-						_ => {
-							i -= 1;
-							break;
-						}
-					};
-					i += 1;
-				}
-				debug!("collected word: {:?}", word);
-				i += 1;
-				let chr: char = chars[i];
+	macro_rules! collect_word {
+		() => {{
+			let mut word: String = String::new();
+			while i < chars.len() {
+				let chr = chars[i];
 				match chr {
-					' ' | '\n' | '\t' | '\r' => {
-						i += 1;
-					}
-					_ => unknown(chr)
-				}
-				// debug!("chr = {:?}", chr);
-				match word.as_str() {
-					"fun" => {
-						let mut name: String = String::new();
-						while i < chars.len() {
-							let chr: char = chars[i];
-							match chr {
-								' ' | '\n' | '\t' | '\r' => {
-									// ignore spaces before and after
-								}
-								'a'..='z' | '_' | 'A'..='Z' => {
-									name.push(chr);
-								}
-								_ => unknown(chr)
-							}
-							i += 1;
-						}
-						debug!("name = {:?}", name);
-
-						let chr: char = chars[i];
-						if chr != '(' {
-							unknown(chr);
-						}
-
-						i += 1;
-						while i < chars.len() {
-							let chr: char = chars[i];
-							match chr {
-								'a'..='z' | '_' | 'A'..='Z' => {}
-								'(' => {}
-								'.' => {}
-								_ => unknown(chr)
-							}
-							i += 1;
-						}
+					'a'..='z' | '_' | 'A'..='Z' => {
+						word.push(chr);
 					}
 					_ => {
-						debug!("{:?} is an identifier", word);
+						unknown(chr);
 					}
 				}
+				i += 1;
 			}
-			'0'..='9' => {
-				debug!("{:?} is a number", chr);
-			}
-			'{' | '}' | '[' | ']' | '(' | ')' => {
-				debug!("{:?} is a bracket", chr);
-			}
-			'\'' | '"' => {
-				debug!("{:?} is a quote", chr);
-			}
-			_ => unknown(chr)
-		}
-		i += 1;
+			word
+		}}
 	}
 }
