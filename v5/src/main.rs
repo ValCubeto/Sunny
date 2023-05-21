@@ -9,10 +9,11 @@ mod toml_stuff;
 mod errors;
 mod namespaces;
 
-use types::{Any, Dict};
-
-use crate::errors::{debug, SyntaxError};
+use crate::types::{Any, Dict};
+use crate::errors::{debug, SyntaxError, Warning};
 use crate::files::read;
+use crate::namespaces::parse_namespace;
+use std::collections::HashMap;
 
 // auto-imported toml, crossterm
 
@@ -79,6 +80,11 @@ fn main() {
 	}
 
 	let mut i: usize = 0;
+
+	let main = parse_namespace!();
+	if !main.contains_key("exports") {
+		Warning!("found exported values in the main file");
+	}
 
 	macro_rules! collect_comment {
 		() => {

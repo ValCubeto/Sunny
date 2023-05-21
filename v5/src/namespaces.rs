@@ -1,19 +1,11 @@
+
 #[allow(unused)]
-macro_rules! collect_namespace {
+macro_rules! parse_namespace {
 	() => {{
-		let exports = HashMap::<String, Any>::new();
+		let namespace = HashMap::<String, Any>::new();
+		namespace
 	}}
 }
 
 #[allow(unused)]
-macro_rules! collect_main {
-	() => {{
-		
-	}}
-}
-
-#[allow(unused)]
-pub(crate) use collect_namespace;
-
-#[allow(unused)]
-pub(crate) use collect_main;
+pub(crate) use parse_namespace;
