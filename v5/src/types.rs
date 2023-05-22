@@ -7,9 +7,12 @@ pub type Dict = HashMap<&'static str, Any>;
 pub enum Any {
 	None,
 	Infinity,
+	Bool(bool),
 	List(Vec<Any>),
 	Dict(Dict),
 	String(String),
+	Namespace(Dict),
+	// Function(Ast),
 
 	U8(u8),
 	U16(u16),
@@ -27,4 +30,15 @@ pub enum Any {
 	F64(f64),
 
 	Number(String),
+}
+
+impl Any {
+	pub fn unwrap_bool(&self) -> bool {
+		match self { Any::Bool(value) => *value, _ => panic!("unwrapping on incorrect variant") }
+	}
+}
+
+fn a() {
+	let a = Any::Bool(true).unwrap_bool();
+	let b = Any::Bool; // ?????
 }
