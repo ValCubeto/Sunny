@@ -40,16 +40,16 @@ fn main() {
 
 	#[allow(unused)]
 	let mut global: Dict = Dict::from([
-		("process".to_string(), Any::Dict(Dict::from([
-			("exec_path".to_string(), Any::String(exec_path)),
-			("flags".to_string(), Any::List(flags.iter().map(|v: &String| Any::String(v.clone())).collect())),
-			("file_path".to_string(), Any::String(file_path.clone())),
-			("args".to_string(), Any::List(args.iter().map(|v: &String| Any::String(v.clone())).collect())),
+		("process", Any::Dict(Dict::from([
+			("exec_path", Any::String(exec_path)),
+			("flags", Any::List(flags.iter().map(|v: &String| Any::String(v.clone())).collect())),
+			("file_path", Any::String(file_path.clone())),
+			("args", Any::List(args.iter().map(|v: &String| Any::String(v.clone())).collect())),
 			// ("get_title")
 			// ("set_title", |title: String|)
 		]))),
-		("none".to_string(), Any::None),
-		("infinity".to_string(), Any::Infinity),
+		("none", Any::None),
+		("infinity", Any::Infinity),
 	]);
 
 	let chars: Vec<char> = read(file_path).chars().collect();

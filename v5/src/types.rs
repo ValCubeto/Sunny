@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-pub type Dict = HashMap<String, Any>;
+pub type Dict = HashMap<&'static str, Any>;
 
 #[allow(unused)]
 #[derive(Debug, Clone)]
