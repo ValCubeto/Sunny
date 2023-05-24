@@ -33,12 +33,25 @@ pub enum Any {
 }
 
 impl Any {
-	pub fn unwrap_bool(&self) -> bool {
-		match self { Any::Bool(value) => *value, _ => panic!("unwrapping on incorrect variant") }
+	pub fn unwrap(&self) -> Self {
+		Self {
+			
+		}
+		// match self { Any::Bool(value) => *value, _ => panic!("unwrapping on incorrect variant") }
 	}
 }
 
+// macro_rules! unwrap {
+// 	($value:expr, $variant:expr) => {{
+// 		match $value {
+// 			$variant($value) => value,
+// 			_ => panic!("unwrapping {} failed", stringify!($variant))
+// 		}
+// 	}}
+// }
+
 fn a() {
-	let a = Any::Bool(true).unwrap_bool();
-	let b = Any::Bool; // ?????
+	// let a = Any::Bool(true);
+	// let u = unwrap!(a, Any::Bool);
+	// let b = Any::Bool; // ?????
 }
