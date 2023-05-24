@@ -90,7 +90,10 @@ fn main() {
 		() => {
 			while i < chars.len() {
 				let chr: char = chars[i];
-				debug!("chr = {:?}", chr);
+				// debug!("chr = {:?}", chr);
+				if chr == '\n' {
+					break;
+				}
 				i += 1;
 			}
 		}
