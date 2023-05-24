@@ -109,7 +109,7 @@ fn main() {
 						word.push(chr);
 					}
 					_ => {
-						unknown(chr);
+						break;
 					}
 				}
 				i += 1;
