@@ -10,7 +10,7 @@ mod errors;
 mod namespaces;
 
 use crate::types::{Any, Dict};
-use crate::errors::{debug, SyntaxError, Warning};
+use crate::errors::{debug, Warning};
 use crate::files::read;
 use crate::namespaces::parse_namespace;
 use std::collections::HashMap;
@@ -40,11 +40,11 @@ fn main() {
 
 	#[allow(unused)]
 	let mut global: Dict = Dict::from([
-		("process", Any::Dict(Dict::from([
+		("process", Any::Dict(&Dict::from([
 			("exec_path", Any::String(exec_path)),
-			("flags", Any::List(flags.iter().map(|v: &String| Any::String(v.clone())).collect())),
+			("flags", Any::List(&flags.iter().map(|v: &String| Any::String(v.clone())).collect())),
 			("file_path", Any::String(file_path.clone())),
-			("args", Any::List(args.iter().map(|v: &String| Any::String(v.clone())).collect())),
+			("args", Any::List(&args.iter().map(|v: &String| Any::String(v.clone())).collect())),
 			// ("get_title")
 			// ("set_title", |title: String|)
 		]))),
@@ -56,65 +56,43 @@ fn main() {
 	debug!("code = {:?}", chars.iter().collect::<String>());
 
 	println!();
-		
-	fn unknown(chr: char) {
-		match chr {
-			| 'a'..='z' | '_' | 'A'..='Z'
-			| '0'..='9'
-			| '(' | ')' | '{' | '}' | '[' | ']'
-			| '.' | ',' | ':' | ';'
-			| '+' | '-' | '*' | '/' | '%'
-			| '<' | '>'
-			| '&' | '|' | '!'
-			| '\'' | '"'
-			| '=' | '?' | '@'
-				=>
-			{
-				SyntaxError!("character '{}' unexpected here", chr);
-			}
-			_ => {
-				// U+{{{:06X}}}
-				SyntaxError!("invalid character \\u{{{:x}}}", chr as u32);
-			}
-		}
-	}
 
+	#[allow(unused)]
 	let mut i: usize = 0;
 
-	let main = parse_namespace!();
-	if !main.contains_key("exports") {
-		Warning!("found exported values in the main file");
+	let main: HashMap<String, Any> = parse_namespace(&chars, &mut i);
+
+	if main.contains_key("exports") {
+		Warning!("exported values found in the main file");
 	}
 
-	macro_rules! collect_comment {
-		() => {
-			while i < chars.len() {
-				let chr: char = chars[i];
-				// debug!("chr = {:?}", chr);
-				if chr == '\n' {
-					break;
-				}
-				i += 1;
+	#[allow(unused)]
+	pub fn collect_comment(chars: &[char], i: &mut usize) {
+		while *i < chars.len() {
+			let chr: char = chars[*i];
+			// debug!("chr = {:?}", chr);
+			if chr == '\n' {
+				break;
 			}
+			*i += 1;
 		}
 	}
 
-	macro_rules! collect_word {
-		() => {{
-			let mut word: String = String::new();
-			while i < chars.len() {
-				let chr = chars[i];
-				match chr {
-					'a'..='z' | '_' | 'A'..='Z' => {
-						word.push(chr);
-					}
-					_ => {
-						break;
-					}
+	#[allow(unused)]
+	fn collect_word(chars: &[char], i: &mut usize) -> String {
+		let mut word: String = String::new();
+		while *i < chars.len() {
+			let chr: char = chars[*i];
+			match chr {
+				'a'..='z' | '_' | 'A'..='Z' => {
+					word.push(chr);
 				}
-				i += 1;
+				_ => {
+					break;
+				}
 			}
-			word
-		}}
+			*i += 1;
+		}
+		word
 	}
 }

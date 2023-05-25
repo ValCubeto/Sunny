@@ -11,5 +11,5 @@ pub fn error(text: &str) -> String {
 }
 
 pub fn warning(text: &str) -> String {
-	format!("\u{1b}[31m\u{1b}[1m{}\u{1b}[22m\u{1b}[39m", text)
+	format!("\u{1b}[33m\u{1b}[1m{}\u{1b}[22m\u{1b}[39m", text)
 }

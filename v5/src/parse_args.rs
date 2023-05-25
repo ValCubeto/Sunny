@@ -89,6 +89,7 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 			}
 			"--version" => {
 				println!("{} {}", NAME, VERSION);
+				exit(0);
 			}
 			_ => {
 				ArgumentError!("flag '{}' not implemented yet", flag);

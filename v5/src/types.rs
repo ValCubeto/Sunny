@@ -1,17 +1,17 @@
 use std::collections::HashMap;
 
-pub type Dict = HashMap<&'static str, Any>;
+pub type Dict<'a> = HashMap<&'static str, Any<'a>>;
 
 #[allow(unused)]
 #[derive(Debug, Clone)]
-pub enum Any {
+pub enum Any<'a> {
 	None,
 	Infinity,
 	Bool(bool),
-	List(Vec<Any>),
-	Dict(Dict),
+	List(&'a Vec<Any<'a>>),
+	Dict(&'a Dict<'a>),
 	String(String),
-	Namespace(Dict),
+	Namespace(&'a Dict<'a>),
 	// Function(Ast),
 
 	U8(u8),
@@ -30,28 +30,4 @@ pub enum Any {
 	F64(f64),
 
 	Number(String),
-}
-
-impl Any {
-	pub fn unwrap(&self) -> Self {
-		Self {
-			
-		}
-		// match self { Any::Bool(value) => *value, _ => panic!("unwrapping on incorrect variant") }
-	}
-}
-
-// macro_rules! unwrap {
-// 	($value:expr, $variant:expr) => {{
-// 		match $value {
-// 			$variant($value) => value,
-// 			_ => panic!("unwrapping {} failed", stringify!($variant))
-// 		}
-// 	}}
-// }
-
-fn a() {
-	// let a = Any::Bool(true);
-	// let u = unwrap!(a, Any::Bool);
-	// let b = Any::Bool; // ?????
 }

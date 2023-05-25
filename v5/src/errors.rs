@@ -53,3 +53,25 @@ pub(crate) use ArgumentError;
 pub(crate) use InternalError;
 pub(crate) use SyntaxError;
 pub(crate) use Warning;
+
+pub fn unexpected(chr: char) {
+	match chr {
+		| 'a'..='z' | '_' | 'A'..='Z'
+		| '0'..='9'
+		| '(' | ')' | '{' | '}' | '[' | ']'
+		| '.' | ',' | ':' | ';'
+		| '+' | '-' | '*' | '/' | '%'
+		| '<' | '>'
+		| '&' | '|' | '!'
+		| '\'' | '"'
+		| '=' | '?' | '@'
+			=>
+		{
+			SyntaxError!("character '{}' unexpected here", chr);
+		}
+		_ => {
+			// U+{{{:06X}}}
+			SyntaxError!("invalid character \\u{{{:x}}}", chr as u32);
+		}
+	}
+}
