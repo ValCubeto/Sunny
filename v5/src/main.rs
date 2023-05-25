@@ -9,6 +9,7 @@ mod toml_stuff;
 mod errors;
 mod namespaces;
 mod words;
+mod functions;
 
 use crate::types::{Any, Dict};
 use crate::errors::{debug, Warning};

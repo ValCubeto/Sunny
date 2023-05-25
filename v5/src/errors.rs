@@ -6,11 +6,11 @@ macro_rules! debug {
 }
 
 macro_rules! Error {
-	($name:ident, $($args:expr),+) => {
+	($name:ident, $($args:expr),+) => {{
 		eprint!("{}: ", crate::colors::error(stringify!($name)));
 		eprintln!($($args),+);
 		::std::process::exit(1);
-	};
+	}};
 }
 
 macro_rules! LoadError {
@@ -72,6 +72,27 @@ pub fn unexpected(chr: char) {
 		_ => {
 			// U+{{{:06X}}}
 			SyntaxError!("invalid character \\u{{{:x}}}", chr as u32);
+		}
+	}
+}
+
+pub fn unexpected_token(token: String) {
+	match token.as_str() {
+		| "fun"
+		| "class" | "extends" | "static" | "private"
+		| "var" | "const"
+		| "match" | "case"
+		| "if" | "else"
+		| "for" | "in"
+		| "import" | "from" | "as"
+		| "while" | "until"
+		| "loop" | "break" | "continue"
+			=>
+		{
+			SyntaxError!("unexpected keyword {token:?} here");
+		}
+		_ => {
+			SyntaxError!("unexpected identifier {token:?} here");
 		}
 	}
 }
