@@ -8,6 +8,7 @@ mod files;
 mod toml_stuff;
 mod errors;
 mod namespaces;
+mod words;
 
 use crate::types::{Any, Dict};
 use crate::errors::{debug, Warning};
@@ -33,7 +34,7 @@ fn main() {
 	if cfg_path.exists() {
 		debug!("cfg file found: {:?}", cfg_path);
 		let cfg_file: String = files::read(cfg_path.to_string_lossy().to_string());
-	  let cfg: toml::map::Map<String, toml::Value> = toml_stuff::parse_toml(cfg_file);
+		let cfg: toml::map::Map<String, toml::Value> = toml_stuff::parse_toml(cfg_file);
 		debug!("cfg = {:?}", cfg);
 	}
 	// let std = std::init();

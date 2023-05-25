@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use crate::types::Any;
 use crate::errors::unexpected;
+use crate::words::parse_word;
 
 #[allow(unused)]
 pub fn parse_namespace(chars: &[char], i: &mut usize) -> HashMap<String, Any<'static>> {
@@ -9,7 +10,10 @@ pub fn parse_namespace(chars: &[char], i: &mut usize) -> HashMap<String, Any<'st
 		let chr: char = chars[*i];
 		match chr {
 			'\n' | ' ' | '\t' | '\r' => {
-				continue;
+				// ignore
+			}
+			'a'..='z' | '_' | 'A'..='Z' => {
+				let word: String = parse_word(chars, i);
 			}
 			_ => {
 				unexpected(chr);
