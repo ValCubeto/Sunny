@@ -1,8 +1,8 @@
 macro_rules! debug {
-	($($args:expr),+) => {
+	($($args:expr),+) => {{
 		eprint!("[{}] ", crate::colors::yellow("debug"));
 		eprintln!($($args),+);
-	};
+	}};
 }
 
 macro_rules! Error {
@@ -39,10 +39,10 @@ macro_rules! SyntaxError {
 }
 
 macro_rules! Warning {
-	($($args:expr),+) => {
+	($($args:expr),+) => {{
 		eprint!("{}: ", crate::colors::warning("Warning"));
 		eprintln!($($args),+);
-	};
+	}};
 }
 
 pub(crate) use debug;

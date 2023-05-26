@@ -57,34 +57,4 @@ fn main() {
 	if main.contains_key("exports") {
 		Warning!("exported values found in the main file");
 	}
-
-	#[allow(unused)]
-	pub fn collect_comment(chars: &[char], i: &mut usize) {
-		while *i < chars.len() {
-			let chr: char = chars[*i];
-			// debug!("chr = {:?}", chr);
-			if chr == '\n' {
-				break;
-			}
-			*i += 1;
-		}
-	}
-
-	#[allow(unused)]
-	fn collect_word(chars: &[char], i: &mut usize) -> String {
-		let mut word: String = String::new();
-		while *i < chars.len() {
-			let chr: char = chars[*i];
-			match chr {
-				'a'..='z' | '_' | 'A'..='Z' => {
-					word.push(chr);
-				}
-				_ => {
-					break;
-				}
-			}
-			*i += 1;
-		}
-		word
-	}
 }

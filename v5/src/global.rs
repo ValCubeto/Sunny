@@ -12,7 +12,7 @@ macro_rules! init {
 			("none".to_string(), (Type::Defined(vec![]), Value::None)),
 			("infinity".to_string(), (Type::Defined(vec![]), Value::Infinity)),
 		])
-	}
+	};
 }
 
 pub(crate) use init;
