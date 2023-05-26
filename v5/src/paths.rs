@@ -6,7 +6,7 @@ use std::env::current_dir;
 pub fn cwd() -> PathBuf {
 	match current_dir() {
 		Err(err) => {
-			LoadError!("failed to get the current directory, {}", err);
+			LoadError!("failed to get the current directory, {err}");
 		}
 		Ok(dir) => dir
 	}
@@ -42,27 +42,17 @@ pub fn resolve_filename(path: String) -> String {
 
 	if path_buf.exists() {
 		if !path_buf.is_file() {
-			LoadError!("\"{}\" is not a file", path);
+			LoadError!("\"{path}\" is not a file");
 		}
-		return /* match */ path/* _buf.canonicalize() {
-			Err(err) => {
-				LoadError!("the path \"{}\" exists, but something went wrong resolving it. {}", path, err);
-			}
-			Ok(path) => path.to_string_lossy().to_string()
-		}; */
+		return path
 	}
 	
 	path_buf.set_extension(EXTENSION);
 	if path_buf.exists() {
 		if !path_buf.is_file() {
-			LoadError!("\"{}\" is not a file", path);
+			LoadError!("\"{path}\" is not a file");
 		}
-		return /* match */ path_buf.to_string_lossy().to_string()/* _buf.canonicalize() {
-			Err(err) => {
-				LoadError!("the path \"{}\" exists, but something went wrong resolving it. {}", path, err);
-			}
-			Ok(path) => path.to_string_lossy().to_string()
-		}; */
+		return path_buf.to_string_lossy().to_string();
 	}
-	LoadError!("file \"{}\" not found", path);
+	LoadError!("file \"{path}\" not found");
 }

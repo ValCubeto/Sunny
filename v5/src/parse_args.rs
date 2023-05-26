@@ -59,20 +59,20 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 			}
 		}
 		if !valid_flags.contains(&flag) {
-			ArgumentError!("unknown flag '{}'", flag);
+			ArgumentError!("unknown flag '{flag}'");
 		}
 		if !unique_flags.contains(&flag) {
 			flags.push(flag.to_string());
 			continue;
 		}
 		if i != 1 {
-			ArgumentError!("unexpected flag \"{}\" at position {}", flag, i);
+			ArgumentError!("unexpected flag \"{flag}\" at position {i}");
 		}
 		match flag {
 			"--help" => {
 				let descriptions: HashMap<&str, String> = HashMap::from([
 					("--help", "Shows this message".to_string()),
-					("--version", format!("Prints the current {} version", NAME))
+					("--version", format!("Prints the current {NAME} version"))
 				]);
 
 				let max_flag_len: usize = match descriptions.keys()
@@ -88,11 +88,11 @@ pub fn parse() -> (String, Vec<String>, String, Vec<String>) {
 				exit(0);
 			}
 			"--version" => {
-				println!("{} {}", NAME, VERSION);
+				println!("{NAME} {VERSION}");
 				exit(0);
 			}
 			_ => {
-				ArgumentError!("flag '{}' not implemented yet", flag);
+				ArgumentError!("flag '{flag}' not implemented yet");
 			}
 		}
 	}

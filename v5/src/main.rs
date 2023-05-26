@@ -25,10 +25,10 @@ fn main() {
 	let (exec_path, flags, file_path, args): _ = parse_args::parse();
 
 	let exec_path: String = paths::resolve(exec_path);
-	debug!("exec_path = {:?}", exec_path);
+	debug!("exec_path = {exec_path:?}");
 
 	let file_path: String = paths::resolve_filename(if file_path == "." { String::from("main.sny") } else { file_path });
-	debug!("file_path = {:?}", file_path);
+	debug!("file_path = {file_path:?}");
 
 	let workspace: _ = paths::dirname(file_path.clone());
 

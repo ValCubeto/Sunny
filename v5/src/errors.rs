@@ -67,7 +67,7 @@ pub fn unexpected(chr: char) {
 		| '=' | '?' | '@'
 			=>
 		{
-			SyntaxError!("character '{}' unexpected here", chr);
+			SyntaxError!("character '{chr}' unexpected here");
 		}
 		_ => {
 			// U+{{{:06X}}}
