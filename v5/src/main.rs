@@ -42,7 +42,7 @@ fn main() {
 	// let std = std::init();
 
 	#[allow(unused)]
-	let mut global: Dict = global::init!();
+	let mut global: Dict = global::init(&exec_path, &flags, &file_path, &args);
 
 	let chars: Vec<char> = read(file_path).chars().collect();
 	debug!("code = {chars:?}");
