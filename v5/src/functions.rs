@@ -1,12 +1,12 @@
 use crate::types::Any;
 
-enum FunctionAst {
+pub enum FunctionAst {
 	Declaration(String, Any<'static>, Any<'static>)
 }
 
-struct Function {
-	name: String,
-	body: Vec<FunctionAst>
+pub struct Function {
+	pub name: String,
+	pub body: Vec<FunctionAst>
 }
 
 pub fn parse_function(chars: &[char], i: &mut usize) -> Function {

@@ -18,7 +18,7 @@ pub fn parse_namespace(chars: &[char], i: &mut usize) -> HashMap<String, Any<'st
 				match word.as_str() {
 					"fun" => {
 						let function = parse_function(chars, i);
-						function.name
+						function.name;
 					}
 					_ => {
 						unexpected_token(word);
