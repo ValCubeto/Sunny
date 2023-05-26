@@ -8,7 +8,7 @@ pub enum Any<'a> {
 	None,
 	Infinity,
 	Bool(bool),
-	List(&'a Vec<Any<'a>>),
+	List(&'a [Any<'a>]),
 	Dict(&'a Dict<'a>),
 	String(String),
 	Namespace(&'a Dict<'a>),
