@@ -45,7 +45,7 @@ fn main() {
 	let mut global: Dict = global::init(&exec_path, &flags, &file_path, &args);
 
 	let chars: Vec<char> = read(file_path).chars().collect();
-	debug!("code = {chars:?}");
+	debug!("code = {:?}", chars.iter().collect::<String>());
 
 	println!();
 

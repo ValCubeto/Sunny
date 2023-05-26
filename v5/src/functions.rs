@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
-use crate::types::{Type, Value};
+use crate::{types::{Type, Value}, errors::InternalError};
 
-pub type Params = BTreeMap<String, (Type, Value)>;
+pub type Params = BTreeMap<String, (Type, Option<Value>)>;
 
 #[derive(Clone)]
 pub enum Statment {
@@ -23,10 +23,15 @@ pub struct Function {
 
 pub fn parse_function(chars: &[char], i: &mut usize) -> Function {
 	let mut name: String = String::new();
+	let mut p: Params = Params::from([
+		("name".to_string(), (Type::Builtin(&|p: Params| true), Some(Value::Bool(true))))
+	]);
+	match p.get_mut(&"name".to_string()) { Some(v) => v, _ => {InternalError!("");} }
+	.1 = Some(Value::F32(1f32));
 	Function {
 		name,
 		params: Params::new(),
-		rettype: Type::Builtin(&|params| { true }),
+		rettype: Type::Builtin(&|params: Params| { true }),
 		body: vec![]
 	}
 }
