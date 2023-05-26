@@ -1,17 +1,25 @@
 use std::collections::HashMap;
+use crate::functions::{Params, Statment};
 
-pub type Dict<'a> = HashMap<&'static str, Any<'a>>;
+#[derive(Clone)]
+pub enum Type {
+	Builtin(&'static dyn Fn(Params) -> bool),
+	Defined(Vec<Statment>)
+}
+
+pub type Dict = HashMap<String, (Type, Value)>;
+pub type List = Vec<(Type, Value)>;
 
 #[allow(unused)]
-#[derive(Debug, Clone)]
-pub enum Any<'a> {
+#[derive(Clone)]
+pub enum Value {
 	None,
 	Infinity,
 	Bool(bool),
-	List(&'a [Any<'a>]),
-	Dict(&'a Dict<'a>),
+	List(Vec<Value>),
+	Dict(Dict),
 	String(String),
-	Namespace(&'a Dict<'a>),
+	Namespace(Dict),
 	// Function(Ast),
 
 	U8(u8),
