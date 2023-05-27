@@ -24,10 +24,15 @@ impl<K: PartialEq, V> ChronoMap<K, V> {
 		false
 	}
 	pub fn get(&self, key: &K) -> Option<&V> {
-		if !self.has_key(key) {
-			return None;
-		}
 		for (k, v) in self.entries.iter() {
+			if key == k {
+				return Some(v);
+			}
+		}
+		None
+	}
+	pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
+		for (k, v) in self.entries.iter_mut() {
 			if key == k {
 				return Some(v);
 			}
