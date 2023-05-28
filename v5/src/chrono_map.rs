@@ -49,6 +49,7 @@ impl<K: PartialEq + Clone, V> ChronoMap<K, V> {
 				return;
 			}
 		}
+		self.length += 1;
 		self.entries.push((key.clone(), value));
 	}
 }
