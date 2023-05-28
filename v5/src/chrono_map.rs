@@ -5,7 +5,7 @@ pub struct ChronoMap<K, V> {
 	length: usize
 }
 
-impl<K: PartialEq, V> ChronoMap<K, V> {
+impl<K: PartialEq + Clone, V> ChronoMap<K, V> {
 	pub fn new() -> Self {
 		ChronoMap {
 			entries: Vec::new(),
@@ -42,11 +42,14 @@ impl<K: PartialEq, V> ChronoMap<K, V> {
 	pub fn key_at(&self, index: usize) -> &K {
 		&(self.entries[index].0)
 	}
-	pub fn set(&mut self, key: K, value: V) {
-		if self.has_key(&key) {
-
+	pub fn set(&mut self, key: &K, value: V) {
+		for (k, v) in self.entries.iter_mut() {
+			if k == key {
+				*v = value;
+				return;
+			}
 		}
-		self.entries.push((key, value));
+		self.entries.push((key.clone(), value));
 	}
 }
 
