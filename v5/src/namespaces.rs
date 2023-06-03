@@ -4,9 +4,13 @@ use crate::types::Value;
 use crate::errors::{unexpected, unexpected_token, debug};
 use crate::words::parse_word;
 
+pub struct Namespace {
+	pub data: HashMap<String, Value>
+}
+
 #[allow(unused)]
-pub fn parse_namespace(chars: &[char], i: &mut usize) -> HashMap<String, Value> {
-	let namespace: HashMap<String, Value> = HashMap::new();
+pub fn parse_namespace(chars: &[char], i: &mut usize, is_main: bool) -> HashMap<String, Any> {
+	let mut data = HashMap::new();
 	while *i < chars.len() {
 		let chr: char = chars[*i];
 		match chr {
@@ -31,5 +35,5 @@ pub fn parse_namespace(chars: &[char], i: &mut usize) -> HashMap<String, Value> 
 		}
 		*i += 1;
 	}
-	namespace
+	data
 }

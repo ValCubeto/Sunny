@@ -13,8 +13,6 @@ mod functions;
 mod global;
 mod chrono_map;
 
-use crate::chrono_map::ChronoMap;
-use crate::types::{Type, Value, Dict};
 use crate::errors::{debug, Warning};
 use crate::files::read;
 use crate::namespaces::parse_namespace;
@@ -22,13 +20,6 @@ use crate::namespaces::parse_namespace;
 // auto-imported toml, crossterm
 
 fn main() {
-	let tree = ChronoMap::from([
-		("b", 2),
-		("a", 1),
-		("c", 3)
-	]);
-
-	return;
 	#[allow(unused)]
 	let (exec_path, flags, file_path, args): _ = parse_args::parse();
 
@@ -50,7 +41,7 @@ fn main() {
 	// let std = std::init();
 
 	#[allow(unused)]
-	let mut global: Dict = global::init(&exec_path, &flags, &file_path, &args);
+	let mut global = global::init(&exec_path, &flags, &file_path, &args);
 
 	let chars: Vec<char> = read(file_path).chars().collect();
 	debug!("code = {:?}", chars.iter().collect::<String>());
@@ -60,9 +51,5 @@ fn main() {
 	#[allow(unused)]
 	let mut i: usize = 0;
 
-	let main: _ = parse_namespace(&chars, &mut i);
-
-	if main.contains_key("exports") {
-		Warning!("exported values found in the main file");
-	}
+	let main: _ = parse_namespace(&chars, &mut i, true);
 }

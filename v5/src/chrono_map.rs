@@ -1,19 +1,18 @@
 // a map with keys insertion-ordered
 
 pub struct ChronoMap<K, V> {
-	entries: Vec<(K, V)>,
-	length: usize
+	entries: Vec<(K, V)>
 }
 
+#[allow(unused)]
 impl<K: PartialEq + Clone, V> ChronoMap<K, V> {
 	pub fn new() -> Self {
 		ChronoMap {
-			entries: Vec::new(),
-			length: 0
+			entries: Vec::new()
 		}
 	}
 	pub fn len(&self) -> usize {
-		self.length
+		self.entries.len()
 	}
 	pub fn has_key(&self, key: &K) -> bool {
 		for (k, _) in self.entries.iter() {
@@ -49,19 +48,18 @@ impl<K: PartialEq + Clone, V> ChronoMap<K, V> {
 				return;
 			}
 		}
-		self.length += 1;
 		self.entries.push((key.clone(), value));
 	}
 }
 
+#[allow(unused)]
 impl<K: Clone + PartialEq, V: Clone, const N: usize> From<[(K, V); N]> for ChronoMap<K, V> {
 	fn from(array: [(K, V); N]) -> Self {
 		if N == 0 {
 			return ChronoMap::new();
 		}
 		ChronoMap {
-			entries: array.to_vec(),
-			length: array.len()
+			entries: array.to_vec()
 		}
 	}
 }
