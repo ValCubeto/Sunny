@@ -38,6 +38,7 @@ macro_rules! SyntaxError {
 	};
 }
 
+#[allow(unused)]
 macro_rules! Warning {
 	($($args:expr),+) => {{
 		eprint!("{}: ", crate::colors::warning("Warning"));

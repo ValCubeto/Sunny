@@ -1,11 +1,13 @@
 // a map with keys insertion-ordered
 
+use crate::errors::InternalError;
+
 pub struct ChronoMap<K, V> {
 	entries: Vec<(K, V)>
 }
 
 #[allow(unused)]
-impl<K: PartialEq + Clone, V> ChronoMap<K, V> {
+impl<K: PartialEq + std::fmt::Debug, V> ChronoMap<K, V> {
 	pub fn new() -> Self {
 		ChronoMap {
 			entries: Vec::new()
@@ -38,6 +40,14 @@ impl<K: PartialEq + Clone, V> ChronoMap<K, V> {
 		}
 		None
 	}
+	pub fn force_get_mut(&mut self, key: &K) -> &mut V {
+		for (k, v) in self.entries.iter_mut() {
+			if key == k {
+				return v;
+			}
+		}
+		InternalError!("ChronoMap cannot find key {key:?}");
+	}
 	pub fn key_at(&self, index: usize) -> &K {
 		&(self.entries[index].0)
 	}
@@ -48,7 +58,7 @@ impl<K: PartialEq + Clone, V> ChronoMap<K, V> {
 				return;
 			}
 		}
-		self.entries.push((key.clone(), value));
+		self.entries.push((key, value));
 	}
 }
 

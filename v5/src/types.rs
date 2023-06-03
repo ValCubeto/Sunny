@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use crate::functions::{Params, Statment};
+use crate::functions::{Params, Statment, Function};
 
 #[derive(Clone)]
 pub enum Type {
@@ -8,10 +8,11 @@ pub enum Type {
 }
 
 pub type Dict = HashMap<String, (Type, Value)>;
+#[allow(unused)]
 pub type List = Vec<(Type, Value)>;
 
+// #[derive(Clone)]
 #[allow(unused)]
-#[derive(Clone)]
 pub enum Value {
 	None,
 	Infinity,
@@ -20,7 +21,7 @@ pub enum Value {
 	Dict(Dict),
 	String(String),
 	Namespace(Dict),
-	// Function(Ast),
+	Function(Function),
 
 	U8(u8),
 	U16(u16),

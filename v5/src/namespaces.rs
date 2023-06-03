@@ -5,12 +5,13 @@ use crate::errors::{unexpected, unexpected_token, debug};
 use crate::words::parse_word;
 
 pub struct Namespace {
+	pub id: String,
 	pub data: HashMap<String, Value>
 }
 
 #[allow(unused)]
-pub fn parse_namespace(chars: &[char], i: &mut usize, is_main: bool) -> HashMap<String, Any> {
-	let mut data = HashMap::new();
+pub fn parse_namespace(chars: &[char], i: &mut usize, id: String) -> Namespace {
+	let mut namespace = Namespace { id, data: HashMap::new() };
 	while *i < chars.len() {
 		let chr: char = chars[*i];
 		match chr {
@@ -22,7 +23,7 @@ pub fn parse_namespace(chars: &[char], i: &mut usize, is_main: bool) -> HashMap<
 				match word.as_str() {
 					"fun" => {
 						let function = parse_function(chars, i);
-						function.name;
+						debug!("{}", function.name);
 					}
 					_ => {
 						unexpected_token(word);
@@ -35,5 +36,5 @@ pub fn parse_namespace(chars: &[char], i: &mut usize, is_main: bool) -> HashMap<
 		}
 		*i += 1;
 	}
-	data
+	namespace
 }

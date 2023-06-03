@@ -51,5 +51,5 @@ fn main() {
 	#[allow(unused)]
 	let mut i: usize = 0;
 
-	let main: _ = parse_namespace(&chars, &mut i, true);
+	let main: _ = parse_namespace(&chars, &mut i, "<main>".to_string());
 }
