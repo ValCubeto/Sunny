@@ -52,4 +52,8 @@ fn main() {
 	let mut i: usize = 0;
 
 	let main: _ = parse_namespace(&chars, &mut i, "<main>".to_string());
+	match main.data.get("main") {
+		Some(f) => f.exec(args),
+		None => panic!("")
+	}
 }
