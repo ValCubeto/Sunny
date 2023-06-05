@@ -1,0 +1,4 @@
+ fun main ( args: String [ ] ) -> none {
+	println ( 'Hello, world!' )
+	println ( { args } )
+}
