@@ -1,4 +1,4 @@
-const RESET: &str = "\u{1b}[0m";
+// const RESET: &str = "\u{1b}[0m";
 
 const BOLD: &str = "\u{1b}[1m";
 const BOLD_END: &str = "\u{1b}[22m";
