@@ -1,8 +1,9 @@
-use std::{env::args_os, process::exit};
 use crate::errors::{InternalError, ArgumentError, Warning};
+use crate::about::{NAME, VERSION};
+use std::process::exit;
 
 pub fn parse_args() -> (String, Vec<String>, String, Vec<String>) {
-	let mut args_os = args_os().into_iter();
+	let mut args_os = std::env::args_os().into_iter();
 
 	let exec_path: String = match args_os.next() {
 		None => {
@@ -21,13 +22,14 @@ pub fn parse_args() -> (String, Vec<String>, String, Vec<String>) {
 		if !arg.starts_with('-') {
 			main_path = arg;
 			break;
-		};
+		}
 		match arg.as_str() {
 			"-v" | "--version" => {
-				if args_os.len() != 0 {
-					Warning!("unused {} extra arguments", args_os.len())
+				let arg_count = args_os.len();
+				if arg_count > 0 {
+					Warning!("unused {} extra arguments", arg_count);
 				}
-				println!("Sunny 1.0.0");
+				println!("{NAME} {VERSION}");
 				exit(0);
 			}
 			"--test" => {

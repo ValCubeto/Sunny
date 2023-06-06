@@ -12,3 +12,4 @@ fn main() {
 mod arg_parser;
 mod errors;
 mod colors;
+mod about;
