@@ -25,4 +25,6 @@ mod errors;
 mod arg_parser;
 mod about;
 mod files;
+mod context;
 mod mod_parser;
+mod func_parser;
