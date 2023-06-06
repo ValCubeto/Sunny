@@ -30,3 +30,9 @@ macro_rules! LoadError {
 		crate::errors::Error!("LoadError", $($args),+);
 	}};
 } pub(crate) use LoadError;
+
+macro_rules! SyntaxError {
+	($($args:expr),+) => {{
+		crate::errors::Error!("SyntaxError", $($args),+);
+	}};
+} pub(crate) use SyntaxError;
