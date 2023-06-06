@@ -1,3 +1,10 @@
+macro_rules! Warning {
+	($($args:expr),+) => {{
+		eprint!("{}: ", crate::colors::warning("Warning"));
+		eprintln!($($args),+);
+	}};
+} pub(crate) use Warning;
+
 macro_rules! Error {
 	($name:expr, $($args:expr),+) => {{
 		eprint!("{}: ", crate::colors::error($name));

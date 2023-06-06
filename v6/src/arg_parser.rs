@@ -1,5 +1,5 @@
 use std::{env::args_os, process::exit};
-use crate::errors::{InternalError, ArgumentError};
+use crate::errors::{InternalError, ArgumentError, Warning};
 
 pub fn parse_args() -> (String, Vec<String>, String, Vec<String>) {
 	let mut args_os = args_os().into_iter();
@@ -25,7 +25,7 @@ pub fn parse_args() -> (String, Vec<String>, String, Vec<String>) {
 		match arg.as_str() {
 			"-v" | "--version" => {
 				if args_os.len() != 0 {
-					println!("Warning: unused {} extra arguments", args_os.len())
+					Warning!("unused {} extra arguments", args_os.len())
 				}
 				println!("Sunny 1.0.0");
 				exit(0);
