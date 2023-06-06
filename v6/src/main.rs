@@ -10,7 +10,9 @@ fn main() {
 	//   ]))
 	// ]);
 
-	// let (file, main_path) = read_file(main_path);
+	#[allow(unused)]
+	let (file, main_path) = files::read_file(main_path);
+	dbg!(&main_path, &file);
 
 	// let main_module = parse_module(file);
 
@@ -23,3 +25,4 @@ mod arg_parser;
 mod errors;
 mod colors;
 mod about;
+mod files;

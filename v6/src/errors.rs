@@ -24,3 +24,9 @@ macro_rules! ArgumentError {
 		crate::errors::Error!("ArgumentError", $($args),+);
 	}};
 } pub(crate) use ArgumentError;
+
+macro_rules! LoadError {
+	($($args:expr),+) => {{
+		crate::errors::Error!("LoadError", $($args),+);
+	}};
+} pub(crate) use LoadError;
