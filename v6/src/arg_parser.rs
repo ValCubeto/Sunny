@@ -1,4 +1,4 @@
-use std::env::args_os;
+use std::{env::args_os, process::exit};
 use crate::errors::{InternalError, ArgumentError};
 
 pub fn parse_args() -> (String, Vec<String>, String, Vec<String>) {
@@ -17,12 +17,23 @@ pub fn parse_args() -> (String, Vec<String>, String, Vec<String>) {
 
 	for arg in &mut args_os {
 		let arg = arg.to_string_lossy().to_string();
-		println!("arg = {}", arg);
+		// println!("arg = {}", arg);
 		if !arg.starts_with('-') {
 			main_path = arg;
 			break;
 		};
-		flags.push(arg);
+		match arg.as_str() {
+			"-v" | "--version" => {
+				println!("Sunny 1.0.0");
+				exit(0);
+			}
+			"--test" => {
+				flags.push(arg);
+			}
+			_ => {
+				ArgumentError!("invalid flag {:?}", arg);
+			}
+		}
 	}
 
 	if main_path.is_empty() {
