@@ -4,9 +4,9 @@ fn main() {
 	#[allow(unused)]
 	let (exec_path, flags, main_path, args) = parse_args();
 	println!("exec_path = {:?}", exec_path);
-	println!("flags     = {:?}", flags);
+	println!("flags = {:?}", flags);
 	println!("main_path = {:?}", main_path);
-	println!("args      = {:?}", args);
+	println!("args = {:?}", args);
 }
 
 mod arg_parser;
