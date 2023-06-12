@@ -1,4 +1,5 @@
-use crate::{context::Context, errors::SyntaxError};
+use crate::context::Context;
+use crate::errors::SyntaxError;
 
 pub struct Function {}
 
