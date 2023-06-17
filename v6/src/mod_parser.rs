@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use crate::context::Context;
-use crate::errors::SyntaxError;
+use crate::errors::ESYNTAX;
 use crate::func_parser::parse_function;
 use crate::types::Value;
 
@@ -55,12 +55,12 @@ pub fn parse_module(code: String, id: String) -> Module {
 						println!("data = {:?}", module.data);
 					}
 					_ => {
-						SyntaxError!("unexpected identifier {word:?} here")
+						ctx.throw(ESYNTAX, format!("unexpected identifier {word:?} here"));
 					}
 				}
 			}
 			_ => {
-				SyntaxError!("unknown or unexpected char {:?}\n    at {id}:{}:{}", ctx.ch, ctx.line, ctx.column);
+				ctx.throw(ESYNTAX, format!("unknown or unexpected char {:?}", ctx.ch));
 			}
 		}
 		ctx.idx += 1;

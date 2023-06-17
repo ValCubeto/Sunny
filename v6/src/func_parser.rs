@@ -26,8 +26,8 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 		body: Vec::new()
 	};
 	while ctx.idx < ctx.chars.len() {
-		let ch = ctx.chars[ctx.idx];
-		match ch {
+		ctx.next_char();
+		match ctx.ch {
 			'\n' => {
 				ctx.idx += 1;
 				ctx.line += 1;
@@ -38,7 +38,7 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 				// ignore
 			}
 			'a'..='z' | 'A'..='Z' | '_' => {
-				function.name.push(ch);
+				function.name.push(ctx.ch);
 				ctx.idx += 1;
 				while ctx.idx < ctx.chars.len() {
 					let ch = ctx.chars[ctx.idx];
@@ -55,11 +55,9 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 				println!("parsing function {:?} at {}:{}:{}", function.name, ctx.id, ctx.line, ctx.column);
 			}
 			_ => {
-				SyntaxError!("unexpected char {ch:?}");
+				SyntaxError!("unexpected char {:?}", ctx.ch);
 			}
 		}
-		ctx.idx += 1;
-		ctx.column += 1;
 	}
 	function
 }
