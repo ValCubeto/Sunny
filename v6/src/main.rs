@@ -13,7 +13,7 @@ fn main() {
 	dbg!(&main_path, &file);
 
 	#[allow(unused)]
-	let main_module = mod_parser::parse_module(file, main_path);
+	let main_module = ns_parser::parse_namespace(file, main_path);
 
 	// let arguments = Arguments::from([("0", args.into())]);
 
@@ -26,7 +26,7 @@ mod arg_parser;
 mod about;
 mod files;
 mod context;
-mod mod_parser;
+mod ns_parser;
 mod types;
 mod params;
 mod func_parser;

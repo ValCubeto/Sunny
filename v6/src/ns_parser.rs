@@ -5,14 +5,14 @@ use crate::func_parser::parse_function;
 use crate::types::Value;
 
 #[derive(Debug)]
-pub struct Module {
+pub struct Namespace {
 	data: HashMap<String, Value>
 }
 
-impl Module {}
+impl Namespace {}
 
-pub fn parse_module(code: String, id: String) -> Module {
-	let mut module = Module {
+pub fn parse_namespace(code: String, id: String) -> Namespace {
+	let mut namespace = Namespace {
 		data: HashMap::new()
 	};
 
@@ -51,8 +51,8 @@ pub fn parse_module(code: String, id: String) -> Module {
 					"fun" => {
 						ctx.idx += 1;
 						let function = parse_function(ctx);
-						module.data.insert(function.name.clone(), Value::Function(function));
-						println!("data = {:?}", module.data);
+						namespace.data.insert(function.name.clone(), Value::Function(function));
+						println!("data = {:?}", namespace.data);
 					}
 					_ => {
 						ctx.throw(ESYNTAX, format!("unexpected identifier {word:?} here"));
@@ -66,6 +66,5 @@ pub fn parse_module(code: String, id: String) -> Module {
 		ctx.idx += 1;
 		ctx.column += 1;
 	}
-
-	module
+	namespace
 }

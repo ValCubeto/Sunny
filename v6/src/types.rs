@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::mod_parser::Module;
+use crate::ns_parser::Namespace;
 use crate::func_parser::Function;
 
 #[allow(unused)]
@@ -9,6 +9,6 @@ pub enum Value {
 	String(String),
 	List(Vec<Value>),
 	Dict(HashMap<String, Value>),
-	Module(Module),
+	Namespace(Namespace),
 	Function(Function)
 }
