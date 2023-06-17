@@ -3,7 +3,7 @@ use crate::about::{NAME, VERSION};
 use std::process::exit;
 
 pub fn parse_args() -> (String, Vec<String>, String, Vec<String>) {
-	let mut args_os = std::env::args_os().into_iter();
+	let mut args_os = std::env::args_os();
 
 	let exec_path: String = match args_os.next() {
 		None => {

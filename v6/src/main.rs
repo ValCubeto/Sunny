@@ -13,7 +13,7 @@ fn main() {
 	dbg!(&main_path, &file);
 
 	#[allow(unused)]
-	let main_module = mod_parser::parse_module(file, main_path.clone());
+	let main_module = mod_parser::parse_module(file, main_path);
 
 	// let arguments = Arguments::from([("0", args.into())]);
 
@@ -27,4 +27,6 @@ mod about;
 mod files;
 mod context;
 mod mod_parser;
+mod types;
+mod params;
 mod func_parser;
