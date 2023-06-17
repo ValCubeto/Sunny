@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::errors::SyntaxError;
+use crate::errors::ESYNTAX;
 use crate::params::Params;
 
 #[derive(Debug)]
@@ -28,23 +28,16 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 	while ctx.idx < ctx.chars.len() {
 		ctx.next_char();
 		match ctx.ch {
-			'\n' => {
-				ctx.idx += 1;
-				ctx.line += 1;
-				ctx.column = 1;
-				continue;
-			}
 			' ' | '\t' | '\r' => {
 				// ignore
 			}
 			'a'..='z' | 'A'..='Z' | '_' => {
 				function.name.push(ctx.ch);
-				ctx.idx += 1;
+				ctx.next_char();
 				while ctx.idx < ctx.chars.len() {
-					let ch = ctx.chars[ctx.idx];
-					match ch {
+					match ctx.ch {
 						'a'..='z' | 'A'..='Z' | '_' => {
-							function.name.push(ch);
+							function.name.push(ctx.ch);
 						}
 						_ => {
 							break;
@@ -55,7 +48,7 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 				println!("parsing function {:?} at {}:{}:{}", function.name, ctx.id, ctx.line, ctx.column);
 			}
 			_ => {
-				SyntaxError!("unexpected char {:?}", ctx.ch);
+				ctx.throw(ESYNTAX, format!("unexpected char {:?}", ctx.ch));
 			}
 		}
 	}

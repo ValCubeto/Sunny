@@ -1,4 +1,3 @@
-use crate::errors::{InternalError, ArgumentError, Warning};
 use crate::about::{NAME, VERSION};
 use std::process::exit;
 

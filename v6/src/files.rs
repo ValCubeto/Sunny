@@ -1,5 +1,4 @@
 use std::path::PathBuf;
-use crate::errors::LoadError;
 use crate::about::EXTENSION;
 
 pub fn read_file(path: String) -> (String, String) {
