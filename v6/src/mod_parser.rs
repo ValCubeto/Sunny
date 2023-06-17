@@ -16,18 +16,12 @@ pub fn parse_module(code: String, id: String) -> Module {
 		data: HashMap::new()
 	};
 
-	let ctx = &mut Context {
-		id: id.clone(),
-		chars: code.chars().collect(),
-		idx: 0,
-		line: 1,
-		column: 1
-	};
+	let ctx = &mut Context::new(id.clone(), code.chars().collect());
 
 	while ctx.idx < ctx.chars.len() {
 		println!("{}", ctx.idx);
-		let ch = ctx.chars[ctx.idx];
-		match ch {
+		ctx.next_char();
+		match ctx.ch {
 			'\n' => {
 				ctx.line += 1;
 				ctx.column = 0;
@@ -36,7 +30,7 @@ pub fn parse_module(code: String, id: String) -> Module {
 				// break
 			}
 			'a'..='z' | 'A'..='Z' | '_' => {
-				let mut word = String::from(ch);
+				let mut word = String::from(ctx.ch);
 				ctx.idx += 1;
 				// collect word
 				while ctx.idx < ctx.chars.len() {
@@ -66,7 +60,7 @@ pub fn parse_module(code: String, id: String) -> Module {
 				}
 			}
 			_ => {
-				SyntaxError!("unknown or unexpected char {ch:?}\n    at {id}:{}:{}", ctx.line, ctx.column);
+				SyntaxError!("unknown or unexpected char {:?}\n    at {id}:{}:{}", ctx.ch, ctx.line, ctx.column);
 			}
 		}
 		ctx.idx += 1;
