@@ -1,10 +1,9 @@
 use std::fmt::Debug;
 use std::path::PathBuf;
 use crate::about::EXTENSION;
-use crate::context::Context;
 use crate::errors::ELOAD;
 
-pub fn read_file(path: String, ctx: &mut Context) -> (String, String) {
+pub fn read_file(path: String) -> (String, String) {
 	let mut read_path = PathBuf::from(&path);
 	if !read_path.exists() {
 		if !read_path.with_extension(EXTENSION).exists() {
