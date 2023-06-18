@@ -3,3 +3,23 @@ fun main ( args: String [ ] ) -> none {
 	println ( 'Hello, world!' )
 	println ( { args } )
 }
+
+struct Person {
+	name: String
+}
+
+extend Person {
+	fun new(name: String) -> Self {
+		return Person {
+			name
+		}
+	}
+	fun to_string() -> String {
+		return 'Person named $(self.name.display()).'
+	}
+}
+
+namespace nested {
+	hello = 'hola'
+}
+
