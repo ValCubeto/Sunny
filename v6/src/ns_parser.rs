@@ -11,12 +11,10 @@ pub struct Namespace {
 
 impl Namespace {}
 
-pub fn parse_namespace(code: String, id: String) -> Namespace {
+pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 	let mut namespace = Namespace {
 		data: HashMap::new()
 	};
-
-	let ctx = &mut Context::new(id.clone(), code.chars().collect());
 
 	while ctx.idx < ctx.chars.len() {
 		println!("{}", ctx.idx);

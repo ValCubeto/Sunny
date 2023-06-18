@@ -1,12 +1,14 @@
 use crate::about::{NAME, VERSION};
+use crate::context::Context;
+use crate::errors::{EINTERNAL, EARGS};
 use std::process::exit;
 
-pub fn parse_args() -> (String, Vec<String>, String, Vec<String>) {
+pub fn parse_args(ctx: &mut Context) -> (String, Vec<String>, String, Vec<String>) {
 	let mut args_os = std::env::args_os();
 
 	let exec_path: String = match args_os.next() {
 		None => {
-			InternalError!("args_os is empty");
+			ctx.throw(EINTERNAL, "args_os is empty");
 		}
 		Some(os_string) => os_string.to_string_lossy().to_string()
 	};
@@ -26,7 +28,7 @@ pub fn parse_args() -> (String, Vec<String>, String, Vec<String>) {
 			"-v" | "--version" => {
 				let arg_count = args_os.len();
 				if arg_count > 0 {
-					Warning!("unused {} extra arguments", arg_count);
+					println!("unused {} extra arguments", arg_count);
 				}
 				println!("{NAME} {VERSION}");
 				exit(0);
@@ -35,13 +37,13 @@ pub fn parse_args() -> (String, Vec<String>, String, Vec<String>) {
 				flags.push(arg);
 			}
 			_ => {
-				ArgumentError!("invalid flag {:?}", arg);
+				ctx.throw(EARGS, format!("invalid flag {:?}", arg));
 			}
 		}
 	}
 
 	if main_path.is_empty() {
-		ArgumentError!("missing file path");
+		ctx.throw(EARGS, "missing file path");
 	}
 
 	let mut args: Vec<String> = Vec::new();

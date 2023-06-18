@@ -1,5 +1,4 @@
 use std::process::exit;
-
 use crate::colors::error;
 
 pub struct Context {
@@ -30,7 +29,7 @@ impl Context {
 			self.column = 1;
 		}
 	}
-	pub fn throw<'a, S>(&self, ename: &'a str, message: S)
+	pub fn throw<'a, S>(&self, ename: &'a str, message: S) -> !
 	where
 		String: From<S>
 	{

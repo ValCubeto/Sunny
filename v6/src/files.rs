@@ -1,16 +1,19 @@
+use std::fmt::Debug;
 use std::path::PathBuf;
 use crate::about::EXTENSION;
+use crate::context::Context;
+use crate::errors::ELOAD;
 
-pub fn read_file(path: String) -> (String, String) {
+pub fn read_file(path: String, ctx: &mut Context) -> (String, String) {
 	let mut read_path = PathBuf::from(&path);
 	if !read_path.exists() {
 		if !read_path.with_extension(EXTENSION).exists() {
-			LoadError!("file {read_path:?} not found");
+			ctx.throw(ELOAD, format!("file {read_path:?} not found"));
 		}
 		read_path.set_extension(EXTENSION);
 	}
 	if !read_path.is_file() {
-		LoadError!("{read_path:?} is not a file");
+		ctx.throw(ELOAD, format!("{read_path:?} is not a file"));
 	}
 	let file: String = match std::fs::read_to_string(&read_path) {
 		Err(err) => {

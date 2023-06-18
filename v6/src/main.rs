@@ -1,6 +1,10 @@
+use crate::context::Context;
+
 fn main() {
+	let ctx = &mut Context::new(main_path, file.chars().collect());
+
 	#[allow(unused)]
-	let (exec_path, flags, main_path, args) = arg_parser::parse_args();
+	let (exec_path, flags, main_path, args) = arg_parser::parse_args(&mut Context::new("".into(), Vec::new()));
 
 	// let global_object = Object::from([
 	//   ("process".into(), Object::from([
@@ -13,7 +17,7 @@ fn main() {
 	dbg!(&main_path, &file);
 
 	#[allow(unused)]
-	let main_module = ns_parser::parse_namespace(file, main_path);
+	let main_module = ns_parser::parse_namespace(ctx);
 
 	// let arguments = Arguments::from([("0", args.into())]);
 
