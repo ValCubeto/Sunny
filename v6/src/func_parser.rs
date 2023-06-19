@@ -28,7 +28,7 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 	while ctx.idx < ctx.chars.len() {
 		ctx.next_char();
 		match ctx.ch {
-			' ' | '\t' | '\r' => {
+			' ' | '\t' | '\n' | '\r' => {
 				// ignore
 			}
 			'a'..='z' | 'A'..='Z' | '_' => {
@@ -39,8 +39,11 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 						'a'..='z' | 'A'..='Z' | '_' => {
 							function.name.push(ctx.ch);
 						}
-						_ => {
+						' ' | '\n' | '\r' | '\t' => {
 							break;
+						}
+						_ => {
+							SyntaxError!(ctx, "expected '('");
 						}
 					}
 				}
