@@ -26,7 +26,7 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 		body: Vec::new()
 	};
 	while ctx.idx < ctx.chars.len() {
-		ctx.next_char();
+		println!("{ctx:#}");
 		match ctx.ch {
 			' ' | '\t' | '\n' | '\r' => {
 				// ignore
@@ -35,11 +35,16 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 				function.name.push(ctx.ch);
 				while ctx.idx < ctx.chars.len() {
 					ctx.next_char();
+					println!("{ctx:#}");
 					match ctx.ch {
 						'a'..='z' | 'A'..='Z' | '_' => {
 							function.name.push(ctx.ch);
 						}
 						' ' | '\n' | '\r' | '\t' => {
+							// skip
+						}
+						'(' => {
+							println!("yoo");
 							break;
 						}
 						_ => {
@@ -50,9 +55,10 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 				println!("parsing function {:?} at {}:{}:{}", function.name, ctx.id, ctx.line, ctx.column);
 			}
 			_ => {
-				SyntaxError!(ctx, "unexpected char {:?}", ctx.ch);
+				SyntaxError!(ctx, "unknown or unexpected char {:?}", ctx.ch);
 			}
 		}
+		ctx.next_char();
 	}
 	function
 }

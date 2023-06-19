@@ -1,6 +1,6 @@
 
-fun 
-main ( args: String [ ] ) -> none {
+fun!! main ( args: String [ ] ) {
 	println ( 'Hello, world!' )
 	println ( { args } )
 }
+struct Person {}
