@@ -1,5 +1,5 @@
 use crate::context::Context;
-use crate::errors::ESYNTAX;
+use crate::errors::SyntaxError;
 use crate::params::Params;
 
 #[derive(Debug)]
@@ -33,8 +33,8 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 			}
 			'a'..='z' | 'A'..='Z' | '_' => {
 				function.name.push(ctx.ch);
-				ctx.next_char();
 				while ctx.idx < ctx.chars.len() {
+					ctx.next_char();
 					match ctx.ch {
 						'a'..='z' | 'A'..='Z' | '_' => {
 							function.name.push(ctx.ch);
@@ -43,12 +43,11 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 							break;
 						}
 					}
-					ctx.idx += 1;
 				}
 				println!("parsing function {:?} at {}:{}:{}", function.name, ctx.id, ctx.line, ctx.column);
 			}
 			_ => {
-				ctx.throw(ESYNTAX, format!("unexpected char {:?}", ctx.ch));
+				SyntaxError!(ctx, "unexpected char {:?}", ctx.ch);
 			}
 		}
 	}

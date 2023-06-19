@@ -1,6 +1,3 @@
-use std::process::exit;
-use crate::colors::error;
-
 pub struct Context {
 	pub id: String,
 	pub chars: Vec<char>,
@@ -28,13 +25,5 @@ impl Context {
 			self.line += 1;
 			self.column = 1;
 		}
-	}
-	pub fn throw<'a, S>(&self, ename: &'a str, message: S) -> !
-	where
-		String: From<S>
-	{
-		println!("{}: {}", error(ename), String::from(message));
-		println!("    at {}:{}:{}", self.id, self.line, self.column);
-		exit(1);
 	}
 }

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use crate::context::Context;
-use crate::errors::ESYNTAX;
+use crate::errors::SyntaxError;
 use crate::func_parser::parse_function;
 use crate::types::Value;
 
@@ -20,30 +20,26 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 		println!("{}", ctx.idx);
 		ctx.next_char();
 		match ctx.ch {
-			'\n' => {
-				ctx.line += 1;
-				ctx.column = 0;
-			}
 			' ' | '\t' | '\r' => {
 				// break
 			}
 			'a'..='z' | 'A'..='Z' | '_' => {
 				let mut word = String::from(ctx.ch);
-				ctx.idx += 1;
+				// ctx.idx += 1;
 				// collect word
 				while ctx.idx < ctx.chars.len() {
-					let ch = ctx.chars[ctx.idx];
-					match ch {
+					println!("idx = {}", ctx.idx);
+					ctx.next_char();
+					match ctx.ch {
 						'a'..='z' | 'A'..='Z' | '_' => {
 							ctx.column += 1;
-							word.push(ch);
+							word.push(ctx.ch);
 						}
 						_ => {
 							ctx.idx -= 1;
 							break;
 						}
 					}
-					ctx.idx += 1;
 				}
 				match word.as_str() {
 					"fun" => {
@@ -53,12 +49,12 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 						println!("data = {:?}", namespace.data);
 					}
 					_ => {
-						ctx.throw(ESYNTAX, format!("unexpected identifier {word:?} here"));
+						SyntaxError!(ctx, "unexpected identifier {word:?} here");
 					}
 				}
 			}
 			_ => {
-				ctx.throw(ESYNTAX, format!("unknown or unexpected char {:?}", ctx.ch));
+				SyntaxError!(ctx, "unknown or unexpected char {:?}", ctx.ch);
 			}
 		}
 		ctx.idx += 1;
