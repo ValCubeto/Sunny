@@ -17,7 +17,7 @@ fn main() {
 	#[allow(unused)]
 	let main_module = ns_parser::parse_namespace(ctx);
 
-	// let arguments = Arguments::from([("0", args.into())]);
+	// let arguments = Arguments::from([(0, args.into())]);
 
 	// main_module.exec_function("main".into(), arguments, global_object);
 }
