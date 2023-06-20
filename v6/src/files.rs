@@ -1,11 +1,16 @@
+use std::io::Read;
 use std::path::PathBuf;
 use crate::about::EXTENSION;
-use crate::errors::LoadError;
+use crate::errors::{LoadError, InternalError};
+use std::fs::File;
 
 pub fn read_file(path: String) -> (String, String) {
 	let mut read_path = PathBuf::from(&path);
 	if !read_path.exists() {
-		if !read_path.with_extension(EXTENSION).exists() {
+		if
+			read_path.extension().is_some()
+			|| !read_path.with_extension(EXTENSION).exists()
+		{
 			LoadError!("file {read_path:?} not found");
 		}
 		read_path.set_extension(EXTENSION);
@@ -13,11 +18,39 @@ pub fn read_file(path: String) -> (String, String) {
 	if !read_path.is_file() {
 		LoadError!("{read_path:?} is not a file");
 	}
-	let file: String = match std::fs::read_to_string(&read_path) {
-		Err(err) => {
-			LoadError!("failed to read {read_path:?}, {err}");
+	let mut code: String = match read_path.file_stem() {
+		None => {
+			InternalError!("failed to get the file stem in {read_path:?}");
 		}
-		Ok(file) => file
+		Some(stem) => {
+			stem.to_string_lossy().to_string()
+		}
 	};
-	(file, read_path.to_string_lossy().to_string())
+	
+	let mut file = match File::open(&read_path) {
+		Err(err) => {
+			LoadError!("failed to open {read_path:?}. {err}");
+		}
+		Ok(data) => data
+	};
+	
+	let mut buffer = Vec::new();
+	match file.read_to_end(&mut buffer) {
+		Err(err) => {
+			code.push('{');
+			LoadError!("failed to read {read_path:?}. {err}");
+		}
+		Ok(_) => ()
+	}
+
+	let content: String = match String::from_utf8(buffer) {
+		Err(err) => {
+			LoadError!("the file {read_path:?} has invalid data. {err}");
+		}
+		Ok(data) => data
+	};
+	code.push_str(content.as_str());
+
+	code.push('}');
+	(code, read_path.to_string_lossy().to_string())
 }

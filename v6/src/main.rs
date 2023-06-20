@@ -12,10 +12,8 @@ fn main() {
 	// ]);
 	
 	#[allow(unused)]
-	let (file, main_path) = files::read_file(main_path);
-	dbg!(&main_path, &file);
-	
-	let ctx = &mut Context::new(main_path, file.chars().collect());
+	let (code, main_path) = files::read_file(main_path);
+	let ctx = &mut Context::new(main_path, code.chars().collect());
 	#[allow(unused)]
 	let main_module = ns_parser::parse_namespace(ctx);
 
