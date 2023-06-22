@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 use crate::context::Context;
-use crate::errors::SyntaxError;
+use crate::errors::{SyntaxError, ReferenceError};
 use crate::func_parser::parse_function;
 use crate::types::Value;
 
+#[allow(unused)]
 #[derive(Debug)]
 pub struct Namespace {
+	name: String,
 	data: HashMap<String, Value>
 }
 
@@ -13,8 +15,11 @@ impl Namespace {}
 
 pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 	let mut namespace = Namespace {
+		name: String::new(),
 		data: HashMap::new()
 	};
+
+	// collect name
 
 	while ctx.idx < ctx.chars.len() {
 		println!("{ctx:#}");
@@ -41,6 +46,9 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 				match word.as_str() {
 					"fun" => {
 						let function = parse_function(ctx);
+						if namespace.data.contains_key(&function.name) {
+							ReferenceError!(ctx, "identifier {:?} already used", function.name);
+						}
 						namespace.data.insert(function.name.clone(), Value::Function(function));
 						println!("data = {:?}", namespace.data);
 					}
@@ -56,7 +64,7 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 				}
 			}
 			_ => {
-				SyntaxError!(ctx, "unknown or unexpected char {:?}", ctx.ch);
+				// handled by next_char
 			}
 		}
 		ctx.next_char();

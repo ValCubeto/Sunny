@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use crate::errors::SyntaxError;
+
 pub struct Context {
 	pub id: String,
 	pub chars: Vec<char>,
@@ -27,9 +29,20 @@ impl Context {
 		}
 	}
 	pub fn next_char(&mut self) {
+		match self.ch {
+			'\n' => {
+				self.line += 1;
+				self.column = 1;
+			}
+			| 'a'..='z'
+			| 'A'..='Z'
+			| '_'
+			| ' ' | '\t' | '\r' => {}
+			_ => {
+				SyntaxError!(self, "unexpected character {:?}", self.ch);
+			}
+		}
 		if self.ch == '\n' {
-			self.line += 1;
-			self.column = 1;
 		} else {
 			self.column += 1;
 		}
