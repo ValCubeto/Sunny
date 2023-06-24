@@ -11,7 +11,7 @@ pub fn read_file(path: String) -> (String, String) {
 			read_path.extension().is_some()
 			|| !read_path.with_extension(EXTENSION).exists()
 		{
-			LoadError!("file {read_path:?} not found");
+			LoadError!("file \"{}\" not found", read_path.display());
 		}
 		read_path.set_extension(EXTENSION);
 	}
