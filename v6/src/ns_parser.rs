@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use crate::context::Context;
-use crate::errors::{SyntaxError, ReferenceError, InternalError};
+use crate::errors::{SyntaxError, ReferenceError};
 use crate::func_parser::parse_function;
 use crate::types::Value;
 use crate::word_collector::collect_word;
@@ -21,19 +21,17 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 	};
 	dbg!(&namespace.name);
 
-	// ignore spaces...
+	ctx.ignore_spaces();
 
 	if ctx.ch != '{' {
-		InternalError!("expected '{{', got {:?}", ctx.ch);
+		SyntaxError!(ctx, "expected '{{', got {:?}", ctx.ch);
 	}
 	ctx.next_char();
 
 	while ctx.idx < ctx.char_count {
+		ctx.ignore_spaces();
 		println!("{ctx:#}");
 		match ctx.ch {
-			'\n' | ' ' | '\t' | '\r' => {
-				// ignore
-			}
 			'a'..='z' | 'A'..='Z' | '_' => {
 				let word = collect_word(ctx);
 				dbg!(&word);
@@ -52,13 +50,22 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 					"const" => {
 						SyntaxError!(ctx, "const");
 					}
+					"namespace" => {
+						ctx.ignore_spaces();
+						let nested = parse_namespace(ctx);
+						namespace.data.insert(nested.name.clone(), Value::Namespace(nested));
+					}
 					_ => {
 						SyntaxError!(ctx, "unexpected identifier {word:?} here");
 					}
 				}
 			}
+			'}' => {
+				println!("end of namespace {:?}", namespace.name);
+				break;
+			}
 			_ => {
-				// handled by next_char
+				SyntaxError!(ctx, "unexpected {:?}", ctx.ch);
 			}
 		}
 		ctx.next_char();

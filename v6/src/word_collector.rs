@@ -7,6 +7,7 @@ pub fn collect_word(ctx: &mut Context) -> String {
 			'a'..='z' | 'A'..='Z' | '_' => {
 				word.push(ctx.ch);
 			}
+			// ' ' | '\t' | '\r' | '\n' => {}
 			_ => {
 				break;
 			}

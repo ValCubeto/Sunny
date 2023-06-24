@@ -1,5 +1,7 @@
-
-fun!! main ( args: String [ ] ) {
+namespace nested_omg {
+	namespace yoo {}
+}
+fun main ( args: String [ ] ) {
 	println ( 'Hello, world!' )
 	println ( { args } )
 }

@@ -1,6 +1,5 @@
 use std::fmt::Display;
-
-use crate::errors::SyntaxError;
+// use crate::errors::SyntaxError;
 
 pub struct Context {
 	pub id: String,
@@ -30,6 +29,19 @@ impl Context {
 			column: 1
 		}
 	}
+	pub fn ignore_spaces(&mut self) {
+		let start = (self.line, self.column);
+		while self.idx < self.char_count {
+			match self.ch {
+				' ' | '\t' | '\n' | '\r' => {}
+				_ => {
+					break;
+				}
+			}
+			self.next_char();
+		}
+		println!("ignored spaces from {}:{} to {}:{}, break at {:?}", start.0, start.1, self.line, self.column, self.ch);
+	}
 	pub fn next_char(&mut self) {
 		match self.ch {
 			'\n' => {
@@ -41,7 +53,7 @@ impl Context {
 			| '_'
 			| ' ' | '\t' | '\r' => {}
 			_ => {
-				SyntaxError!(self, "unexpected character {:?}", self.ch);
+				// SyntaxError!(self, "unexpected character {:?}", self.ch);
 			}
 		}
 		if self.ch == '\n' {

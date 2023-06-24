@@ -14,6 +14,7 @@ macro_rules! do_error_stack {
 		print!("{}: ", crate::colors::error($name));
 		println!($($args),+);
 		println!("    at {}:{}:{}", $ctx.id, $ctx.line, $ctx.column);
+		println!("    at {}:{}:{}", file!(), line!(), column!());
 		std::process::exit(1);
 	}};
 }
