@@ -26,6 +26,7 @@ pub fn read_file(path: String) -> (String, String) {
 			stem.to_string_lossy().to_string()
 		}
 	};
+	code.push('{');
 	
 	let mut file = match File::open(&read_path) {
 		Err(err) => {
@@ -37,7 +38,6 @@ pub fn read_file(path: String) -> (String, String) {
 	let mut buffer = Vec::new();
 	match file.read_to_end(&mut buffer) {
 		Err(err) => {
-			code.push('{');
 			LoadError!("failed to read {read_path:?}. {err}");
 		}
 		Ok(_) => ()

@@ -6,6 +6,7 @@ pub struct Context {
 	pub id: String,
 	pub chars: Vec<char>,
 	pub ch: char,
+	pub char_count: usize,
 	pub idx: usize,
 	pub line: usize,
 	pub column: usize
@@ -22,6 +23,7 @@ impl Context {
 		Context {
 			id,
 			ch: chars[0],
+			char_count: chars.len(),
 			chars,
 			idx: 0,
 			line: 1,

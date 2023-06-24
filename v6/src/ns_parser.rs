@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 use crate::context::Context;
-use crate::errors::{SyntaxError, ReferenceError};
+use crate::errors::{SyntaxError, ReferenceError, InternalError};
 use crate::func_parser::parse_function;
 use crate::types::Value;
+use crate::word_collector::collect_word;
 
 #[allow(unused)]
 #[derive(Debug)]
@@ -15,34 +16,27 @@ impl Namespace {}
 
 pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 	let mut namespace = Namespace {
-		name: String::new(),
+		name: collect_word(ctx),
 		data: HashMap::new()
 	};
+	dbg!(&namespace.name);
 
-	// collect name
+	// ignore spaces...
 
-	while ctx.idx < ctx.chars.len() {
+	if ctx.ch != '{' {
+		InternalError!("expected '{{', got {:?}", ctx.ch);
+	}
+	ctx.next_char();
+
+	while ctx.idx < ctx.char_count {
 		println!("{ctx:#}");
 		match ctx.ch {
 			'\n' | ' ' | '\t' | '\r' => {
-				// break
+				// ignore
 			}
 			'a'..='z' | 'A'..='Z' | '_' => {
-				let mut word = String::from(ctx.ch);
-				ctx.next_char();
-				while ctx.idx < ctx.chars.len() {
-					println!("{ctx:#}");
-					match ctx.ch {
-						'a'..='z' | 'A'..='Z' | '_' => {
-							word.push(ctx.ch);
-						}
-						_ => {
-							ctx.next_char();
-							break;
-						}
-					}
-					ctx.next_char();
-				}
+				let word = collect_word(ctx);
+				dbg!(&word);
 				match word.as_str() {
 					"fun" => {
 						let function = parse_function(ctx);

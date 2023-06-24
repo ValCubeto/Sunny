@@ -28,6 +28,7 @@ mod arg_parser;
 mod about;
 mod files;
 mod context;
+mod word_collector;
 mod ns_parser;
 mod types;
 mod params;
