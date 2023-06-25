@@ -30,7 +30,7 @@ impl Context {
 		}
 	}
 	pub fn ignore_spaces(&mut self) {
-		let start = (self.line, self.column);
+		// let start = (self.line, self.column);
 		while self.idx < self.char_count {
 			match self.ch {
 				' ' | '\t' | '\n' | '\r' => {}
@@ -40,7 +40,7 @@ impl Context {
 			}
 			self.next_char();
 		}
-		println!("ignored spaces from {}:{} to {}:{}, break at {:?}", start.0, start.1, self.line, self.column, self.ch);
+		// println!("ignored spaces from {}:{} to {}:{}, break at {:?}", start.0, start.1, self.line, self.column, self.ch);
 	}
 	pub fn next_char(&mut self) {
 		match self.ch {

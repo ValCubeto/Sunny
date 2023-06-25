@@ -45,10 +45,10 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 						println!("data = {:?}", namespace.data);
 					}
 					"struct" | "extend" => {
-						SyntaxError!(ctx, "structs not implemented yet");
+						SyntaxError!(ctx, "struct: todo");
 					}
 					"const" => {
-						SyntaxError!(ctx, "const");
+						SyntaxError!(ctx, "const: todo");
 					}
 					"namespace" => {
 						ctx.ignore_spaces();

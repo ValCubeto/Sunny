@@ -1,8 +1,20 @@
 namespace nested_omg {
-	namespace yoo {}
+	namespace yoo {
+		const p = "hola"
+	}
 }
 fun main ( args: String [ ] ) {
 	println ( 'Hello, world!' )
 	println ( { args } )
 }
-struct Person {}
+struct Person {
+	name: String
+}
+
+extend Person {
+	fun new(name: String) -> Self {
+		return Person {
+			name
+		}
+	}
+}

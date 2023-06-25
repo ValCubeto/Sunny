@@ -36,11 +36,8 @@ pub fn read_file(path: String) -> (String, String) {
 	};
 	
 	let mut buffer = Vec::new();
-	match file.read_to_end(&mut buffer) {
-		Err(err) => {
-			LoadError!("failed to read {read_path:?}. {err}");
-		}
-		Ok(_) => ()
+	if let Err(err) = file.read_to_end(&mut buffer) {
+		LoadError!("failed to read {read_path:?}. {err}");
 	}
 
 	let content: String = match String::from_utf8(buffer) {
