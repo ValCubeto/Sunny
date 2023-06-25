@@ -34,6 +34,11 @@ impl Context {
 		while self.idx < self.char_count {
 			match self.ch {
 				' ' | '\t' | '\n' | '\r' => {}
+				'#' => {
+					while self.idx < self.char_count && self.ch != '\n' {
+						self.next_char();
+					}
+				}
 				_ => {
 					break;
 				}

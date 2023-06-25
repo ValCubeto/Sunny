@@ -1,6 +1,7 @@
 use crate::context::Context;
 use crate::errors::SyntaxError;
 use crate::params::Params;
+use crate::word_collector::collect_word;
 
 #[derive(Debug)]
 pub enum Statment {
@@ -21,43 +22,96 @@ pub struct Function {
 }
 
 pub fn parse_function(ctx: &mut Context) -> Function {
+	ctx.ignore_spaces();
+
 	let mut function = Function {
-		name: String::new(),
+		name: collect_word(ctx),
 		body: Vec::new()
 	};
-	while ctx.idx < ctx.chars.len() {
-		println!("{ctx:#}");
+
+	ctx.ignore_spaces();
+
+	if ctx.ch != '(' {
+		SyntaxError!(ctx, "expected '(', got {:?}", ctx.ch);
+	}
+
+	ctx.next_char();
+	ctx.ignore_spaces();
+
+	while ctx.idx < ctx.char_count {
 		match ctx.ch {
-			' ' | '\t' | '\n' | '\r' => {
-				// ignore
+			')' => {
+				break;
 			}
-			'a'..='z' | 'A'..='Z' | '_' => {
-				function.name.push(ctx.ch);
-				while ctx.idx < ctx.chars.len() {
-					ctx.next_char();
-					println!("{ctx:#}");
-					match ctx.ch {
-						'a'..='z' | 'A'..='Z' | '_' => {
-							function.name.push(ctx.ch);
-						}
-						' ' | '\n' | '\r' | '\t' => {
-							// skip
-						}
-						'(' => {
-							SyntaxError!(ctx, "todo");
-						}
-						_ => {
-							SyntaxError!(ctx, "expected '('");
-						}
-					}
-				}
-				println!("parsing function {:?} at {}:{}:{}", function.name, ctx.id, ctx.line, ctx.column);
+			'.' => {}
+			'a'..='z' | '_' | 'A'..='Z' => {
+				let name = collect_word(ctx);
 			}
 			_ => {
-				SyntaxError!(ctx, "unknown or unexpected char {:?}", ctx.ch);
+				SyntaxError!(ctx, "expected ')', an identifier, or '...'; got {:?}", ctx.ch);
 			}
 		}
 		ctx.next_char();
+	} // parse params
+	ctx.next_char();
+	ctx.ignore_spaces();
+	while ctx.idx < ctx.char_count {
+		match ctx.ch {
+			'-' => {
+				ctx.next_char();
+				if ctx.ch != '>' {
+					SyntaxError!(ctx, "expected '>' (to complete '->'), got {:?}", ctx.ch);
+				}
+				ctx.next_char();
+				ctx.ignore_spaces();
+				SyntaxError!(ctx, "todo: parse types");
+			}
+			'{' => {
+				ctx.next_char();
+				while ctx.idx < ctx.char_count {
+					ctx.ignore_spaces();
+					match ctx.ch {
+						'}' => {
+							break;
+						}
+						'a'..='z' | 'A'..='Z' | '_' => {
+							let word = collect_word(ctx);
+							ctx.ignore_spaces();
+							match word.as_str() {
+								"if" => {
+									SyntaxError!(ctx, "todo: if");
+								}
+								_ => {
+									match ctx.ch {
+										'=' => {
+											SyntaxError!(ctx, "todo: assignment");
+										}
+										_ => {
+											SyntaxError!(ctx, "unexpected character {:?}", ctx.ch);
+										}
+									}
+								} // identifier
+							} // match word
+						} // collect word
+						'+' => {
+							SyntaxError!(ctx, "todo: add-assign");
+						}
+						'-' => {
+							SyntaxError!(ctx, "todo: sub-assign");
+						}
+						_ => {
+							SyntaxError!(ctx, "unexpected character {:?}", ctx.ch);
+						}
+					}
+					ctx.next_char();
+				}
+				break;
+			} // '{'
+			_ => {
+				SyntaxError!(ctx, "expected '->' or '{{', got {:?}", ctx.ch);
+			}
+		}
 	}
+	println!("end of function {:?}", function.name);
 	function
 }
