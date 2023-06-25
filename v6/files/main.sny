@@ -1,8 +1,26 @@
-namespace nested_omg {
-	namespace yoo {
-		const p = "hola"
-	}
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+namespace main {}
+fun p() {}
 fun main ( args: String [ ] ) {
 	println ( 'Hello, world!' )
 	println ( { args } )

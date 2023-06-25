@@ -12,7 +12,18 @@ pub struct Namespace {
 	data: HashMap<String, Value>
 }
 
-impl Namespace {}
+impl Namespace {
+	pub fn set(&mut self, ctx: &mut Context, k: String, v: Value) {
+		if self.data.contains_key(&k) {
+			ReferenceError!(ctx, "{} {k:?} is already defined", match v {
+				Value::Function(_) => "function",
+				Value::Namespace(_) => "namespace",
+				_ => "variable"
+			});
+		}
+		self.data.insert(k, v);
+	}
+}
 
 pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 	let mut namespace = Namespace {
@@ -38,10 +49,7 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 				match word.as_str() {
 					"fun" => {
 						let function = parse_function(ctx);
-						if namespace.data.contains_key(&function.name) {
-							ReferenceError!(ctx, "identifier {:?} already used", function.name);
-						}
-						namespace.data.insert(function.name.clone(), Value::Function(function));
+						namespace.set(ctx, function.name.clone(), Value::Function(function));
 						println!("data = {:?}", namespace.data);
 					}
 					"struct" | "extend" => {
@@ -53,8 +61,7 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 					"namespace" => {
 						ctx.ignore_spaces();
 						let nested = parse_namespace(ctx);
-						// check if already declared
-						namespace.data.insert(nested.name.clone(), Value::Namespace(nested));
+						namespace.set(ctx, nested.name.clone(), Value::Namespace(nested));
 					}
 					_ => {
 						SyntaxError!(ctx, "unexpected identifier {word:?} here");

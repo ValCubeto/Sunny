@@ -44,8 +44,7 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 							// skip
 						}
 						'(' => {
-							println!("yoo");
-							break;
+							SyntaxError!(ctx, "todo");
 						}
 						_ => {
 							SyntaxError!(ctx, "expected '('");
