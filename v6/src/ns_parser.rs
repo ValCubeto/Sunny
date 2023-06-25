@@ -53,6 +53,7 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 					"namespace" => {
 						ctx.ignore_spaces();
 						let nested = parse_namespace(ctx);
+						// check if already declared
 						namespace.data.insert(nested.name.clone(), Value::Namespace(nested));
 					}
 					_ => {
