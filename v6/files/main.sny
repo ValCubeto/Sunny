@@ -21,7 +21,8 @@
 
 namespace main {}
 fun p() {}
-fun main ( args: String [ ] ) {
+fun main ( args#: String [ ]
+ ) {
 	println ( 'Hello, world!' )
 	println ( { args } )
 }
