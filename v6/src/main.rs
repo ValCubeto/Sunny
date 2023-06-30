@@ -7,8 +7,8 @@ fn main() {
 	
 	// let global_object = Object::from([
 	//   ("process".into(), Object::from([
-	//     ("exec_path".into(), exec_path.into())
-	//   ]))
+	//     ("exec_path".into(), exec_path.into()),
+	//   ])),
 	// ]);
 	
 	#[allow(unused)]
