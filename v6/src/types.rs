@@ -14,7 +14,7 @@ pub enum Value {
 }
 
 enum Test {
-	Builtin(dyn Fn(Vec<(String, Value)>) -> bool),
+	Builtin(fn (Vec<(String, Value)>) -> bool),
 	Defined(Function)
 }
 

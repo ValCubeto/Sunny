@@ -15,10 +15,10 @@ pub enum Statment {
 
 #[allow(unused)]
 #[derive(Debug)]
-pub struct Function<P = Params, T = Type> {
+pub struct Function<T = Type> {
 	pub name: String,
-	params: P,
-	returns: T,
+	params: Params,
+	returns: Option<T>,
 	pub body: Vec<Statment>
 }
 
