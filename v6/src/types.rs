@@ -2,8 +2,9 @@ use std::rc::Rc;
 use crate::dict::{Dict, Key};
 use crate::ns_parser::Namespace;
 use crate::func_parser::Function;
+use crate::params::Index;
 
-#[allow(unused)]
+#[derive(Debug)]
 pub enum Value {
 	None,
 	String(String),
@@ -13,11 +14,13 @@ pub enum Value {
 	Function(Function)
 }
 
+#[derive(Debug)]
 enum Test {
 	Builtin(fn(Vec<(Index, Value)>) -> bool),
 	Defined(Box<Function>)
 }
 
+#[derive(Debug)]
 pub struct Type {
 	test: Test,
 	name: Box<str>

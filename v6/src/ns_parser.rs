@@ -6,7 +6,7 @@ use crate::func_parser::parse_function;
 use crate::types::Value;
 use crate::word_collector::collect_word;
 
-#[allow(unused)]
+#[derive(Debug)]
 pub struct Namespace {
 	name: Key,
 	data: HashMap<Key, Value>
@@ -30,10 +30,10 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 		name: collect_word(ctx),
 		data: HashMap::new()
 	};
+
 	dbg!(&namespace.name);
 
 	ctx.ignore_spaces();
-
 	if ctx.ch != '{' {
 		SyntaxError!(ctx, "expected '{{', got {:?}", ctx.ch);
 	}
@@ -46,22 +46,25 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 			'a'..='z' | 'A'..='Z' | '_' => {
 				let word = collect_word(ctx);
 				dbg!(&word);
-				match &*word.0 {
+				match word.as_str() {
 					"fun" => {
 						let function = parse_function(ctx);
 						namespace.set(ctx, function.name, Value::Function(function));
-						println!("data = {:?}", namespace.data);
+						dbg!(&namespace);
 					}
 					"struct" | "extend" => {
-						SyntaxError!(ctx, "struct: todo");
+						SyntaxError!(ctx, "structs to do");
 					}
 					"const" => {
-						SyntaxError!(ctx, "const: todo");
+						SyntaxError!(ctx, "constants to do");
+					}
+					"import" => {
+						SyntaxError!(ctx, "imports to do");
 					}
 					"namespace" => {
 						ctx.ignore_spaces();
 						let nested = parse_namespace(ctx);
-						namespace.set(ctx, nested.name.clone(), Value::Namespace(nested));
+						namespace.set(ctx, nested.name, Value::Namespace(nested));
 					}
 					_ => {
 						SyntaxError!(ctx, "unexpected identifier {word:?} here");
@@ -73,10 +76,11 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 				break;
 			}
 			_ => {
-				SyntaxError!(ctx, "unexpected {:?}", ctx.ch);
+				SyntaxError!(ctx, "unexpected char {:?}", ctx.ch);
 			}
 		}
 		ctx.next_char();
 	}
+
 	namespace
 }

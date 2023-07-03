@@ -18,11 +18,12 @@ impl Display for Key {
 }
 
 impl Key {
-	pub fn unwrap(&self) -> &str {
+	pub fn as_str(&self) -> &str {
 		&(self.0)
 	}
 }
 
+#[derive(Debug)]
 pub struct Dict(pub HashMap<Key, Value>);
 
 impl<const N: usize> From<[(Key, Value); N]> for Dict {

@@ -7,6 +7,7 @@ use crate::{
 	word_collector::collect_word,
 };
 
+#[derive(Debug)]
 pub enum Statment {
 	#[allow(unused)]
 	Call {
@@ -15,7 +16,7 @@ pub enum Statment {
 	}
 }
 
-#[allow(unused)]
+#[derive(Debug)]
 pub struct Function {
 	pub name: Key,
 	params: Params,
@@ -65,7 +66,7 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 			}
 			'.' => {}
 			'a'..='z' | '_' | 'A'..='Z' => {
-				let mut param = (collect_word(ctx), Type, Value::None);
+				let mut param = (collect_word(ctx), Type::any_or_none(), Value::None);
 				ctx.ignore_spaces();
 				match ctx.ch {
 					_ => {}
