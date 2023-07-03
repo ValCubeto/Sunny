@@ -34,10 +34,10 @@ impl Context {
 		}
 	}
 	pub fn ignore_spaces(&mut self) {
-		// let start = (self.line, self.column);
 		while self.idx < self.char_count {
 			match self.ch {
 				' ' | '\t' | '\n' | '\r' => {}
+				// also ignore comments
 				'#' => {
 					while self.idx < self.char_count && self.ch != '\n' {
 						self.next_char();
@@ -49,7 +49,6 @@ impl Context {
 			}
 			self.next_char();
 		}
-		// println!("ignored spaces from {}:{} to {}:{}, break at {:?}", start.0, start.1, self.line, self.column, self.ch);
 	}
 	pub fn next_char(&mut self) {
 		match self.ch {
@@ -67,7 +66,7 @@ impl Context {
 		self.idx += 1;
 		self.ch = match self.chars.next() {
 			None => {
-				InternalError!("");
+				InternalError!("index go out of scope; idx = {}, len = {}", self.idx, self.char_count);
 			}
 			Some(ch) => *ch
 		};

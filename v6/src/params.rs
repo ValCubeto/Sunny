@@ -1,6 +1,11 @@
 use crate::dict::Key;
 use crate::types::{Type, Value};
 
+pub enum Index {
+	Numeric(usize),
+	Named(Key)
+}
+
 pub type Param = (Key, (Box<Type>, Box<Value>));
 
 #[allow(unused)]

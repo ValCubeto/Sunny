@@ -1,6 +1,9 @@
-use crate::context::Context;
+use crate::{
+	context::Context,
+	dict::Key
+};
 
-pub fn collect_word(ctx: &mut Context) -> String {
+pub fn collect_word(ctx: &mut Context) -> Key {
 	let mut word = String::new();
 	while ctx.idx < ctx.char_count {
 		match ctx.ch {
@@ -14,5 +17,5 @@ pub fn collect_word(ctx: &mut Context) -> String {
 		}
 		ctx.next_char();
 	}
-	word
+	Key::from(word.as_str())
 }

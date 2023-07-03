@@ -1,25 +1,26 @@
-use crate::context::Context;
-use crate::errors::SyntaxError;
-use crate::params::Params;
-use crate::types::{Value, Type};
-use crate::word_collector::collect_word;
+use crate::{
+	context::Context,
+	dict::Key,
+	errors::SyntaxError,
+	params::Params,
+	types::{Value, Type},
+	word_collector::collect_word,
+};
 
-#[derive(Debug)]
 pub enum Statment {
 	#[allow(unused)]
 	Call {
-		name: String,
+		name: Key,
 		params: Params
 	}
 }
 
 #[allow(unused)]
-#[derive(Debug)]
-pub struct Function<T = Type> {
-	pub name: String,
+pub struct Function {
+	pub name: Key,
 	params: Params,
-	returns: Option<T>,
-	pub body: Vec<Statment>
+	returns: Option<Type>,
+	pub body: Box<[Statment]>
 }
 
 pub fn parse_function(ctx: &mut Context) -> Function {
@@ -29,12 +30,26 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 		name: collect_word(ctx),
 		params: Params::new(),
 		returns: None,
-		body: Vec::new()
+		body: Box::new([])
 	};
 
 	ctx.ignore_spaces();
 
-	// parse generics
+	if ctx.ch == '<' {
+		while ctx.idx < ctx.char_count {
+			ctx.ignore_spaces();
+			match ctx.ch {
+				'A'..='Z' | 'a'..='z' | '_' => {}
+				'>' => {
+					break;
+				}
+				_ => {
+					SyntaxError!(ctx, "expected an identifier, got {:?}", ctx.ch);
+				}
+			}
+			ctx.next_char();
+		}
+	}
 
 	if ctx.ch != '(' {
 		SyntaxError!(ctx, "expected '(', got {:?}", ctx.ch);

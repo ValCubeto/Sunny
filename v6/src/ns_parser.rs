@@ -1,21 +1,21 @@
 use std::collections::HashMap;
 use crate::context::Context;
+use crate::dict::Key;
 use crate::errors::{SyntaxError, ReferenceError};
 use crate::func_parser::parse_function;
 use crate::types::Value;
 use crate::word_collector::collect_word;
 
 #[allow(unused)]
-#[derive(Debug)]
 pub struct Namespace {
-	name: String,
-	data: HashMap<String, Value>
+	name: Key,
+	data: HashMap<Key, Value>
 }
 
 impl Namespace {
-	pub fn set(&mut self, ctx: &mut Context, k: String, v: Value) {
+	pub fn set(&mut self, ctx: &mut Context, k: Key, v: Value) {
 		if self.data.contains_key(&k) {
-			ReferenceError!(ctx, "{} {k:?} is already defined", match v {
+			ReferenceError!(ctx, "the {} {k} is already defined", match v {
 				Value::Function(_) => "function",
 				Value::Namespace(_) => "namespace",
 				_ => "variable"
@@ -46,10 +46,10 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 			'a'..='z' | 'A'..='Z' | '_' => {
 				let word = collect_word(ctx);
 				dbg!(&word);
-				match word.as_str() {
+				match &*word.0 {
 					"fun" => {
 						let function = parse_function(ctx);
-						namespace.set(ctx, function.name.clone(), Value::Function(function));
+						namespace.set(ctx, function.name, Value::Function(function));
 						println!("data = {:?}", namespace.data);
 					}
 					"struct" | "extend" => {
