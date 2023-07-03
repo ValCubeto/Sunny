@@ -1,13 +1,12 @@
 use std::collections::HashMap;
-use std::rc::Rc;
 use crate::types::Value;
 
 #[derive(Eq, PartialEq, Hash)]
-pub struct Key(pub Rc<str>);
+pub struct Key(pub Box<str>);
 
 impl From<&str> for Key {
 	fn from(string: &str) -> Self {
-		Key(Rc::from(string))
+		Key(Box::from(string))
 	}
 }
 

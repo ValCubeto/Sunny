@@ -5,11 +5,9 @@ use crate::{
 };
 
 fn main() {
-	
 	#[allow(unused)]
 	let (exec_path, flags, main_path, args) = arg_parser::parse_args();
-	
-	
+
 	#[allow(unused)]
 	let (code, main_path) = files::read_file(main_path);
 	let ctx = &mut Context::new(main_path, code.chars().collect());
