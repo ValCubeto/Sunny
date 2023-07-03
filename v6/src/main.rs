@@ -10,7 +10,8 @@ fn main() {
 
 	#[allow(unused)]
 	let (code, main_path) = files::read_file(main_path);
-	let ctx = &mut Context::new(main_path, code.chars().collect());
+	let ctx = &mut Context::new(main_path, code);
+	ctx.line = 0;
 
 	#[allow(unused)]
 	let global_object = Dict::from([

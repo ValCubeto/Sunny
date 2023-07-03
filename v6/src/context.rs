@@ -5,7 +5,7 @@ use crate::errors::InternalError;
 
 pub struct Context {
 	pub id: String,
-	pub char_vec: Vec<char>,
+	pub char_vec: Vec<char>, // for debugging
 	pub chars: std::slice::Iter<'static, char>,
 	pub ch: char,
 	pub char_count: usize,
@@ -21,10 +21,10 @@ impl Display for Context {
 }
 
 impl Context {
-	pub fn new(id: String, chars: Vec<char>) -> Self {
+	pub fn new(id: String, chars: String) -> Self {
 		Context {
 			id,
-			ch: chars[0],
+			ch: chars.chars().into_iter().next(),
 			char_count: chars.len(),
 			chars: chars.iter(),
 			char_vec: chars,

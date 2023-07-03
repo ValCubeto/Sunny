@@ -27,6 +27,7 @@ pub fn read_file(path: String) -> (String, String) {
 		}
 	};
 	code.push('{');
+	code.push('\n');
 	
 	let mut file = match File::open(&read_path) {
 		Err(err) => {
