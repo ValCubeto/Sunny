@@ -1,5 +1,4 @@
 use std::rc::Rc;
-
 use crate::dict::Key;
 use crate::types::{Type, Value};
 
@@ -20,6 +19,6 @@ impl Params {
 		}
 	}
 	pub fn add(&mut self, param: Rc<str>) {
-		for key
+		for (key, _, _) in self.vec.iter()
 	}
 }
