@@ -1,8 +1,9 @@
-use std::rc::Rc;
-use crate::dict::{Dict, Key};
-use crate::ns_parser::Namespace;
-use crate::func_parser::Function;
-use crate::params::Index;
+use crate::{
+	dict::{Dict, Key},
+	ns_parser::Namespace,
+	func_parser::Function,
+	params::Index,
+};
 
 #[derive(Debug)]
 pub enum Value {
@@ -23,14 +24,16 @@ enum Test {
 #[derive(Debug)]
 pub struct Type {
 	test: Test,
-	name: Box<str>
+	name: Key
 }
 
 impl Type {
 	pub fn any_or_none() -> Type {
 		Type {
-			name: Box::from(""),
-			test: Test::Builtin(|Arguments|)
+			name: Key::from("any?"),
+			test: Test::Builtin(|_args| {
+				true
+			})
 		}
 	}
 }

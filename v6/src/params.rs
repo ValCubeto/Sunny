@@ -22,7 +22,7 @@ impl Params {
 			rest: None
 		}
 	}
-	pub fn add(&mut self, param: Box<str>) {
+	pub fn add(&mut self, k: Key, v: (Box<Type>, Box<Value>)) {
 		for (key, _) in self.vec.iter() {
 			key.0;
 		}
