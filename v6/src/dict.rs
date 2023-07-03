@@ -2,14 +2,19 @@ use std::collections::HashMap;
 use std::rc::Rc;
 use crate::types::Value;
 
-pub type Key = Rc<str>;
+#[derive(Eq, PartialEq, Hash)]
+pub struct Key(pub Rc<str>);
 
-pub struct Dict {
-	map: HashMap<Key, Value>
+impl From<&str> for Key {
+	fn from(string: &str) -> Self {
+		Key(Rc::from(string))
+	}
 }
 
-impl/* <const N: usize> *//*  From<[(Key, Value); N]> for  */Dict {
-	pub fn new(src: [(Key, Value)]) -> Self {
-		Dict { map: HashMap::from(src) }
+pub struct Dict(pub HashMap<Key, Value>);
+
+impl<const N: usize> From<[(Key, Value); N]> for Dict {
+	fn from(src: [(Key, Value); N]) -> Self {
+		Dict(HashMap::from(src))
 	}
 }

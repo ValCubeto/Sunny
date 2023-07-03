@@ -1,11 +1,9 @@
-use std::rc::Rc;
 use crate::dict::Key;
 use crate::types::{Type, Value};
 
-pub type Param = (Key, (Rc<Type>, Rc<Value>));
+pub type Param = (Key, (Box<Type>, Box<Value>));
 
 #[allow(unused)]
-#[derive(Debug)]
 pub struct Params {
 	vec: Vec<Param>,
 	rest: Option<(usize, Param)>
@@ -18,7 +16,9 @@ impl Params {
 			rest: None
 		}
 	}
-	pub fn add(&mut self, param: Rc<str>) {
-		for (key, _, _) in self.vec.iter()
+	pub fn add(&mut self, param: Box<str>) {
+		for (key, _) in self.vec.iter() {
+			key.0;
+		}
 	}
 }

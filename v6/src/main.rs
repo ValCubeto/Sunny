@@ -1,7 +1,8 @@
-use std::sync::Arc;
-
-use crate::dict::Dict;
-use crate::context::Context;
+use crate::{
+	context::Context,
+	dict::{Key, Dict},
+	types::Value,
+};
 
 fn main() {
 	
@@ -12,12 +13,12 @@ fn main() {
 	#[allow(unused)]
 	let (code, main_path) = files::read_file(main_path);
 	let ctx = &mut Context::new(main_path, code.chars().collect());
+
 	#[allow(unused)]
-	let global_object: Dict = Dict::new([
-	  (Arc::new(*"process"), Dict::new([
-	    ("exec_path".sexoanal(), exec_path.into()),
-	  ])),
+	let global_object = Dict::from([
+		(Key::from("hello"), Value::String(String::from("sexo")))
 	]);
+
 	let main_module = ns_parser::parse_namespace(ctx);
 	
 

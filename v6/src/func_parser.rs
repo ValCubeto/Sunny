@@ -28,6 +28,7 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 	let mut function = Function {
 		name: collect_word(ctx),
 		params: Params::new(),
+		returns: None,
 		body: Vec::new()
 	};
 
@@ -49,12 +50,11 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 			}
 			'.' => {}
 			'a'..='z' | '_' | 'A'..='Z' => {
-				let mut param = (collect_word(ctx), Type::Value, Value::None);
+				let mut param = (collect_word(ctx), Type, Value::None);
 				ctx.ignore_spaces();
 				match ctx.ch {
 					_ => {}
 				}
-
 			}
 			_ => {
 				SyntaxError!(ctx, "expected ')', an identifier, or '...'; got {:?}", ctx.ch);
