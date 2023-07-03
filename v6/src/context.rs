@@ -1,9 +1,12 @@
 use std::fmt::Display;
+
+use crate::errors::InternalError;
 // use crate::errors::SyntaxError;
 
 pub struct Context {
 	pub id: String,
-	pub chars: Vec<char>,
+	pub char_vec: Vec<char>,
+	pub chars: std::slice::Iter<'static, char>,
 	pub ch: char,
 	pub char_count: usize,
 	pub idx: usize,
@@ -23,7 +26,8 @@ impl Context {
 			id,
 			ch: chars[0],
 			char_count: chars.len(),
-			chars,
+			chars: chars.iter(),
+			char_vec: chars,
 			idx: 0,
 			line: 1,
 			column: 1
@@ -50,23 +54,23 @@ impl Context {
 	pub fn next_char(&mut self) {
 		match self.ch {
 			'\n' => {
+				self.column = 0;
 				self.line += 1;
-				self.column = 1;
 			}
-			| 'a'..='z'
-			| 'A'..='Z'
-			| '_'
-			| ' ' | '\t' | '\r' => {}
+			'\t' => {
+				self.column += 4;
+			}
 			_ => {
-				// SyntaxError!(self, "unexpected character {:?}", self.ch);
+				self.column += 1;
 			}
-		}
-		if self.ch == '\n' {
-		} else {
-			self.column += 1;
 		}
 		self.idx += 1;
-		self.ch = self.chars[self.idx];
+		self.ch = match self.chars.next() {
+			None => {
+				InternalError!("");
+			}
+			Some(ch) => *ch
+		};
 		// println!("next_char: {:?}, :{}:{}", self.ch, self.line, self.column);
 	}
 }
