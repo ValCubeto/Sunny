@@ -12,6 +12,7 @@ fn main() {
 
 	#[allow(unused)]
 	let global_object = Dict::from([
+		// convert into an instance of Process
 		(Key::from("process"), Value::Dict(Dict::from([
 			(Key::from("exec_path"), Value::String(exec_path)),
 			(Key::from("flags"), Value::List(flags.iter().map(|v| Value::String(v.clone())).collect())),
