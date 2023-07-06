@@ -1,11 +1,9 @@
-use std::{fmt::Display, rc::Rc};
-
+use std::fmt::Display;
 use crate::errors::InternalError;
-// use crate::errors::SyntaxError;
 
 pub struct Context<'a> {
 	pub id: String,
-	pub chars_raw: Vec<char>, // for debugging
+	pub char_vec: Vec<char>, // for debugging
 	pub chars: std::str::Chars<'a>,
 	pub ch: char,
 	pub char_count: usize,
@@ -21,13 +19,13 @@ impl<'a> Display for Context<'a> {
 }
 
 impl<'a> Context<'a> {
-	pub fn new(id: String, chars: &String) -> Self {
+	pub fn new(id: String, string: &'a String) -> Self {
 		Context {
 			id,
-			ch: chars.chars().next(),
-			char_count: chars.len(),
-			chars: chars.chars(),
-			chars_raw: char_vec.to_vec(),
+			ch: string.chars().next().unwrap(),
+			char_count: string.len(),
+			chars: string.chars(),
+			char_vec: string.chars().collect::<Vec<char>>(),
 			idx: 0,
 			line: 0, // reserved for namespace name
 			column: 1
@@ -68,7 +66,7 @@ impl<'a> Context<'a> {
 			None => {
 				InternalError!("index go out of scope; idx = {}, len = {}", self.idx, self.char_count);
 			}
-			Some(ch) => *ch
+			Some(ch) => ch
 		};
 		// println!("next_char: {:?}, :{}:{}", self.ch, self.line, self.column);
 	}
