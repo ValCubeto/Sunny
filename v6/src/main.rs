@@ -8,7 +8,11 @@ fn main() {
 	let (exec_path, flags, main_path, args) = arg_parser::parse_args();
 
 	let (code, main_path) = files::read_file(main_path);
-	let ctx = &mut Context::new(main_path.clone(), code);
+	if code.is_empty() {
+		// Warning!("empty file");
+		return;
+	}
+	let ctx = &mut Context::new(main_path.clone(), &code);
 
 	#[allow(unused)]
 	let global_object = Dict::from([

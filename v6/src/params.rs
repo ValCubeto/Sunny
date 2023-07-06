@@ -24,7 +24,7 @@ impl Params {
 	}
 	pub fn add(&mut self, k: Key, v: (Box<Type>, Box<Value>)) {
 		for (key, _) in self.vec.iter() {
-			key.0;
+			todo!();
 		}
 	}
 }

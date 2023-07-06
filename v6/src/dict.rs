@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use crate::types::Value;
 
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub struct Key(pub Box<str>);
 
 impl From<&str> for Key {

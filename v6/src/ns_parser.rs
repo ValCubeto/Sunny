@@ -49,7 +49,7 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 				match word.as_str() {
 					"fun" => {
 						let function = parse_function(ctx);
-						namespace.set(ctx, function.name, Value::Function(function));
+						namespace.set(ctx, function.name.clone(), Value::Function(function));
 						dbg!(&namespace);
 					}
 					"struct" | "extend" => {
@@ -64,7 +64,7 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 					"namespace" => {
 						ctx.ignore_spaces();
 						let nested = parse_namespace(ctx);
-						namespace.set(ctx, nested.name, Value::Namespace(nested));
+						namespace.set(ctx, nested.name.clone(), Value::Namespace(nested));
 					}
 					_ => {
 						SyntaxError!(ctx, "unexpected identifier {word:?} here");

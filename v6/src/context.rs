@@ -1,12 +1,12 @@
-use std::fmt::Display;
+use std::{fmt::Display, rc::Rc};
 
 use crate::errors::InternalError;
 // use crate::errors::SyntaxError;
 
-pub struct Context {
+pub struct Context<'a> {
 	pub id: String,
-	pub chars_raw: String, // for debugging
-	pub chars: std::slice::Iter<'static, char>,
+	pub chars_raw: Vec<char>, // for debugging
+	pub chars: std::str::Chars<'a>,
 	pub ch: char,
 	pub char_count: usize,
 	pub idx: usize,
@@ -14,20 +14,20 @@ pub struct Context {
 	pub column: usize
 }
 
-impl Display for Context {
+impl<'a> Display for Context<'a> {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(f, "{}:{}:{} - chars[{}] = {:?}", self.id, self.line, self.column, self.idx, self.ch)
 	}
 }
 
-impl Context {
-	pub fn new(id: String, chars: String) -> Self {
+impl<'a> Context<'a> {
+	pub fn new(id: String, chars: &String) -> Self {
 		Context {
 			id,
-			ch: chars.chars().collect::<Vec<char>>()[0],
+			ch: chars.chars().next(),
 			char_count: chars.len(),
-			chars: chars.chars().collect::<Vec<char>>().iter(),
-			chars_raw: chars,
+			chars: chars.chars(),
+			chars_raw: char_vec.to_vec(),
 			idx: 0,
 			line: 0, // reserved for namespace name
 			column: 1
