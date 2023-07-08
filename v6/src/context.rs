@@ -1,5 +1,5 @@
 use std::fmt::Display;
-use crate::errors::InternalError;
+use crate::{errors::{InternalError, SyntaxError}, dict::Key};
 
 pub struct Context<'a> {
 	pub id: String,
@@ -69,5 +69,24 @@ impl<'a> Context<'a> {
 			Some(ch) => ch
 		};
 		// println!("next_char: {:?}, :{}:{}", self.ch, self.line, self.column);
+	}
+	pub fn collect_word(&mut self) -> Key {
+		let mut word = String::new();
+		while self.idx < self.char_count {
+			match self.ch {
+				'a'..='z' | 'A'..='Z' | '_' | '0'..='9' => {
+					word.push(self.ch);
+				}
+				// ' ' | '\t' | '\r' | '\n' => {}
+				_ => {
+					break;
+				}
+			}
+			self.next_char();
+		}
+		if word.is_empty() {
+			SyntaxError!(self, "expected a word, got {:?}", self.ch);
+		}
+		Key::from(word.as_str())
 	}
 }

@@ -40,7 +40,6 @@ mod about;
 mod dict;
 mod files;
 mod context;
-mod word_collector;
 mod ns_parser;
 mod types;
 mod params;

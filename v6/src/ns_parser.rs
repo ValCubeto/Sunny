@@ -4,7 +4,6 @@ use crate::dict::Key;
 use crate::errors::{SyntaxError, ReferenceError};
 use crate::func_parser::parse_function;
 use crate::types::Value;
-use crate::word_collector::collect_word;
 
 #[derive(Debug)]
 pub struct Namespace {
@@ -27,7 +26,7 @@ impl Namespace {
 
 pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 	let mut namespace = Namespace {
-		name: collect_word(ctx),
+		name: ctx.collect_word(),
 		data: HashMap::new()
 	};
 
@@ -44,7 +43,7 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 		println!("{ctx:#}");
 		match ctx.ch {
 			'a'..='z' | 'A'..='Z' | '_' => {
-				let word = collect_word(ctx);
+				let word = ctx.collect_word();
 				dbg!(&word);
 				match word.as_str() {
 					"fun" => {

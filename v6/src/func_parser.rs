@@ -3,8 +3,7 @@ use crate::{
 	dict::Key,
 	errors::SyntaxError,
 	params::Params,
-	types::{Value, Type},
-	word_collector::collect_word,
+	types::{Value, Type}
 };
 
 #[derive(Debug)]
@@ -28,7 +27,7 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 	ctx.ignore_spaces();
 
 	let mut function = Function {
-		name: collect_word(ctx),
+		name: ctx.collect_word(),
 		params: Params::new(),
 		returns: None,
 		body: Box::new([])
@@ -66,7 +65,7 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 			}
 			'.' => {}
 			'a'..='z' | '_' | 'A'..='Z' => {
-				let mut param = (collect_word(ctx), Type::any_or_none(), Value::None);
+				let mut param = (ctx.collect_word(), Type::any_or_none(), Value::None);
 				ctx.ignore_spaces();
 				match ctx.ch {
 					_ => {}
@@ -99,13 +98,16 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 						break;
 					}
 					'a'..='z' | 'A'..='Z' | '_' => {
-						let word = collect_word(ctx);
+						let word = ctx.collect_word();
 						ctx.ignore_spaces();
 						match word.as_str() {
 							"if" => {
 								SyntaxError!(ctx, "todo: if");
 							}
-							_ => {
+							"const" | "var" | "namespace" | "fun" | "struct" | "extend" => {
+								SyntaxError!(ctx, "todo");
+							}
+							_identifier => {
 								match ctx.ch {
 									'=' => {
 										SyntaxError!(ctx, "todo: assignment");
