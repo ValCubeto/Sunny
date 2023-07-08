@@ -77,7 +77,6 @@ impl<'a> Context<'a> {
 				'a'..='z' | 'A'..='Z' | '_' | '0'..='9' => {
 					word.push(self.ch);
 				}
-				// ' ' | '\t' | '\r' | '\n' => {}
 				_ => {
 					break;
 				}
