@@ -20,7 +20,7 @@ pub struct Function {
 	pub name: Key,
 	params: Params,
 	returns: Option<Type>,
-	pub body: Box<[Statment]>
+	pub body: Vec<Statment>
 }
 
 pub fn parse_function(ctx: &mut Context) -> Function {
@@ -30,7 +30,7 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 		name: ctx.collect_word(),
 		params: Params::new(),
 		returns: None,
-		body: Box::new([])
+		body: Vec::new()
 	};
 
 	ctx.ignore_spaces();
