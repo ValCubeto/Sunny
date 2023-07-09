@@ -72,6 +72,14 @@ impl<'a> Context<'a> {
 	}
 	pub fn collect_word(&mut self) -> Key {
 		let mut word = String::new();
+		match self.ch {
+			'a'..='z' | 'A'..='Z' | '_' => {
+				word.push(self.ch);
+			}
+			_ => {
+				SyntaxError!(self, "expected an identifier, got {:?}", self.ch);
+			}
+		}
 		while self.idx < self.char_count {
 			match self.ch {
 				'a'..='z' | 'A'..='Z' | '_' | '0'..='9' => {
