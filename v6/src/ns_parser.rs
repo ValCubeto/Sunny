@@ -8,19 +8,15 @@ use crate::types::Value;
 #[derive(Debug)]
 pub struct Namespace {
 	name: Key,
-	data: HashMap<Key, Value>
+	values: HashMap<Key, Value>
 }
 
 impl Namespace {
 	pub fn set(&mut self, ctx: &mut Context, k: Key, v: Value) {
-		if self.data.contains_key(&k) {
-			ReferenceError!(ctx, "the {} {k} is already defined", match v {
-				Value::Function(_) => "function",
-				Value::Namespace(_) => "namespace",
-				_ => "variable"
-			});
+		if self.values.contains_key(&k) {
+			ReferenceError!(ctx, "{k} is already defined");
 		}
-		self.data.insert(k, v);
+		self.values.insert(k, v);
 	}
 }
 
@@ -29,7 +25,7 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 
 	let mut namespace = Namespace {
 		name: ctx.collect_word(),
-		data: HashMap::new()
+		values: HashMap::new()
 	};
 
 	dbg!(&namespace.name);

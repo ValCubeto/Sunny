@@ -15,6 +15,7 @@ pub enum Statment {
 	}
 }
 
+#[allow(unused)]
 #[derive(Debug)]
 pub struct Function {
 	pub name: Key,
@@ -26,6 +27,7 @@ pub struct Function {
 pub fn parse_function(ctx: &mut Context) -> Function {
 	ctx.ignore_spaces();
 
+	#[allow(unused_mut)]
 	let mut function = Function {
 		name: ctx.collect_word(),
 		params: Params::new(),
@@ -67,8 +69,8 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 			'a'..='z' | '_' | 'A'..='Z' => {
 				let mut param = (ctx.collect_word(), Type::any_or_none(), Value::None);
 				ctx.ignore_spaces();
-				match ctx.ch {
-					_ => {}
+				if ctx.ch == ':' {
+					// parse_type()
 				}
 			}
 			_ => {
