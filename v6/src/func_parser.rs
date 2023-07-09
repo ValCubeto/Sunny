@@ -2,7 +2,7 @@ use crate::{
 	context::Context,
 	dict::Key,
 	errors::SyntaxError,
-	params::Params,
+	params::{Params, Param},
 	types::{Value, Type}
 };
 
@@ -67,7 +67,7 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 			}
 			'.' => {}
 			'a'..='z' | '_' | 'A'..='Z' => {
-				let mut param = (ctx.collect_word(), Type::any_or_none(), Value::None);
+				let mut param: Param = (ctx.collect_word(), Type::any_or_none(), /* Value::None */);
 				ctx.ignore_spaces();
 				if ctx.ch == ':' {
 					// parse_type()
