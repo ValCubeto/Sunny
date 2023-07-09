@@ -25,6 +25,8 @@ impl Namespace {
 }
 
 pub fn parse_namespace(ctx: &mut Context) -> Namespace {
+	ctx.ignore_spaces();
+
 	let mut namespace = Namespace {
 		name: ctx.collect_word(),
 		data: HashMap::new()
@@ -49,7 +51,6 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 					"fun" => {
 						let function = parse_function(ctx);
 						namespace.set(ctx, function.name.clone(), Value::Function(function));
-						dbg!(&namespace);
 					}
 					"struct" | "extend" => {
 						SyntaxError!(ctx, "structs to do");
@@ -61,7 +62,6 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 						SyntaxError!(ctx, "imports to do");
 					}
 					"namespace" => {
-						ctx.ignore_spaces();
 						let nested = parse_namespace(ctx);
 						namespace.set(ctx, nested.name.clone(), Value::Namespace(nested));
 					}

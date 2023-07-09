@@ -1,5 +1,8 @@
 use std::fmt::Display;
-use crate::{errors::{InternalError, SyntaxError}, dict::Key};
+use crate::{
+	errors::SyntaxError,
+	dict::Key
+};
 
 pub struct Context<'a> {
 	pub id: String,
@@ -64,7 +67,7 @@ impl<'a> Context<'a> {
 		self.idx += 1;
 		self.ch = match self.chars.next() {
 			None => {
-				InternalError!("index go out of scope; idx = {}, len = {}", self.idx, self.char_count);
+				SyntaxError!(self, "unexpected end of file");
 			}
 			Some(ch) => ch
 		};
@@ -80,6 +83,7 @@ impl<'a> Context<'a> {
 				SyntaxError!(self, "expected an identifier, got {:?}", self.ch);
 			}
 		}
+		self.next_char();
 		while self.idx < self.char_count {
 			match self.ch {
 				'a'..='z' | 'A'..='Z' | '_' | '0'..='9' => {
