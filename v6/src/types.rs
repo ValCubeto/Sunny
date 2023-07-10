@@ -1,8 +1,9 @@
 use crate::{
-	dict::{Dict, Key},
+	dict::{Dict, Id},
 	ns_parser::Namespace,
 	func_parser::Function,
-	params::Index, structs::Struct,
+	params::Index,
+	structs::{Struct, Instance},
 };
 
 #[allow(non_camel_case_types)]
@@ -31,7 +32,25 @@ pub enum Value {
 	Namespace(Namespace),
 	Function(Function),
 	Struct(Struct),
-	Instance(Key, Vec<Value>),
+	Instance(Instance),
+}
+
+impl From<String> for Value {
+	fn from(value: String) -> Self {
+		Value::String(value)
+	}
+}
+
+impl From<i8> for Value {
+	fn from(value: i8) -> Self {
+		Value::i8(value)
+	}
+}
+
+impl<T> From<Vec<T>> for Value where Value: From<T> {
+	fn from(value: Vec<T>) -> Self {
+		Value::List(value.iter().map(|v| { Value::from(*v) }).collect())
+	}
 }
 
 #[derive(Debug)]
@@ -43,13 +62,13 @@ enum Test {
 #[derive(Debug)]
 pub struct Type {
 	test: Test,
-	name: Key
+	name: Id
 }
 
 impl Type {
 	pub fn any_or_none() -> Type {
 		Type {
-			name: Key::from("any?"),
+			name: Id::from("any?"),
 			test: Test::Builtin(|_args| {
 				true
 			})

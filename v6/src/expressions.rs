@@ -1,5 +1,7 @@
+use crate::context::Context;
+
 pub struct Expression {
-	items: Vec<Key>
+	items: Vec<String>
 }
 
 pub fn parse_expr(ctx: &mut Context) -> Expression {
@@ -8,8 +10,10 @@ pub fn parse_expr(ctx: &mut Context) -> Expression {
 		items: Vec::new()
 	};
 
-	while ctx.idx < ctx.
-	match ctx.ch {}
+	while ctx.idx < ctx.char_count {
+		ctx.next_char();
+		match ctx.ch {};
+	}
 
 	expression
 }

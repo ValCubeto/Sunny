@@ -1,10 +1,14 @@
-use std::io::Read;
-use std::path::PathBuf;
-use crate::about::EXTENSION;
-use crate::errors::{LoadError, InternalError};
-use std::fs::File;
+use std::{
+	io::Read,
+	path::PathBuf,
+	fs::File
+};
+use crate::{
+	about::EXTENSION,
+	errors::{LoadError, InternalError}
+};
 
-pub fn read_file(path: String) -> (String, String) {
+pub fn read_file(path: String) -> (String, String, String) {
 	let mut read_path = PathBuf::from(&path);
 	if !read_path.exists() {
 		if
@@ -18,7 +22,7 @@ pub fn read_file(path: String) -> (String, String) {
 	if !read_path.is_file() {
 		LoadError!("{read_path:?} is not a file");
 	}
-	let mut code: String = match read_path.file_stem() {
+	let mut stem: String = match read_path.file_stem() {
 		None => {
 			InternalError!("failed to get the file stem in {read_path:?}");
 		}
@@ -26,6 +30,7 @@ pub fn read_file(path: String) -> (String, String) {
 			stem.to_string_lossy().to_string()
 		}
 	};
+	let mut code = stem.clone();
 	code.push('{');
 	code.push('\n');
 	
@@ -50,5 +55,5 @@ pub fn read_file(path: String) -> (String, String) {
 	code.push_str(content.as_str());
 
 	code.push('}');
-	(code, read_path.to_string_lossy().to_string())
+	(code, read_path.to_string_lossy().to_string(), stem)
 }

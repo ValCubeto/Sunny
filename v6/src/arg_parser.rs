@@ -1,5 +1,7 @@
-use crate::about::{NAME, VERSION};
-use crate::errors::{InternalError, ArgumentError};
+use crate::{
+	about::{NAME, VERSION},
+	errors::{InternalError, ArgumentError}
+};
 use std::process::exit;
 
 pub fn parse_args() -> (String, Vec<String>, String, Vec<String>) {
