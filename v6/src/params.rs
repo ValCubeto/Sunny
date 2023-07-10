@@ -1,12 +1,14 @@
 use crate::dict::Key;
 use crate::types::{Type, Value};
 
+#[allow(unused)]
 #[derive(Debug)]
 pub enum Index {
 	Numeric(usize),
 	Named(Key)
 }
 
+#[allow(unused)]
 #[derive(Debug)]
 pub struct Param {
 	name: Key,
@@ -14,6 +16,17 @@ pub struct Param {
 	value: Option<Box<Value>>
 }
 
+impl Param {
+	pub fn new(name: Key, r#type: Option<Box<Type>>, value: Option<Box<Value>>) -> Self {
+		Param {
+			name,
+			r#type,
+			value
+		}
+	}
+}
+
+#[allow(unused)]
 #[derive(Debug)]
 pub struct Params {
 	vec: Vec<Param>,

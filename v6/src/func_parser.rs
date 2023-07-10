@@ -67,10 +67,10 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 			}
 			'.' => {}
 			'a'..='z' | '_' | 'A'..='Z' => {
-				let mut param: Param = (ctx.collect_word(), Type::any_or_none(), /* Value::None */);
+				let mut param: Param = Param::new(ctx.collect_word(), None, None);
 				ctx.ignore_spaces();
 				if ctx.ch == ':' {
-					// parse_type()
+					// parse_expr()
 				}
 			}
 			_ => {
