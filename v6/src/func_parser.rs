@@ -3,7 +3,7 @@ use crate::{
 	dict::Key,
 	errors::SyntaxError,
 	params::{Params, Param},
-	types::{Value, Type}
+	types::{Value, Type}, expressions::parse_expr
 };
 
 #[derive(Debug)]
@@ -70,7 +70,8 @@ pub fn parse_function(ctx: &mut Context) -> Function {
 				let mut param: Param = Param::new(ctx.collect_word(), None, None);
 				ctx.ignore_spaces();
 				if ctx.ch == ':' {
-					// parse_expr()
+					let expr = parse_expr(ctx);
+					todo!("x");
 				}
 			}
 			_ => {

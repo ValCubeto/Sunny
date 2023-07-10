@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 use crate::context::Context;
 use crate::dict::Key;
-use crate::errors::{SyntaxError, ReferenceError};
+use crate::errors::{SyntaxError, ReferenceError, InternalError, TypeError};
 use crate::func_parser::parse_function;
+use crate::structs::{parse_struct, parse_extension};
 use crate::types::Value;
 
 #[derive(Debug)]
@@ -48,8 +49,30 @@ pub fn parse_namespace(ctx: &mut Context) -> Namespace {
 						let function = parse_function(ctx);
 						namespace.set(ctx, function.name.clone(), Value::Function(function));
 					}
-					"struct" | "extend" => {
-						SyntaxError!(ctx, "structs to do");
+					"struct" => {
+						let value = parse_struct(ctx);
+						namespace.set(ctx, value.name.clone(), Value::Struct(value));
+					}
+					"extend" => {
+						ctx.ignore_spaces();
+						let id = ctx.collect_word();
+						if !namespace.values.contains_key(&id) {
+							SyntaxError!(ctx, "extend before initialization todo");
+						}
+						let value = match namespace.values.get(&id) {
+							None => {
+								InternalError!("bro");
+							}
+							Some(value) => {
+								match value {
+									Value::Struct(value) => *value,
+									_ => {
+										TypeError!(ctx, "trying to extend a value that is not a struct");
+									}
+								}
+							}
+						};
+						parse_extension(ctx, value);
 					}
 					"const" => {
 						SyntaxError!(ctx, "constants to do");

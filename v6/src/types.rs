@@ -2,7 +2,7 @@ use crate::{
 	dict::{Dict, Key},
 	ns_parser::Namespace,
 	func_parser::Function,
-	params::Index,
+	params::Index, structs::Struct,
 };
 
 #[allow(non_camel_case_types)]
@@ -30,7 +30,7 @@ pub enum Value {
 	Dict(Dict),
 	Namespace(Namespace),
 	Function(Function),
-	// Struct(Struct),
+	Struct(Struct),
 	Instance(Key, Vec<Value>),
 }
 

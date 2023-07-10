@@ -55,6 +55,13 @@ macro_rules! ReferenceError {
 }
 
 #[allow(unused)]
+macro_rules! TypeError {
+	($ctx:expr, $($args:expr),+) => {{
+		crate::errors::do_error_stack!($ctx, "TypeError", $($args),+);
+	}};
+}
+
+#[allow(unused)]
 pub(crate) use {
 	do_error,
 	do_error_stack,
@@ -63,4 +70,5 @@ pub(crate) use {
 	LoadError,
 	SyntaxError,
 	ReferenceError,
+	TypeError
 };
