@@ -7,7 +7,12 @@ pub enum Index {
 	Named(Key)
 }
 
-pub type Param = (Key, (Box<Type>, Box<Value>));
+#[derive(Debug)]
+pub struct Param {
+	name: Key,
+	r#type: Option<Box<Type>>,
+	value: Option<Box<Value>>
+}
 
 #[derive(Debug)]
 pub struct Params {
@@ -23,7 +28,7 @@ impl Params {
 		}
 	}
 	pub fn add(&mut self, k: Key, v: (Box<Type>, Box<Value>)) {
-		for (key, _) in self.vec.iter() {
+		for Param { name, .. } in self.vec.iter() {
 			todo!();
 		}
 	}
