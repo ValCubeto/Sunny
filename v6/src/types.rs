@@ -47,11 +47,18 @@ impl From<i8> for Value {
 	}
 }
 
+impl From<Dict> for Value {
+	fn from(value: Dict) -> Self {
+		Value::Dict(value)
+	}
+}
+
 impl<T> From<Vec<T>> for Value where Value: From<T> {
 	fn from(value: Vec<T>) -> Self {
 		Value::List(value.iter().map(|v| { Value::from(*v) }).collect())
 	}
 }
+
 
 #[derive(Debug)]
 enum Test {

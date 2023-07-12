@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::fmt::Display;
-use crate::types::{Value, IntoSunnyValue};
+use crate::types::Value;
 
 #[derive(Debug, Eq, PartialEq, Hash, Clone)]
 pub struct Id(pub Box<str>);
@@ -26,11 +26,11 @@ impl Id {
 #[derive(Debug)]
 pub struct Dict(pub HashMap<Id, Value>);
 
-impl<T, const N: usize> From<[(&str, T); N]> for Dict where Value: From<T> {
-	fn from(src: [(&str, T); N]) -> Self {
+impl<const N: usize> From<[(&str, Value); N]> for Dict {
+	fn from(src: [(&str, Value); N]) -> Self {
 		Dict(
 			HashMap::from(src.map(|(k, v)| {
-				(Id::from(k), Value::from(v))
+				(Id::from(k), v)
 			}))
 		)
 	}

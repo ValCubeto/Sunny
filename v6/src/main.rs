@@ -18,11 +18,11 @@ fn main() {
 	let global_object = Dict::from([
 		// convert into an instance of Process
 		("process", Dict::from([
-			("exec_path", exec_path),
-			("flags",     flags),
-			("main_path", main_path),
-			("args",      args),
-		]))
+			("exec_path", exec_path.into()),
+			("flags",     flags.into()),
+			("main_path", main_path.into()),
+			("args",      args.into()),
+		]).into())
 	]);
 
 	let main_module = ns_parser::parse_namespace(ctx);
