@@ -1,35 +1,19 @@
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # comment
-
-namespace main {}
-fun p() {}
-fun main ( args#: String [ ]
- ) {
-	println ( 'Hello, world!' )
-	println ( { args } )
+fun main(args: String[]) {
+	println('Hello, world!')
+	println({ args })
 }
+
+namespace ñandú {
+	const text = 'Hello'
+}
+
 struct Person {
 	name: String
 }
 
+# @initializer
 extend Person {
 	fun new(name: String) -> Self {
 		return Person {
@@ -37,3 +21,5 @@ extend Person {
 		}
 	}
 }
+
+import sunny::math::sqrt
