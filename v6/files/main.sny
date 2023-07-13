@@ -1,9 +1,13 @@
 
 # comment
-fun main(args: String[?]) {
+fun main(args: String[*]) {
 	println('Hello, world!')
 	println({ args })
 	println({ ñandú::text })
+	lambda = () => {
+		println('Hello from lambda')
+	}
+	lambda()
 }
 
 namespace ñandú {
