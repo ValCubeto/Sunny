@@ -1,7 +1,8 @@
 
 # comment
 fun main(args: String[*]) {
-	println('Hello, world!')
+	message = 'Hello, world!'
+	println(message)
 	println({ args })
 	println({ ñandú::text })
 	lambda = () => {
