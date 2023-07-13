@@ -1,7 +1,7 @@
 use crate::{
 	dict::Id,
 	context::Context,
-	types::{Value, Type}
+	types::{Value, Type}, errors::SyntaxError
 };
 
 #[derive(Debug)]
@@ -19,6 +19,13 @@ pub fn parse_struct(ctx: &mut Context) -> Struct {
 }
 
 pub fn parse_extension<'a>(ctx: &mut Context, s: &'a mut Struct) -> &'a mut Struct {
+	ctx.ignore_spaces();
+	// parse generics
+	if ctx.ch != '{' {
+		SyntaxError!(ctx, "expected '{{', got {:?}", ctx.ch);
+	}
+	ctx.ignore_spaces();
+	todo!("w");
 	s
 }
 

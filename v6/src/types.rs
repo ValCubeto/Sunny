@@ -6,7 +6,7 @@ use crate::{
 	structs::{Struct, Instance},
 };
 
-#[allow(non_camel_case_types)]
+#[allow(non_camel_case_types, unused)]
 #[derive(Debug)]
 pub enum Value {
 	None,
@@ -53,19 +53,20 @@ impl From<Dict> for Value {
 	}
 }
 
-impl<T> From<Vec<T>> for Value where Value: From<T> {
+impl<T> From<Vec<T>> for Value where Value: From<T>, T: Clone {
 	fn from(value: Vec<T>) -> Self {
-		Value::List(value.iter().map(|v| { Value::from(*v) }).collect())
+		Value::List(value.iter().map(|v| { Value::from((*v).clone()) }).collect())
 	}
 }
 
-
+#[allow(unused)]
 #[derive(Debug)]
 enum Test {
 	Builtin(fn(Vec<(Index, Value)>) -> bool),
 	Defined(Box<Function>)
 }
 
+#[allow(unused)]
 #[derive(Debug)]
 pub struct Type {
 	test: Test,
@@ -73,12 +74,12 @@ pub struct Type {
 }
 
 impl Type {
-	pub fn any_or_none() -> Type {
-		Type {
-			name: Id::from("any?"),
-			test: Test::Builtin(|_args| {
-				true
-			})
-		}
-	}
+	// pub fn any_or_none() -> Type {
+	// 	Type {
+	// 		name: Id::from("any?"),
+	// 		test: Test::Builtin(|_args| {
+	// 			true
+	// 		})
+	// 	}
+	// }
 }

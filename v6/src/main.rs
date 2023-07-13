@@ -7,7 +7,7 @@ fn main() {
 	let (exec_path, flags, main_path, args) = arg_parser::parse_args();
 
 	let (code, main_path, id) = files::read_file(main_path);
-	let ctx = &mut Context::new(main_path.clone(), &code);
+	let ctx = &mut Context::new(id, &code);
 
 	// if code.len() < id.len() + 4 {
 	// 	return;

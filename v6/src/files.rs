@@ -5,10 +5,11 @@ use std::{
 };
 use crate::{
 	about::EXTENSION,
-	errors::{LoadError, InternalError}
+	errors::{LoadError, InternalError},
+	dict::Id
 };
 
-pub fn read_file(path: String) -> (String, String, String) {
+pub fn read_file(path: String) -> (String, String, Id) {
 	let mut read_path = PathBuf::from(&path);
 	if !read_path.exists() {
 		if
@@ -22,7 +23,7 @@ pub fn read_file(path: String) -> (String, String, String) {
 	if !read_path.is_file() {
 		LoadError!("{read_path:?} is not a file");
 	}
-	let mut stem: String = match read_path.file_stem() {
+	let stem: String = match read_path.file_stem() {
 		None => {
 			InternalError!("failed to get the file stem in {read_path:?}");
 		}
@@ -30,6 +31,7 @@ pub fn read_file(path: String) -> (String, String, String) {
 			stem.to_string_lossy().to_string()
 		}
 	};
+	dbg!(&stem);
 	let mut code = stem.clone();
 	code.push('{');
 	code.push('\n');
@@ -55,5 +57,5 @@ pub fn read_file(path: String) -> (String, String, String) {
 	code.push_str(content.as_str());
 
 	code.push('}');
-	(code, read_path.to_string_lossy().to_string(), stem)
+	(code, read_path.to_string_lossy().to_string(), Id::from(stem.as_str()))
 }

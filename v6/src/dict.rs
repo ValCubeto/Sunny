@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use crate::types::Value;
 
-#[derive(Debug, Eq, PartialEq, Hash, Clone)]
+#[derive(Eq, PartialEq, Hash, Clone)]
 pub struct Id(pub Box<str>);
 
 impl From<&str> for Id {
@@ -12,6 +12,12 @@ impl From<&str> for Id {
 }
 
 impl Display for Id {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{}", self.0)
+	}
+}
+
+impl std::fmt::Debug for Id {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(f, "{}", self.0)
 	}

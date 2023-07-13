@@ -5,7 +5,7 @@ use crate::{
 };
 
 pub struct Context<'a> {
-	pub id: String,
+	pub id: Id,
 	pub char_vec: Vec<char>, // for debugging
 	pub chars: std::str::Chars<'a>,
 	pub ch: char,
@@ -22,7 +22,7 @@ impl<'a> Display for Context<'a> {
 }
 
 impl<'a> Context<'a> {
-	pub fn new(id: String, string: &'a String) -> Self {
+	pub fn new(id: Id, string: &'a String) -> Self {
 		Context {
 			id,
 			ch: string.chars().next().unwrap(),
@@ -73,30 +73,30 @@ impl<'a> Context<'a> {
 		};
 		// println!("next_char: {:?}, :{}:{}", self.ch, self.line, self.column);
 	}
-	pub fn is_word_char(&self) -> bool {
-		match self.ch {
-			'a'..='z' | 'A'..='Z' | '_'
-			| '\u{c0}'..='\u{d6}'
-			| '\u{d8}'..='\u{f6}'
-			| '\u{f8}'..='\u{17e}'
-				=> true,
-			_ => false
-		}
-	}
 	pub fn collect_word(&mut self) -> Id {
-		if !self.is_word_char() {
+		if !self.ch.is_alphabetic() {
 			SyntaxError!(self, "expected an identifier, got {:?}", self.ch);
 		}
-		let mut word = String::new();
-		word.push(self.ch);
+		let mut word = String::from(self.ch);
 		self.next_char();
 		while self.idx < self.char_count {
-			if !self.is_word_char() && !('0'..='9').contains(&self.ch) {
+			if !self.ch.is_alphabetic() && !self.ch.is_ascii_digit() {
 				break;
 			}
 			word.push(self.ch);
 			self.next_char();
 		}
+		dbg!(&word);
 		Id::from(word.as_str())
+	}
+	pub fn collect_string(&mut self) -> String {
+		let quot = self.ch;
+		self.next_char();
+		let mut string = String::new();
+		while self.ch != quot {
+			string.push(self.ch);
+			self.next_char();
+		}
+		string
 	}
 }
