@@ -73,30 +73,29 @@ impl<'a> Context<'a> {
 		};
 		// println!("next_char: {:?}, :{}:{}", self.ch, self.line, self.column);
 	}
-	pub fn collect_word(&mut self) -> Id {
-		let mut word = String::new();
+	pub fn is_word_char(&self) -> bool {
 		match self.ch {
-			'a'..='z' | 'A'..='Z' | '_' => {
-				word.push(self.ch);
-			}
-			_ => {
-				SyntaxError!(self, "expected an identifier, got {:?}", self.ch);
-			}
+			'a'..='z' | 'A'..='Z' | '_'
+			| '\u{c0}'..='\u{d6}'
+			| '\u{d8}'..='\u{f6}'
+			| '\u{f8}'..='\u{17e}'
+				=> true,
+			_ => false
 		}
+	}
+	pub fn collect_word(&mut self) -> Id {
+		if !self.is_word_char() {
+			SyntaxError!(self, "expected an identifier, got {:?}", self.ch);
+		}
+		let mut word = String::new();
+		word.push(self.ch);
 		self.next_char();
 		while self.idx < self.char_count {
-			match self.ch {
-				'a'..='z' | 'A'..='Z' | '_' | '0'..='9' => {
-					word.push(self.ch);
-				}
-				_ => {
-					break;
-				}
+			if !self.is_word_char() && !('0'..='9').contains(&self.ch) {
+				break;
 			}
+			word.push(self.ch);
 			self.next_char();
-		}
-		if word.is_empty() {
-			SyntaxError!(self, "expected a word, got {:?}", self.ch);
 		}
 		Id::from(word.as_str())
 	}
