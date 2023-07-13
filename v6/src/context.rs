@@ -1,7 +1,7 @@
 use std::fmt::Display;
 use crate::{
 	errors::SyntaxError,
-	dict::Key
+	dict::Id
 };
 
 pub struct Context<'a> {
@@ -73,7 +73,7 @@ impl<'a> Context<'a> {
 		};
 		// println!("next_char: {:?}, :{}:{}", self.ch, self.line, self.column);
 	}
-	pub fn collect_word(&mut self) -> Key {
+	pub fn collect_word(&mut self) -> Id {
 		let mut word = String::new();
 		match self.ch {
 			'a'..='z' | 'A'..='Z' | '_' => {
@@ -98,6 +98,6 @@ impl<'a> Context<'a> {
 		if word.is_empty() {
 			SyntaxError!(self, "expected a word, got {:?}", self.ch);
 		}
-		Key::from(word.as_str())
+		Id::from(word.as_str())
 	}
 }

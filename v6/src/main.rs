@@ -1,7 +1,6 @@
 use crate::{
 	context::Context,
-	dict::{Id, Dict},
-	types::Value,
+	dict::Dict
 };
 
 fn main() {

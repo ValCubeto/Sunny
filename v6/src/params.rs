@@ -1,23 +1,25 @@
-use crate::dict::Key;
-use crate::types::{Type, Value};
+use crate::{
+	dict::Id,
+	types::{Type, Value}
+};
 
 #[allow(unused)]
 #[derive(Debug)]
 pub enum Index {
 	Numeric(usize),
-	Named(Key)
+	Named(Id)
 }
 
 #[allow(unused)]
 #[derive(Debug)]
 pub struct Param {
-	name: Key,
+	name: Id,
 	r#type: Option<Box<Type>>,
 	value: Option<Box<Value>>
 }
 
 impl Param {
-	pub fn new(name: Key, r#type: Option<Box<Type>>, value: Option<Box<Value>>) -> Self {
+	pub fn new(name: Id, r#type: Option<Box<Type>>, value: Option<Box<Value>>) -> Self {
 		Param {
 			name,
 			r#type,
@@ -40,7 +42,7 @@ impl Params {
 			rest: None
 		}
 	}
-	pub fn add(&mut self, k: Key, v: (Box<Type>, Box<Value>)) {
+	pub fn add(&mut self, k: Id, v: (Box<Type>, Box<Value>)) {
 		for Param { name, .. } in self.vec.iter() {
 			todo!();
 		}

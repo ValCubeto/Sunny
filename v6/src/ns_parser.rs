@@ -1,19 +1,21 @@
 use std::collections::HashMap;
-use crate::context::Context;
-use crate::dict::Key;
-use crate::errors::{SyntaxError, ReferenceError, InternalError, TypeError};
-use crate::func_parser::parse_function;
-use crate::structs::{parse_struct, parse_extension};
-use crate::types::Value;
+use crate::{
+	context::Context,
+	dict::Id,
+	errors::{SyntaxError, ReferenceError, InternalError, TypeError},
+	func_parser::parse_function,
+	structs::{parse_struct, parse_extension},
+	types::Value,
+};
 
 #[derive(Debug)]
 pub struct Namespace {
-	name: Key,
-	values: HashMap<Key, Value>
+	name: Id,
+	values: HashMap<Id, Value>
 }
 
 impl Namespace {
-	pub fn set(&mut self, ctx: &mut Context, k: Key, v: Value) {
+	pub fn set(&mut self, ctx: &mut Context, k: Id, v: Value) {
 		if self.values.contains_key(&k) {
 			ReferenceError!(ctx, "{k} is already defined");
 		}

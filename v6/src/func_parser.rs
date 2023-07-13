@@ -1,16 +1,17 @@
 use crate::{
 	context::Context,
-	dict::Key,
+	dict::Id,
 	errors::SyntaxError,
 	params::{Params, Param},
-	types::{Value, Type}, expressions::parse_expr
+	types::Type,
+	expressions::parse_expr
 };
 
 #[derive(Debug)]
 pub enum Statment {
 	#[allow(unused)]
 	Call {
-		name: Key,
+		name: Id,
 		params: Params
 	}
 }
@@ -18,7 +19,7 @@ pub enum Statment {
 #[allow(unused)]
 #[derive(Debug)]
 pub struct Function {
-	pub name: Key,
+	pub name: Id,
 	params: Params,
 	returns: Option<Type>,
 	pub body: Vec<Statment>

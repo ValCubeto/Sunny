@@ -1,20 +1,20 @@
 use crate::{
-	dict::Key,
+	dict::Id,
 	context::Context
 };
 
 #[derive(Debug)]
 pub struct Struct {
-	pub name: Key,
+	pub name: Id,
 	pub properties: Vec<Variable>
 }
 
 pub fn parse_struct(ctx: &mut Context) -> Struct {}
 
-pub fn parse_extension(ctx: &mut Context, s: Struct) -> Struct {}
+pub fn parse_extension(ctx: &mut Context, s: &mut Struct) -> Struct {}
 
 #[derive(Debug)]
 pub struct Instance {
-	pub parent: Key,
+	pub parent: Id,
 	pub values: Vec<Variable>
 }
