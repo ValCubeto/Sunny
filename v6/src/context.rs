@@ -17,7 +17,7 @@ pub struct Context<'a> {
 
 impl<'a> Display for Context<'a> {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "{}:{}:{} - chars[{}] = {:?}", self.id, self.line, self.column, self.idx, self.ch)
+		write!(f, "({}:{}:{}) chars[{}] = {:?}", self.id, self.line, self.column, self.idx, self.ch)
 	}
 }
 

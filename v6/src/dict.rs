@@ -1,23 +1,23 @@
 use std::collections::HashMap;
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use crate::types::Value;
 
 #[derive(Eq, PartialEq, Hash, Clone)]
-pub struct Id(pub Box<str>);
+pub struct Id(pub Rc<str>);
 
 impl From<&str> for Id {
 	fn from(string: &str) -> Self {
-		Id(Box::from(string))
+		Id(Rc::from(string))
 	}
 }
 
-impl Display for Id {
+impl Debug for Id {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(f, "{}", self.0)
 	}
 }
 
-impl std::fmt::Debug for Id {
+impl Display for Id {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(f, "{}", self.0)
 	}

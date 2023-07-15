@@ -1,0 +1,22 @@
+use std::{rc::Rc, fmt::Debug};
+
+pub struct Id(pub Rc<str>);
+
+impl Debug for Id {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{}", self.0)
+	}
+}
+
+impl From<&str> for Id {
+	fn from(string: &str) -> Self {
+		Id(Rc::from(string))
+	}
+}
+
+#[allow(unused)]
+impl Id {
+	pub fn to_str(&self) -> &str {
+		&(self.0)
+	}
+}
