@@ -11,11 +11,11 @@ pub fn parse_expr(ctx: &mut Context) -> Expression {
 	};
 
 	while ctx.idx < ctx.char_count {
-		if ctx.ch.is_alphabetic() {
+		if ctx.ch.is_numeric() {
 			ctx.next_char();
 			continue;
 		}
-		if ctx.ch.is_numeric() {
+		if ctx.ch.is_alphabetic() {
 			ctx.next_char();
 			continue;
 		}
