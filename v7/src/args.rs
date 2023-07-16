@@ -8,10 +8,10 @@ use std::{process::exit, path::PathBuf};
 #[allow(unused)]
 #[derive(Debug)]
 pub struct ParsedArgs {
-	exec_path: PathBuf,
-	flags: Vec<Id>,
-	main_path: PathBuf,
-	args: Vec<Id>
+	pub exec_path: PathBuf,
+	pub flags: Vec<Id>,
+	pub main_path: PathBuf,
+	pub args: Vec<Id>
 }
 
 pub fn parse_args() -> ParsedArgs {

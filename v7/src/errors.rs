@@ -12,7 +12,7 @@ macro_rules! do_error_stack {
 	($ctx:expr, $name:expr, $($args:expr),+) => {{
 		print!("{}: ", crate::colors::error($name));
 		println!($($args),+);
-		println!("    at {}:{}:{}", $ctx.id, $ctx.line, $ctx.column);
+		println!("    at {:?}:{}:{}", $ctx.id, $ctx.line, $ctx.column);
 		println!("    at {}:{}:{}", file!(), line!(), column!());
 		std::process::exit(1);
 	}};
