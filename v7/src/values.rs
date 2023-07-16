@@ -1,4 +1,4 @@
-use crate::id::Id;
+use crate::{id::Id, functions::Function, namespaces::Namespace};
 use std::collections::HashMap;
 
 #[allow(unused)]
@@ -7,5 +7,21 @@ pub enum Value {
 	String(String),
 	Id(Id),
 	Vec(Vec<Value>),
-	Dict(Box<HashMap<Id, Value>>)
+	Dict(HashMap<Id, Value>),
+	Function(Box<Function>),
+	Namespace(Box<Namespace>)
+}
+
+impl Value {
+	pub fn typename(&self) -> &str {
+		use Value::*;
+		match self {
+			None => "none",
+			String(_) | Id(_) => "string",
+			Vec(_) => "vector",
+			Dict(_) => "dictionary",
+			Function(_) => "function",
+			Namespace(_) => "namespace"
+		}
+	}
 }

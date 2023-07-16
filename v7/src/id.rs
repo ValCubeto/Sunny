@@ -1,6 +1,6 @@
 use std::{rc::Rc, fmt::Debug};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Id(pub Rc<str>);
 
 impl Debug for Id {
