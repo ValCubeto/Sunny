@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 use crate::{context::Context,
 	id::Id,
-	values::Value, errors::{SyntaxError, ReferenceError}, functions::parse_function};
+	values::Value,
+	errors::{SyntaxError, ReferenceError},
+	functions::parse_function};
 
 pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 	let mut namespace = Namespace::new(name);
