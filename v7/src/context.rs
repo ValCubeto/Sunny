@@ -3,7 +3,7 @@ use crate::{errors::SyntaxError, id::Id};
 
 pub struct Context<'a> {
 	pub id: Id,
-	pub data: &'a String,
+	pub code: &'a String,
 	pub chars: Chars<'a>,
 	pub current: char,
 	pub idx: usize,
@@ -12,16 +12,20 @@ pub struct Context<'a> {
 }
 
 impl<'a> Context<'a> {
-	pub fn new(id: Id, data: &'a String) -> Self {
+	pub fn new(id: Id, code: &'a String) -> Self {
+		let mut chars: Chars<'a> = code.chars();
 		Context {
 			id,
-			data,
-			current: data.chars().next().unwrap(),
-			chars: data.chars(),
+			code,
+			current: chars.next().unwrap(),
+			chars,
 			idx: 0,
 			line: 0,
 			column: 1
 		}
+	}
+	pub fn debug(&self) {
+		println!("[{:?}:{}:{}] chars[{}] = {:?}", self.id, self.line, self.column, self.idx, self.current);
 	}
 	pub fn next_char(&mut self) {
 		match self.chars.next() {
@@ -55,17 +59,25 @@ impl<'a> Context<'a> {
 				}
 				_ => break
 			}
+			self.next_char();
 		}
 	}
-	pub fn collect_word(&self) -> Id {
+	pub fn collect_word(&mut self) -> Id {
 		let mut word = String::from(self.current);
+		self.next_char();
 		loop {
 			if !self.current.is_alphanumeric() {
 				break;
 			}
 			word.push(self.current);
-
+			self.next_char();
 		}
 		Id::from(word.as_str())
+	}
+	pub fn expect_word(&mut self) -> Id {
+		if !self.current.is_alphanumeric() || self.current.is_ascii_digit() {
+			SyntaxError!(self, "expected a word, got {:?}", self.current);
+		}
+		self.collect_word()
 	}
 }

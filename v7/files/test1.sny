@@ -1,1 +1,4 @@
-fun main() {}
+namespace hello {
+	async fun nested() {}
+}
+fun main < > ( ) { }

@@ -34,6 +34,9 @@ impl<'a> Context<'a> {
 			column: 1
 		}
 	}
+	pub fn debug(&self) {
+		println!("[{:?}:{}:{}] chars[{}] = {:?}");
+	}
 	pub fn ignore_spaces(&mut self) {
 		while self.idx < self.char_count {
 			match self.ch {

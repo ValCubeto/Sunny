@@ -26,12 +26,12 @@ pub fn read_file(path: &mut PathBuf) -> String {
 	data.push('{');
 	data.push('\n');
 	match String::from_utf8(bytes) {
-		Ok(data) => {
-			let data = data.trim();
-			if data.is_empty() {
+		Ok(code) => {
+			let code = code.trim();
+			if code.is_empty() {
 				exit(0);
 			}
-			data
+			data.push_str(code);
 		},
 		Err(err) => LoadError!("the file {path:?} has invalid UTF-8 ({err})")
 	};

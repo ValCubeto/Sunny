@@ -12,19 +12,28 @@ fn main() {
 	println!("data = {:?}", data);
 	println!();
 
-	let id = Id::from(args.main_path
+	let file_id = Id::from(args.main_path
 		.file_name()
 		.unwrap()
 		.to_string_lossy()
 		.to_string()
 		.as_str());
-	let ctx = &mut Context::new(id.clone(), &data);
-	let main = parse_namespace(ctx, id);
+	let path_id = Id::from(args.main_path
+		.to_string_lossy()
+		.to_string()
+		.as_str());
+
+	let ctx = &mut Context::new(path_id, &data);
+	let main = parse_namespace(ctx, file_id);
 	let entrypoint = match main.get(&Id::from("main")) {
 		Some(value) => value,
-		None => ReferenceError!(ctx, "")
+		None => ReferenceError!(ctx, "main function not declared")
 	};
-	if let Value::Function(_function) = entrypoint {
+	if let Value::Function(function) = entrypoint {
+		if function.is_async {
+			TypeError!("the main function cannot be async");
+		}
+		// let arguments = Arguments::new()
 		// function.call(arguments);
 	} else {
 		TypeError!(ctx, r#""main" must be of type "function", got {:?}"#, entrypoint.typename());
@@ -43,3 +52,4 @@ mod context;
 mod namespaces;
 mod values;
 mod functions;
+mod statments;
