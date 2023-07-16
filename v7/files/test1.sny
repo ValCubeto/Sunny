@@ -1,4 +1,4 @@
-namespace hello {
-	async fun nested() {}
+import math
+fun main<>() {
+	# hello
 }
-fun main < > ( ) { }
