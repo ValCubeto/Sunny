@@ -45,7 +45,7 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 				let value = parse_function(ctx, name.clone(), true);
 				namespace.set(name, Value::Function(Box::new(value)));
 			}
-			"struct" | "extend" | "const" | "import" => SyntaxError!(ctx, "to do"),
+			"struct" | "extend" | "const" | "import" => SyntaxError!(ctx, "not implemented"),
 			_ => SyntaxError!(ctx, "unexpected identifier {word:?} here")
 		}
 		ctx.next_char();

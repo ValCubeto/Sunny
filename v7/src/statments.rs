@@ -1,6 +1,6 @@
-use crate::id::Id;
+use crate::{id::Id, arguments::Arguments};
 
 #[derive(Debug)]
 pub enum Statment {
-	Call(Id)
+	Call(Id, Arguments)
 }

@@ -1,5 +1,5 @@
 use crate::{
-	args::{ParsedArgs, parse_args},
+	argv::{ParsedArgs, parse_args},
 	id::Id,
 	context::Context, namespaces::parse_namespace, errors::{ReferenceError, TypeError}, values::Value,
 };
@@ -45,7 +45,7 @@ extern crate unicode_segmentation;
 
 mod about;
 mod errors;
-mod args;
+mod argv;
 mod colors;
 mod id;
 mod files;
@@ -54,3 +54,4 @@ mod namespaces;
 mod values;
 mod functions;
 mod statments;
+mod arguments;
