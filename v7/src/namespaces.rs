@@ -19,7 +19,6 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 			break 'collect;
 		}
 		let word: Id = ctx.expect_word();
-		dbg!(&word);
 		match word.to_str() {
 			"namespace" => {
 				ctx.go();
@@ -31,7 +30,6 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 				ctx.go();
 				let name = ctx.expect_word();
 				let value = parse_function(ctx, name.clone(), false);
-				dbg!(&value);
 				namespace.set(name, Value::Function(Box::new(value)));
 			}
 			"async" => {
@@ -43,7 +41,6 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 				ctx.go();
 				let name = ctx.expect_word();
 				let value = parse_function(ctx, name.clone(), true);
-				dbg!(&value);
 				namespace.set(name, Value::Function(Box::new(value)));
 			}
 			"struct" | "extend" | "const" => SyntaxError!(ctx, "to do"),
@@ -52,8 +49,6 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 		ctx.next_char();
 		ctx.go();
 	}
-
-	dbg!(&namespace);
 
 	namespace
 }

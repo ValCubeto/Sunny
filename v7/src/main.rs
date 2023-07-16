@@ -25,6 +25,7 @@ fn main() {
 
 	let ctx = &mut Context::new(path_id, &data);
 	let main = parse_namespace(ctx, file_id);
+	dbg!(&main);
 	let entrypoint = match main.get(&Id::from("main")) {
 		Some(value) => value,
 		None => ReferenceError!(ctx, "main function not declared")
