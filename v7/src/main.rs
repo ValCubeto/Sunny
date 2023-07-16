@@ -1,14 +1,30 @@
-use unicode_segmentation::{UnicodeSegmentation, Graphemes};
-use crate::{args::ParsedArgs, context::Context, id::Id};
+use crate::{
+	args::{ParsedArgs, parse_args},
+	id::Id,
+	context::Context, namespaces::parse_namespace,
+};
 
 fn main() {
-	let args: ParsedArgs = args::parse_args();
-	println!("{args:#?}");
+	let mut args: ParsedArgs = parse_args();	
+	let data = files::read_file(&mut args.main_path);
 
-	let data: Graphemes = files::read_file(&args.main_path).graphemes(true);
+	println!("args = {args:#?}");
+	println!("data = {:?}", data);
+	println!();
 
-	// let id = Id::from(args.main_path.file_stem());
-	// let ctx = Context::new(id, data);
+	let id = Id::from(args.main_path
+		.file_stem()
+		.unwrap()
+		.to_string_lossy()
+		.to_string()
+		.as_str());
+	let ctx = &mut Context::new(id.clone(), data);
+	let main = parse_namespace(ctx, id);
+	// match main.get("main") {
+	// 	Some(value) => match value {
+	// 		Value::Function(function) => function
+	// 	}
+	// }
 }
 
 extern crate unicode_segmentation;
@@ -20,3 +36,5 @@ mod colors;
 mod id;
 mod files;
 mod context;
+mod namespaces;
+mod values;
