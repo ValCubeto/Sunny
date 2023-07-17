@@ -2,7 +2,7 @@ macro_rules! do_error {
 	($name:ident, $ctx:ident, $($args:expr),+) => {{
 		print!("{}: ", crate::colors::error(stringify!($name)));
 		println!($($args),+);
-		println!("    at {:?}:{}:{}", $ctx.id, $ctx.line, $ctx.column);
+		println!("    at {}:{}:{}", $ctx.id, $ctx.line, $ctx.column);
 		println!("    at {}:{}:{}", file!(), line!(), column!());
 		std::process::exit(1);
 	}};

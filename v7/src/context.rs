@@ -99,6 +99,7 @@ impl<'a> Context<'a> {
 				return num;
 			}
 			// if self.current == 'x' {}
+			self.next_char();
 		}
 		num
 	}

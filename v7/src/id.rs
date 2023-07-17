@@ -1,4 +1,4 @@
-use std::{rc::Rc, fmt::Debug};
+use std::{rc::Rc, fmt::{Debug, Display}};
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Id(pub Rc<str>);
@@ -6,6 +6,12 @@ pub struct Id(pub Rc<str>);
 impl Debug for Id {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(f, "{:?}", self.0)
+	}
+}
+
+impl Display for Id {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(f, "{}", self.0)
 	}
 }
 
