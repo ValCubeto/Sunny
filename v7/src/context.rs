@@ -85,22 +85,4 @@ impl<'a> Context<'a> {
 		}
 		self.collect_word()
 	}
-	pub fn collect_num(&mut self) -> String {
-		let mut num = String::from(self.current);
-		if self.current == '0' {
-			self.next_char();
-			if self.current == 'b' {
-				self.next_char();
-				while self.current.is_digit(2) {
-					num.push(self.current);
-					self.next_char();
-				}
-				self.debug();
-				return num;
-			}
-			// if self.current == 'x' {}
-			self.next_char();
-		}
-		num
-	}
 }

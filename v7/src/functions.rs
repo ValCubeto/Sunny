@@ -1,4 +1,4 @@
-use crate::{context::Context, id::Id, errors::SyntaxError, statments::Statment};
+use crate::{context::Context, id::Id, errors::SyntaxError, statments::Statment, numbers::collect_num, expressions::parse_expr};
 
 pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	let mut function = Function::new(name, is_async);
@@ -64,13 +64,21 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 		'sub: {
 			if ctx.is_valid_id() {
 				let word = ctx.collect_word();
+				ctx.go();
+				match ctx.current {
+					'=' => {
+						ctx.next_char();
+						let expr = parse_expr(ctx);
+					}
+					_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
+				}
 				break 'sub;
 			}
-			if ctx.current.is_ascii_digit() {
-				let number = ctx.collect_num();
-				dbg!(&number);
-				break 'sub
-			}
+			// if ctx.current.is_ascii_digit() {
+			// 	let number = collect_num(ctx);
+			// 	dbg!(&number);
+			// 	break 'sub
+			// }
 			match ctx.current {
 				'+' => {}
 				_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
