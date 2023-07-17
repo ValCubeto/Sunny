@@ -62,7 +62,19 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 			break 'collect;
 		}
 		'sub: {
-			SyntaxError!(ctx, "functions' body to do");
+			if ctx.is_valid_id() {
+				let word = ctx.collect_word();
+				break 'sub;
+			}
+			if ctx.current.is_ascii_digit() {
+				let number = ctx.collect_num();
+				dbg!(&number);
+				break 'sub
+			}
+			match ctx.current {
+				'+' => {}
+				_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
+			}
 		}
 		ctx.next_char();
 		ctx.go();

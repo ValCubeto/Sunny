@@ -24,6 +24,7 @@ impl<'a> Context<'a> {
 			column: 1
 		}
 	}
+	#[allow(unused)]
 	pub fn debug(&self) {
 		println!("[{:?}:{}:{}] chars[{}] = {:?}", self.id, self.line, self.column, self.idx, self.current);
 	}
@@ -50,16 +51,17 @@ impl<'a> Context<'a> {
 	}
 	pub fn go(&mut self) {
 		loop {
-			match self.current {
-				' ' | '\n' | '\t' | '\r' => { /* ignore */ }
-				'#' => {
-					while self.current != '\n' {
-						self.next_char();
-					}
-				}
-				_ => break
+			if matches!(self.current, ' ' | '\n' | '\t' | '\r') {
+				self.next_char();
+				continue;
 			}
-			self.next_char();
+			if self.current == '#' {
+				while self.current != '\n' {
+					self.next_char();
+				}
+				continue;
+			}
+			break;
 		}
 	}
 	pub fn collect_word(&mut self) -> Id {
@@ -74,10 +76,30 @@ impl<'a> Context<'a> {
 		}
 		Id::from(word.as_str())
 	}
+	pub fn is_valid_id(&self) -> bool {
+		self.current.is_alphanumeric() && !self.current.is_ascii_digit()
+	}
 	pub fn expect_word(&mut self) -> Id {
-		if !self.current.is_alphanumeric() || self.current.is_ascii_digit() {
+		if !self.is_valid_id() {
 			SyntaxError!(self, "expected a word, got {:?}", self.current);
 		}
 		self.collect_word()
+	}
+	pub fn collect_num(&mut self) -> String {
+		let mut num = String::from(self.current);
+		if self.current == '0' {
+			self.next_char();
+			if self.current == 'b' {
+				self.next_char();
+				while self.current.is_digit(2) {
+					num.push(self.current);
+					self.next_char();
+				}
+				self.debug();
+				return num;
+			}
+			// if self.current == 'x' {}
+		}
+		num
 	}
 }
