@@ -1,7 +1,6 @@
 
 # comment
-fun main(#args: String[*]
-) {
+fun main(args: String[*]) {
 	message = 'Hello, world!'
 	println(message)
 	println({ args })

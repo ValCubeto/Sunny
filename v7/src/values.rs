@@ -2,7 +2,7 @@ use crate::{id::Id, functions::Function, namespaces::Namespace};
 use std::collections::HashMap;
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Value {
 	None,
 	String(String),

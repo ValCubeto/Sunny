@@ -1,8 +1,15 @@
-use crate::{id::Id, arguments::Arguments, values::Value, expressions::Expression};
+use crate::{id::Id, arguments::Arguments, expressions::Token};
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Statment {
-	Declaration(Id, bool, Expression),
-	Call(Id, Arguments)
+	Assignment {
+		id: Id,
+		mutable: bool,
+		value: Vec<Token>
+	},
+	Call {
+		id: Id,
+		args: Arguments
+	}
 }

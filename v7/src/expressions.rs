@@ -1,7 +1,8 @@
 use crate::{context::Context, values::Value, errors::SyntaxError};
 
-pub fn parse_expr(ctx: &mut Context) -> Token {
-	let mut expressions = Vec::new();
+pub fn parse_expr(ctx: &mut Context) -> Vec<Token> {
+	let mut tokens = Vec::new();
+	ctx.go();
 	match ctx.current {
 		'"' | '\'' => {
 			let quote = ctx.current;
@@ -11,25 +12,25 @@ pub fn parse_expr(ctx: &mut Context) -> Token {
 				string.push(ctx.current);
 				ctx.next_char();
 			}
-			expressions.push(Expression::Value(Value::String(string)));
+			dbg!(&string);
+			tokens.push(Token::Value(Value::String(string)));
 		}
 		_ => SyntaxError!(ctx, "unknown character {:?}", ctx.current)
 	}
 	// order tokens
 	// SyntaxError!(ctx, "w");
-	let mut token = Token::Value(expressions[0]);
-	token
+	tokens
 }
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expression {
 	Token(Box<Token>),
 	Value(Value)
 }
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Token {
 	Value(Value),
 	Sum(Expression, Expression),

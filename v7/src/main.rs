@@ -1,7 +1,7 @@
 use crate::{
 	argv::{ParsedArgs, parse_args},
 	id::Id,
-	context::Context, namespaces::parse_namespace, errors::{ReferenceError, TypeError}, values::Value,
+	context::Context, namespaces::parse_namespace, errors::{ReferenceError, TypeError}, values::Value, arguments::Arguments,
 };
 
 fn main() {
@@ -23,19 +23,20 @@ fn main() {
 		.to_string()
 		.as_str());
 
-	let ctx = &mut Context::new(path_id, &data);
-	let main = parse_namespace(ctx, file_id);
-	dbg!(&main);
-	let entrypoint = match main.get(&Id::from("main")) {
+	let mut ctx = Context::new(path_id, &data);
+	let mut global = Box::new(parse_namespace(&mut ctx, file_id));
+	let entrypoint = match global.data.get_mut(&Id::from("main")).cloned() {
 		Some(value) => value,
 		None => ReferenceError!(ctx, "main function not declared")
 	};
+	ctx.global = global;
+	dbg!(&ctx.global);
 	if let Value::Function(function) = entrypoint {
 		if function.is_async {
 			TypeError!("the main function cannot be async");
 		}
-		// let arguments = Arguments::new()
-		// function.call(arguments);
+		let arguments = Arguments::new();
+		ctx.call_fun(function, arguments);
 	} else {
 		TypeError!(ctx, r#""main" must be of type "function", got {:?}"#, entrypoint.typename());
 	}
@@ -57,3 +58,4 @@ mod statments;
 mod arguments;
 mod numbers;
 mod expressions;
+mod eval;

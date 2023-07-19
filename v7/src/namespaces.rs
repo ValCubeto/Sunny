@@ -1,9 +1,9 @@
 use std::collections::HashMap;
-use crate::{context::Context,
+use crate::{ context::Context,
 	id::Id,
 	values::Value,
 	errors::{SyntaxError, ReferenceError},
-	functions::parse_function};
+	functions::parse_function };
 
 pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 	let mut namespace = Namespace::new(name);
@@ -56,10 +56,10 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 }
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Namespace {
-	name: Id,
-	data: HashMap<Id, Value>
+	pub name: Id,
+	pub data: HashMap<Id, Value>
 }
 
 impl Namespace {

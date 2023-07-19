@@ -1,5 +1,5 @@
 use std::str::Chars;
-use crate::{errors::SyntaxError, id::Id};
+use crate::{errors::SyntaxError, id::Id, namespaces::Namespace, functions::Function, arguments::Arguments, eval::eval_ast, values::Value};
 
 pub struct Context<'a> {
 	pub id: Id,
@@ -8,25 +8,32 @@ pub struct Context<'a> {
 	pub current: char,
 	pub idx: usize,
 	pub line: usize,
-	pub column: usize
+	pub column: usize,
+	pub global: Box<Namespace>
 }
 
 impl<'a> Context<'a> {
 	pub fn new(id: Id, code: &'a String) -> Self {
 		let mut chars: Chars<'a> = code.chars();
 		Context {
+			global: Box::new(Namespace::new(id.clone())),
 			id,
 			code,
 			current: chars.next().unwrap(),
 			chars,
 			idx: 0,
 			line: 0,
-			column: 1
+			column: 1,
 		}
 	}
 	#[allow(unused)]
 	pub fn debug(&self) {
 		println!("[{:?}:{}:{}] chars[{}] = {:?}", self.id, self.line, self.column, self.idx, self.current);
+	}
+	pub fn call_fun(&mut self, function: Box<Function>, args: Arguments) -> Value {
+		// use Value::*;
+		// matches!(ret, )
+		eval_ast(&(function.body), args, self)
 	}
 	pub fn next_char(&mut self) {
 		match self.chars.next() {

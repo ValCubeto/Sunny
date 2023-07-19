@@ -1,4 +1,12 @@
-use crate::{context::Context, id::Id, errors::SyntaxError, statments::Statment, numbers::collect_num, expressions::parse_expr};
+use crate::{context::Context,
+	id::Id,
+	errors::SyntaxError,
+	statments::Statment,
+	// numbers::collect_num,
+	expressions::parse_expr,
+	values::Value,
+	arguments::Arguments,
+	eval::eval_ast};
 
 pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	let mut function = Function::new(name, is_async);
@@ -65,10 +73,16 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 			if ctx.is_valid_id() {
 				let word = ctx.collect_word();
 				ctx.go();
+				// match word
 				match ctx.current {
 					'=' => {
 						ctx.next_char();
 						let expr = parse_expr(ctx);
+						function.body.push(Statment::Assignment {
+							id: word,
+							mutable: false,
+							value: expr
+						})
 					}
 					_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
 				}
@@ -91,7 +105,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	function
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Function {
 	pub name: Id,
 	pub is_async: bool,
@@ -106,7 +120,4 @@ impl Function {
 			body: Vec::new()
 		}
 	}
-	// pub fn call(args: Arguments) -> Value {
-	// 	eval_code(&self.body, args);
-	// }
 }
