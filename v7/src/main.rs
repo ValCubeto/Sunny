@@ -25,7 +25,7 @@ fn main() {
 
 	let mut ctx = Context::new(path_id, &data);
 	let mut global = Box::new(parse_namespace(&mut ctx, file_id));
-	let entrypoint = match global.data.get_mut(&Id::from("main")).cloned() {
+	let entrypoint = match global.data.get(&Id::from("main")).cloned() {
 		Some(value) => value,
 		None => ReferenceError!(ctx, "main function not found")
 	};
