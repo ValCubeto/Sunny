@@ -9,8 +9,10 @@ pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { globa
 	for statment in ast {
 		use Statment::*;
 		match statment {
-			Assignment { id, mutable, value } => {
-				global.set(id.clone(), resolve(value))
+			Assignment { id, mutable, value: tokens } => {
+				let value = resolve(tokens);
+				println!("set {} = {:?}", id, value);
+				global.set(id.clone(), value)
 			},
 			_ => InternalError!("not implemented")
 		}
@@ -19,14 +21,14 @@ pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { globa
 }
 
 pub fn resolve(tokens: &Vec<Token>) -> Value {
-	let value: Value;
+	let mut value: Value = Value::None;
 	for token in tokens {
 		value = match token {
 			Token::Value(v) => {
 				value = v.clone();
 				break;
 			}
-			_ => InternalError!("todo")
+			_ => InternalError!("to-do")
 		}
 	}
 	value

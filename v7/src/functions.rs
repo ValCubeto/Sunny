@@ -84,7 +84,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 							value: expr
 						})
 					}
-					_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
+					_ => SyntaxError!(ctx, "unknown character {:?}", ctx.current)
 				}
 				break 'sub;
 			}
