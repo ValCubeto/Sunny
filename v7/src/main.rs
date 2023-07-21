@@ -27,7 +27,7 @@ fn main() {
 	let mut global = Box::new(parse_namespace(&mut ctx, file_id));
 	let entrypoint = match global.data.get_mut(&Id::from("main")).cloned() {
 		Some(value) => value,
-		None => ReferenceError!(ctx, "main function not declared")
+		None => ReferenceError!(ctx, "main function not found")
 	};
 	ctx.global = global;
 	dbg!(&ctx.global);
@@ -38,7 +38,7 @@ fn main() {
 		let arguments = Arguments::new();
 		ctx.call_fun(function, arguments);
 	} else {
-		TypeError!(ctx, r#""main" must be of type "function", got {:?}"#, entrypoint.typename());
+		TypeError!(ctx, "main function not found, got {:?}", entrypoint.typename());
 	}
 }
 
