@@ -56,9 +56,9 @@ impl<'a> Context<'a> {
 			None => SyntaxError!(self, "unexpected end of input")
 		}
 	}
-	pub fn go(&mut self) {
+	pub fn go(&mut self, ignore_new_lines: bool) {
 		loop {
-			if matches!(self.current, ' ' | '\n' | '\t' | '\r') {
+			if matches!(self.current, ' ' | '\t' | '\r') || !ignore_new_lines && self.current == '\n' {
 				self.next_char();
 				continue;
 			}

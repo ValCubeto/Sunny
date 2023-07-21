@@ -1,6 +1,6 @@
 use crate::{context::Context, errors::SyntaxError};
 
-pub fn collect_num(ctx: &mut Context) -> String {
+pub fn collect_num(ctx: &mut Context) -> (String, NumberKind) {
 	let mut num = String::from(ctx.current);
 	ctx.next_char();
 	loop {
@@ -10,7 +10,7 @@ pub fn collect_num(ctx: &mut Context) -> String {
 		num.push(ctx.current);
 		ctx.next_char();
 	}
-	num
+	(num, NumberKind::Int)
 }
 /* if ctx.current != '0' {
 	ctx.next_char();
@@ -48,3 +48,7 @@ if ctx.current == 'x' {
 if !ctx.current.is_ascii_digit() {
 	loop {}
 } */
+
+pub enum NumberKind {
+	Int, Float
+}

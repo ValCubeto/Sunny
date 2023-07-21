@@ -15,7 +15,7 @@ pub fn parse_expr(ctx: &mut Context) -> Vec<Token> {
 			dbg!(&string);
 			tokens.push(Token::Value(Value::String(string)));
 		}
-		_ => SyntaxError!(ctx, "unknown character {:?}", ctx.current)
+		_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
 	}
 	// order tokens
 	// SyntaxError!(ctx, "w");
