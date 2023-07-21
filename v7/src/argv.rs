@@ -19,7 +19,7 @@ pub fn parse_args() -> ParsedArgs {
 
 	let exec_path: PathBuf = match raw_args.next() {
 		Some((_, os_string)) => PathBuf::from(os_string),
-		None => InternalError!("raw_args is empty")
+		None => InternalError!("argv is empty")
 	};
 
 	let mut flags: Vec<Id> = Vec::new();
