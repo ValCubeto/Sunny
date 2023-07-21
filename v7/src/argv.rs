@@ -18,7 +18,7 @@ pub fn parse_args() -> ParsedArgs {
 	let mut raw_args = std::env::args_os().enumerate();
 
 	let exec_path: PathBuf = match raw_args.next() {
-		Some((_, os_string)) => PathBuf::from(os_string),
+		Some((_i, os_string)) => PathBuf::from(os_string),
 		None => InternalError!("argv is empty")
 	};
 
