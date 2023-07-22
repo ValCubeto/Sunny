@@ -24,7 +24,7 @@ fn main() {
 		.as_str());
 
 	let mut ctx = Context::new(path_id, &data);
-	let mut global = Box::new(parse_namespace(&mut ctx, file_id));
+	let global = parse_namespace(&mut ctx, file_id);
 	let entrypoint = match global.data.get(&Id::from("main")).cloned() {
 		Some(value) => value,
 		None => ReferenceError!(ctx, "main function not found")
@@ -41,8 +41,6 @@ fn main() {
 		TypeError!(ctx, "main function not found, got {:?}", entrypoint.typename());
 	}
 }
-
-extern crate unicode_segmentation;
 
 mod about;
 mod errors;

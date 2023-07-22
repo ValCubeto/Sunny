@@ -9,14 +9,14 @@ pub struct Context<'a> {
 	pub idx: usize,
 	pub line: usize,
 	pub column: usize,
-	pub global: Box<Namespace>
+	pub global: Namespace
 }
 
 impl<'a> Context<'a> {
 	pub fn new(id: Id, code: &'a String) -> Self {
 		let mut chars: Chars<'a> = code.chars();
 		Context {
-			global: Box::new(Namespace::new(id.clone())),
+			global: Namespace::new(id.clone()),
 			id,
 			code,
 			current: chars.next().unwrap(),
@@ -30,6 +30,7 @@ impl<'a> Context<'a> {
 	pub fn debug(&self) {
 		println!("[{:?}:{}:{}] chars[{}] = {:?}", self.id, self.line, self.column, self.idx, self.current);
 	}
+	#[allow(clippy::boxed_local)]
 	pub fn call_fun(&mut self, function: Box<Function>, args: Arguments) -> Value {
 		// use Value::*;
 		// matches!(ret, )
@@ -56,9 +57,24 @@ impl<'a> Context<'a> {
 			None => SyntaxError!(self, "unexpected end of input")
 		}
 	}
-	pub fn go(&mut self, ignore_new_lines: bool) {
+	pub fn skip_spaces(&mut self) {
 		loop {
-			if matches!(self.current, ' ' | '\t' | '\r') || !ignore_new_lines && self.current == '\n' {
+			if matches!(self.current, ' ' | '\t' | '\r') {
+				self.next_char();
+				continue;
+			}
+			if self.current == '#' {
+				while self.current != '\n' {
+					self.next_char();
+				}
+				continue;
+			}
+			break;
+		}
+	}
+	pub fn go(&mut self) {
+		loop {
+			if matches!(self.current, ' ' | '\t' | '\r' | '\n') {
 				self.next_char();
 				continue;
 			}

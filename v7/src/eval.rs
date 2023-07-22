@@ -22,6 +22,7 @@ pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { globa
 
 pub fn resolve(tokens: &Vec<Token>) -> Value {
 	let mut value: Value = Value::None;
+	#[allow(unreachable_code)]
 	for token in tokens {
 		value = match token {
 			Token::Value(v) => {

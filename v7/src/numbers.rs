@@ -1,4 +1,4 @@
-use crate::{context::Context, errors::SyntaxError};
+use crate::context::Context;
 
 pub fn collect_num(ctx: &mut Context) -> (String, NumberKind) {
 	let mut num = String::from(ctx.current);

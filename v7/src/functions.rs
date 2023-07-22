@@ -18,11 +18,11 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 				ctx.next_char();
 				break 'collect;
 			}
-			'sub: {
-				SyntaxError!(ctx, "function generics to do");
-			}
-			ctx.next_char();
-			ctx.go();
+			SyntaxError!(ctx, "function generics to do");
+			// 'sub: {
+			// }
+			// ctx.next_char();
+			// ctx.go();
 		}
 	}
 
@@ -38,11 +38,11 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 			ctx.next_char();
 			break 'collect;
 		}
-		'sub: {
-			SyntaxError!(ctx, "function parameters to do");
-		}
-		ctx.next_char();
-		ctx.go();
+		SyntaxError!(ctx, "function parameters to do");
+		// 'sub: {
+		// }
+		// ctx.next_char();
+		// ctx.go();
 	}
 	ctx.go();
 

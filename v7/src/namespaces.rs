@@ -8,7 +8,7 @@ use crate::{ context::Context,
 pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 	let mut namespace = Namespace::new(name);
 
-	ctx.go(true);
+	ctx.go();
 	if ctx.current != '{' {
 		SyntaxError!(ctx, "expected '{{', got {:?}", ctx.current);
 	}
