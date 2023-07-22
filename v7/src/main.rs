@@ -25,12 +25,13 @@ fn main() {
 
 	let mut ctx = Context::new(path_id, &data);
 	let global = parse_namespace(&mut ctx, file_id);
+	
 	let entrypoint = match global.data.get(&Id::from("main")).cloned() {
 		Some(value) => value,
 		None => ReferenceError!(ctx, "main function not found")
 	};
-	ctx.global = global;
-	dbg!(&ctx.global);
+	ctx.stack.vec.push(global);
+	dbg!(&ctx.stack);
 	if let Value::Function(function) = entrypoint {
 		if function.is_async {
 			TypeError!("the main function cannot be async");
@@ -57,3 +58,4 @@ mod arguments;
 mod numbers;
 mod expressions;
 mod eval;
+mod stack;

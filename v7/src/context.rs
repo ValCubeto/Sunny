@@ -1,5 +1,12 @@
 use std::str::Chars;
-use crate::{errors::SyntaxError, id::Id, namespaces::Namespace, functions::Function, arguments::Arguments, eval::eval_ast, values::Value};
+use crate::{ errors::SyntaxError,
+	id::Id,
+	namespaces::Namespace,
+	functions::Function,
+	arguments::Arguments,
+	eval::eval_ast,
+	values::Value,
+	stack::Stack };
 
 pub struct Context<'a> {
 	pub id: Id,
@@ -9,14 +16,14 @@ pub struct Context<'a> {
 	pub idx: usize,
 	pub line: usize,
 	pub column: usize,
-	pub global: Namespace
+	pub stack: Stack
 }
 
 impl<'a> Context<'a> {
 	pub fn new(id: Id, code: &'a String) -> Self {
 		let mut chars: Chars<'a> = code.chars();
 		Context {
-			global: Namespace::new(id.clone()),
+			stack: Stack::new(),
 			id,
 			code,
 			current: chars.next().unwrap(),

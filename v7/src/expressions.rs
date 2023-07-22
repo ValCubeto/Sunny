@@ -1,7 +1,7 @@
 use crate::{context::Context, values::Value, errors::SyntaxError, id::Id};
 
-pub fn parse_expr(ctx: &mut Context) -> Vec<Token> {
-	let mut tokens = Vec::new();
+pub fn parse_expr(ctx: &mut Context) -> Vec<Expression> {
+	let mut Expressions = Vec::new();
 	ctx.go();
 	match ctx.current {
 		'"' | '\'' => {
@@ -9,15 +9,15 @@ pub fn parse_expr(ctx: &mut Context) -> Vec<Token> {
 			ctx.skip_spaces();
 
 			match ctx.current {
-				'\n' => tokens.push(Token::Value(Value::String(string))),
+				'\n' => Expressions.push(Expression::Value(Value::String(string))),
 				_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
 			}
 		}
 		_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
 	}
-	// order tokens
+	// order Expressions
 	// SyntaxError!(ctx, "w");
-	tokens
+	Expressions
 }
 
 pub fn collect_string(ctx: &mut Context) -> String {
@@ -38,18 +38,18 @@ pub fn collect_string(ctx: &mut Context) -> String {
 
 #[allow(unused)]
 #[derive(Debug, Clone)]
-pub enum Expression {
-	Token(Box<Token>),
+pub enum Token {
+	Expression(Box<Expression>),
 	Value(Value)
 }
 
 #[allow(unused)]
 #[derive(Debug, Clone)]
-pub enum Token {
+pub enum Expression {
 	Value(Value),
-	Sum(Expression, Expression),
-	Sub(Expression, Expression),
-	Mul(Expression, Expression),
-	Div(Expression, Expression),
-	Call(Vec<Id>, Expression)
+	Sum(Token, Token),
+	Sub(Token, Token),
+	Mul(Token, Token),
+	Div(Token, Token),
+	Call(Vec<Id>, Token)
 }

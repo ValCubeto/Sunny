@@ -3,16 +3,16 @@ use crate::{ values::Value,
 	statments::Statment,
 	errors::InternalError,
 	context::Context,
-	expressions::Token };
+	expressions::Expression };
 
-pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { global, .. }: &mut Context) -> Value {
+pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { stack, .. }: &mut Context) -> Value {
 	for statment in ast {
 		use Statment::*;
 		match statment {
 			Assignment { id, mutable, value: tokens } => {
 				let value = resolve(tokens);
 				println!("set {} = {:?}", id, value);
-				global.set(id.clone(), value)
+				stack.set(id.clone(), value)
 			},
 			_ => InternalError!("not implemented")
 		}
@@ -20,12 +20,12 @@ pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { globa
 	Value::None
 }
 
-pub fn resolve(tokens: &Vec<Token>) -> Value {
+pub fn resolve(tokens: &Vec<Expression>) -> Value {
 	let mut value: Value = Value::None;
 	#[allow(unreachable_code)]
 	for token in tokens {
 		value = match token {
-			Token::Value(v) => {
+			Expression::Value(v) => {
 				value = v.clone();
 				break;
 			}
