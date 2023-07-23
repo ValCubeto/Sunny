@@ -6,7 +6,7 @@ pub enum Statment {
 	Assignment {
 		id: Id,
 		mutable: bool,
-		value: Vec<Expression>
+		value: Expression
 	},
 	Call {
 		id: Id,

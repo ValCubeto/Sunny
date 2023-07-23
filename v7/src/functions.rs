@@ -1,9 +1,9 @@
-use crate::{context::Context,
+use crate::{ context::Context,
 	id::Id,
 	errors::SyntaxError,
 	statments::Statment,
 	// numbers::collect_num,
-	expressions::{parse_expr, parse_body}};
+	expressions::{ parse_expr, parse_body }, arguments::Arguments, values::Value };
 
 pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	let mut function = Function::new(name, is_async);
@@ -129,4 +129,9 @@ impl Function {
 			body: Vec::new()
 		}
 	}
+}
+
+enum FunctionValue {
+	Builtin(&'static dyn Fn(Arguments) -> Value),
+	Defined(Function)
 }

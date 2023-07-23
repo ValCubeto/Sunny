@@ -20,7 +20,7 @@ pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { stack
 	Value::None
 }
 
-pub fn resolve(tokens: &Vec<Expression>) -> Value {
+pub fn resolve(tokens: &Expression) -> Value {
 	let mut value: Value = Value::None;
 	#[allow(unreachable_code)]
 	for token in tokens {

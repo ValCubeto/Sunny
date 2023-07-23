@@ -53,18 +53,11 @@ pub fn collect_string(ctx: &mut Context) -> String {
 
 #[allow(unused)]
 #[derive(Debug, Clone)]
-pub enum Token {
-	Expression(Box<Expression>),
-	Value(Value)
-}
-
-#[allow(unused)]
-#[derive(Debug, Clone)]
 pub enum Expression {
 	Value(Value),
-	Sum(Token, Token),
-	Sub(Token, Token),
-	Mul(Token, Token),
-	Div(Token, Token),
-	Call(Vec<Id>, Token)
+	Sum(Box<Expression>, Box<Expression>),
+	Sub(Box<Expression>, Box<Expression>),
+	Mul(Box<Expression>, Box<Expression>),
+	Div(Box<Expression>, Box<Expression>),
+	Call(Vec<Id>, Box<Expression>)
 }
