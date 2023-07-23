@@ -3,7 +3,7 @@ use crate::{context::Context,
 	errors::SyntaxError,
 	statments::Statment,
 	// numbers::collect_num,
-	expressions::parse_expr};
+	expressions::{parse_expr, parse_body}};
 
 pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	let mut function = Function::new(name, is_async);
@@ -80,6 +80,18 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 							mutable: false,
 							value: expr
 						})
+					}
+					'(' => {
+						ctx.next_char();
+						loop {
+							ctx.go();
+							if ctx.current == ')' {
+								ctx.next_char();
+								break;
+							}
+							let expr = parse_body(ctx);
+							// ctx.next_char();
+						}
 					}
 					_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
 				}

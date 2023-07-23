@@ -1,3 +1,4 @@
 fun main() {
-	test = 'hello'println(test)
+	test = 'hello';
+	println(test)
 }

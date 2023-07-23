@@ -1,15 +1,29 @@
 use crate::{context::Context, values::Value, errors::SyntaxError, id::Id};
 
-pub fn parse_expr(ctx: &mut Context) -> Vec<Expression> {
-	let mut Expressions = Vec::new();
+pub fn parse_expr(ctx: &mut Context) -> Expression {
+	let mut expr = Expression::Value(Value::None);
+	ctx.go();
+	// parse until unexpected char
+	expr
+}
+
+pub fn parse_body(ctx: &mut Context) -> Vec<Expression> {
+	let mut expressions = Vec::new();
 	ctx.go();
 	match ctx.current {
 		'"' | '\'' => {
 			let string = collect_string(ctx);
 			ctx.skip_spaces();
 
+			if ctx.is_valid_id() {
+				SyntaxError!(ctx, "to-do")
+			}
 			match ctx.current {
-				'\n' => Expressions.push(Expression::Value(Value::String(string))),
+				';' => expressions.push(Expression::Value(Value::String(string))),
+				'\n' => {
+					ctx.go();
+					SyntaxError!(ctx, "usa el punto y coma flaco");
+				}
 				_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
 			}
 		}
@@ -17,7 +31,8 @@ pub fn parse_expr(ctx: &mut Context) -> Vec<Expression> {
 	}
 	// order Expressions
 	// SyntaxError!(ctx, "w");
-	Expressions
+	dbg!(&expressions);
+	expressions
 }
 
 pub fn collect_string(ctx: &mut Context) -> String {
