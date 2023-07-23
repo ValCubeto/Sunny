@@ -78,7 +78,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 						function.body.push(Statment::Assignment {
 							id: word,
 							mutable: false,
-							value: expr
+							expr
 						})
 					}
 					'(' => {
@@ -89,7 +89,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 								ctx.next_char();
 								break;
 							}
-							let expr = parse_body(ctx);
+							let expr = parse_expr(ctx);
 							// ctx.next_char();
 						}
 					}

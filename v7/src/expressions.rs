@@ -1,33 +1,32 @@
 use crate::{context::Context, values::Value, errors::SyntaxError, id::Id};
 
 pub fn parse_expr(ctx: &mut Context) -> Expression {
-	let mut expr = Expression::Value(Value::None);
 	ctx.go();
-	// parse until unexpected char
-	expr
+	match ctx.current {
+		'"' | '\'' => {
+			return Expression::Value(Value::String(collect_string(ctx)))
+		}
+		_ => SyntaxError!(ctx, "to-do")
+	}
 }
 
 pub fn parse_body(ctx: &mut Context) -> Vec<Expression> {
 	let mut expressions = Vec::new();
 	ctx.go();
-	match ctx.current {
-		'"' | '\'' => {
-			let string = collect_string(ctx);
-			ctx.skip_spaces();
+	
+	ctx.skip_spaces();
 
-			if ctx.is_valid_id() {
-				SyntaxError!(ctx, "to-do")
-			}
-			match ctx.current {
-				';' => expressions.push(Expression::Value(Value::String(string))),
-				'\n' => {
-					ctx.go();
-					SyntaxError!(ctx, "usa el punto y coma flaco");
-				}
-				_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
-			}
+	if ctx.is_valid_id() {
+		SyntaxError!(ctx, "to-do")
+	}
+	match ctx.current {
+		';' => expressions.push(Expression::Value(Value::String(string))),
+		'\n' => {
+			ctx.go();
+			SyntaxError!(ctx, "usa el punto y coma flaco");
 		}
 		_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
+	}
 	}
 	// order Expressions
 	// SyntaxError!(ctx, "w");
