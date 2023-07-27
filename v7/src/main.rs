@@ -32,6 +32,7 @@ fn main() {
 	};
 	ctx.stack.vec.push(global);
 	dbg!(&ctx.stack);
+
 	if let Value::Function(function) = entrypoint {
 		if function.is_async {
 			TypeError!("the main function cannot be async");
@@ -39,7 +40,7 @@ fn main() {
 		let arguments = Arguments::new();
 		ctx.call_fun(function, arguments);
 	} else {
-		TypeError!(ctx, "main function not found, got {:?}", entrypoint.typename());
+		TypeError!(ctx, "main function not found, found {:?}", entrypoint.typename());
 	}
 }
 

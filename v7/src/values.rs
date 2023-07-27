@@ -10,7 +10,9 @@ pub enum Value {
 	Vec(Vec<Value>),
 	Dict(HashMap<Id, Value>),
 	Function(Box<Function>),
-	Namespace(Box<Namespace>)
+	Namespace(Box<Namespace>),
+	// Struct(Box<Struct>),
+	// Instance(Box<Instance>),
 }
 
 impl Value {
@@ -22,7 +24,9 @@ impl Value {
 			Vec(_) => "vector",
 			Dict(_) => "dictionary",
 			Function(_) => "function",
-			Namespace(_) => "namespace"
+			Namespace(_) => "namespace",
+			// Struct(_) => "struct"
+			// Instance(obj) => format!("instance of {}", obj.parent).as_str()
 		}
 	}
 }

@@ -111,7 +111,7 @@ impl<'a> Context<'a> {
 	}
 	pub fn expect_word(&mut self) -> Id {
 		if !self.is_valid_id() {
-			SyntaxError!(self, "expected a word, got {:?}", self.current);
+			SyntaxError!(self, "expected a word, found {:?}", self.current);
 		}
 		self.collect_word()
 	}

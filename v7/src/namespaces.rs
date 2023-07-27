@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 use crate::{ context::Context,
-	id::Id,
-	values::Value,
-	errors::{SyntaxError, ReferenceError},
+	id::Id, values::Value,
+	errors::{ SyntaxError, ReferenceError },
 	functions::parse_function };
 
 pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
@@ -10,7 +9,7 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 
 	ctx.go();
 	if ctx.current != '{' {
-		SyntaxError!(ctx, "expected '{{', got {:?}", ctx.current);
+		SyntaxError!(ctx, "expected '{{', found {:?}", ctx.current);
 	}
 	
 	ctx.next_char();
@@ -21,7 +20,7 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 			break 'collect;
 		}
 		let word: Id = ctx.expect_word();
-		match word.to_str() {
+		match Id::as_ref(&word) {
 			"namespace" => {
 				ctx.go();
 				let name = ctx.expect_word();
@@ -37,8 +36,8 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 			"async" => {
 				ctx.go();
 				let kw = ctx.expect_word();
-				if kw.to_str() != "fun" {
-					SyntaxError!(ctx, "expected keyword \"fun\"");
+				if Id::as_ref(&kw) != "fun" {
+					SyntaxError!(ctx, "expected keyword \"fun\", found {:?}", kw);
 				}
 				ctx.go();
 				let name = ctx.expect_word();

@@ -20,7 +20,7 @@ pub fn collect_num(ctx: &mut Context) -> (String, NumberKind) {
 			SyntaxError!("not implemented");
 			// ctx.next_char();
 			// if !ctx.current.is_ascii_digit() {
-			// 	SyntaxError!(ctx, "expected a digit, got {:?}", ctx.current);
+			// 	SyntaxError!(ctx, "expected a digit, found {:?}", ctx.current);
 			// }
 			// let mut exponent = String::from(ctx.current);
 		}

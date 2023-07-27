@@ -29,7 +29,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	ctx.go();
 
 	if ctx.current != '(' {
-		SyntaxError!(ctx, "expected '(', got {:?}", ctx.current);
+		SyntaxError!(ctx, "expected '(', found {:?}", ctx.current);
 	}
 	ctx.next_char();
 	ctx.go();
@@ -49,7 +49,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	if ctx.current == '-' {
 		ctx.next_char();
 		if ctx.current != '>' {
-			SyntaxError!(ctx, "expected '>' (to complete '->'), got {:?}", ctx.current);
+			SyntaxError!(ctx, "expected '>' (to complete '->'), found {:?}", ctx.current);
 		}
 		ctx.next_char();
 		ctx.go();
@@ -57,7 +57,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	}
 
 	if ctx.current != '{' {
-		SyntaxError!(ctx, "expected '{{', got {:?}", ctx.current);
+		SyntaxError!(ctx, "expected '{{', found {:?}", ctx.current);
 	}
 	ctx.next_char();
 	ctx.go();
