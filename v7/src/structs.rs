@@ -2,5 +2,5 @@
 pub struct Struct {
 	extended: Vec<Box<Struct>>,
 	name: Id,
-	props: HashMap<Id, Box<Struct>>
+	props: HashMap<Id, (Box<Struct>, Option<Value>)>
 }
