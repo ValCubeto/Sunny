@@ -27,7 +27,6 @@ pub fn parse_body(ctx: &mut Context) -> Vec<Expression> {
 		}
 		_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
 	}
-	}
 	// order Expressions
 	// SyntaxError!(ctx, "w");
 	dbg!(&expressions);

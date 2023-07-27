@@ -38,7 +38,7 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 				ctx.go();
 				let kw = ctx.expect_word();
 				if kw.to_str() != "fun" {
-					SyntaxError!(ctx, "expected keyword 'function'")
+					SyntaxError!(ctx, "expected keyword \"fun\"");
 				}
 				ctx.go();
 				let name = ctx.expect_word();
