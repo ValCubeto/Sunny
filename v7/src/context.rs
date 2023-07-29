@@ -1,11 +1,11 @@
-use std::str::Chars;
+use std::{str::Chars, collections::HashMap};
 use crate::{ SyntaxError,
 	id::Id,
 	functions::Function,
 	arguments::Arguments,
 	eval::eval_ast,
 	values::Value,
-	stack::Stack };
+	stack::Stack, namespaces::Namespace };
 
 pub struct Context<'a> {
 	pub id: Id,
@@ -38,8 +38,7 @@ impl<'a> Context<'a> {
 	}
 	#[allow(clippy::boxed_local)]
 	pub fn call_fun(&mut self, function: Box<Function>, args: Arguments) -> Value {
-		// use Value::*;
-		// matches!(ret, )
+		self.stack.vec.push(Namespace::new(Id::from("")));
 		eval_ast(&(function.body), args, self)
 	}
 	pub fn next_char(&mut self) {

@@ -6,6 +6,7 @@ use crate::{ values::Value,
 	expressions::Expression };
 
 pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { stack, .. }: &mut Context) -> Value {
+
 	for statment in ast {
 		use Statment::*;
 		match statment {
