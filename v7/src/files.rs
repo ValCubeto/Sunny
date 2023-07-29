@@ -1,5 +1,5 @@
-use std::{fs, path::PathBuf, process::exit};
-use crate::{errors::LoadError, about::EXTENSION};
+use std::{ fs, path::PathBuf, process::exit };
+use crate::{ LoadError, about::EXTENSION };
 
 pub fn read_file(path: &mut PathBuf) -> String {
 	if !path.exists() {

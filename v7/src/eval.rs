@@ -1,7 +1,7 @@
 use crate::{ values::Value,
 	arguments::Arguments,
 	statments::Statment,
-	errors::{ InternalError, SyntaxError },
+	InternalError, SyntaxError,
 	context::Context,
 	expressions::Expression };
 

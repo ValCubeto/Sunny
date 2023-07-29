@@ -1,6 +1,6 @@
 use crate::{
 	about::{NAME, VERSION},
-	errors::{InternalError, ArgumentError},
+	InternalError, ArgumentError,
 	id::Id
 };
 use std::{process::exit, path::PathBuf};

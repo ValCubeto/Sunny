@@ -1,9 +1,11 @@
 use crate::{ context::Context,
 	id::Id,
-	errors::SyntaxError,
+	SyntaxError,
 	statments::Statment,
 	// numbers::collect_num,
-	expressions::{ parse_expr, parse_body }, arguments::Arguments, values::Value };
+	expressions::parse_expr,
+	arguments::Arguments,
+	values::Value };
 
 pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	let mut function = Function::new(name, is_async);

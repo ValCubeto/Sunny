@@ -1,7 +1,6 @@
 use std::str::Chars;
-use crate::{ errors::SyntaxError,
+use crate::{ SyntaxError,
 	id::Id,
-	namespaces::Namespace,
 	functions::Function,
 	arguments::Arguments,
 	eval::eval_ast,
@@ -64,6 +63,7 @@ impl<'a> Context<'a> {
 			None => SyntaxError!(self, "unexpected end of input")
 		}
 	}
+	#[allow(unused)]
 	pub fn skip_spaces(&mut self) {
 		loop {
 			if matches!(self.current, ' ' | '\t' | '\r') {

@@ -1,12 +1,14 @@
-use crate::{
-	argv::{ParsedArgs, parse_args},
+use crate::{ argv::{ ParsedArgs, parse_args },
 	id::Id,
-	context::Context, namespaces::parse_namespace, errors::{ReferenceError, TypeError}, values::Value, arguments::Arguments,
-};
+	context::Context,
+	namespaces::parse_namespace,
+	values::Value,
+	arguments::Arguments,
+	files::read_file };
 
 fn main() {
 	let mut args: ParsedArgs = parse_args();	
-	let data = files::read_file(&mut args.main_path);
+	let data = read_file(&mut args.main_path);
 
 	println!("args = {args:#?}");
 	println!("data = {:?}", data);
@@ -14,14 +16,12 @@ fn main() {
 
 	let file_id = Id::from(args.main_path
 		.file_name()
-		.unwrap()
+		.unwrap() // `read_file` already proved that the path is a file
 		.to_string_lossy()
-		.to_string()
-		.as_str());
+		.to_string());
 	let path_id = Id::from(args.main_path
 		.to_string_lossy()
-		.to_string()
-		.as_str());
+		.to_string());
 
 	let mut ctx = Context::new(path_id, &data);
 	let global = parse_namespace(&mut ctx, file_id);
@@ -45,7 +45,7 @@ fn main() {
 }
 
 mod about;
-mod errors;
+mod macros;
 mod argv;
 mod colors;
 mod id;
@@ -60,3 +60,4 @@ mod numbers;
 mod expressions;
 mod eval;
 mod stack;
+mod tests;
