@@ -3,7 +3,8 @@ use crate::{ values::Value,
 	statments::Statment,
 	InternalError, SyntaxError,
 	context::Context,
-	expressions::Expression };
+	expressions::Expression,
+	stack::Stack };
 
 pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { stack, .. }: &mut Context) -> Value {
 

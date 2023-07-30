@@ -1,25 +1,13 @@
-use std::fmt::Debug;
-
 use crate::{id::Id, values::Value, namespaces::Namespace};
 
-pub struct Stack {
-	pub vec: Vec<Namespace>
+pub trait Stack {
+	fn get(&self, id: &Id) -> Option<&Value>;
+	fn set(&mut self, id: Id, value: Value);
 }
 
-impl Debug for Stack {
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		self.vec.fmt(f)
-	}
-}
-
-impl Stack {
-	pub fn new() -> Self {
-		Stack {
-			vec: Vec::new()
-		}
-	}
-	pub fn get(&self, id: &Id) -> Option<&Value> {
-		for space in &(self.vec) {
+impl Stack for Vec<Namespace> {
+	fn get(&self, id: &Id) -> Option<&Value> {
+		for space in self {
 			let value = space.get(id);
 			if value.is_some() {
 				return value
@@ -27,8 +15,8 @@ impl Stack {
 		}
 		None
 	}
-	pub fn set(&mut self, id: Id, value: Value) {
-		self.vec
+	fn set(&mut self, id: Id, value: Value) {
+		self
 			.last_mut()
 			.unwrap()
 			.set(id, value);

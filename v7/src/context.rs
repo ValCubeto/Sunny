@@ -5,7 +5,7 @@ use crate::{ SyntaxError,
 	arguments::Arguments,
 	eval::eval_ast,
 	values::Value,
-	stack::Stack, namespaces::Namespace };
+	stack::Stack, namespaces::Namespace, statments::Statment };
 
 pub struct Context<'a> {
 	pub id: Id,
@@ -15,14 +15,14 @@ pub struct Context<'a> {
 	pub idx: usize,
 	pub line: usize,
 	pub column: usize,
-	pub stack: Stack
+	pub stack: Vec<Namespace>
 }
 
 impl<'a> Context<'a> {
 	pub fn new(id: Id, code: &'a String) -> Self {
 		let mut chars: Chars<'a> = code.chars();
 		Context {
-			stack: Stack::new(),
+			stack: Vec::new(),
 			id,
 			code,
 			current: chars.next().unwrap(),
@@ -38,7 +38,7 @@ impl<'a> Context<'a> {
 	}
 	#[allow(clippy::boxed_local)]
 	pub fn call_fun(&mut self, function: Box<Function>, args: Arguments) -> Value {
-		self.stack.vec.push(Namespace::new(Id::from("")));
+		self.stack.push(Namespace::new(Id::from("")));
 		eval_ast(&(function.body), args, self)
 	}
 	pub fn next_char(&mut self) {
