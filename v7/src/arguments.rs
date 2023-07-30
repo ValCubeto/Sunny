@@ -1,6 +1,6 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Arguments {
-	// vec: Vec<(Id, )>
+	// vec: Vec<(Id, Rc<Struct>, Value)>
 }
 
 impl Arguments {
