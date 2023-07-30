@@ -42,6 +42,14 @@ fn instances() {
 #[test]
 fn defined_and_builtin_functions() {
 	let defined = FunctionValue::Defined(Function::new(Id::from("hola"), false));
-	let builtin = FunctionValue::Builtin(|_args| Value::Id(Id::from("hello")));
+	let builtin = FunctionValue::Builtin(|_args| {
+		println!("hello from builtin/closure");
+		Value::None
+	});
+
+	if let FunctionValue::Builtin(f) = builtin {
+		f(Vec::new());
+	}
+
 	dbg!(defined, builtin); // prints the Function object and the pointer
 }
