@@ -14,7 +14,7 @@ pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { stack
 			Assignment { id, mutable, expr } => {
 				let value = resolve(expr);
 				println!("set {} = {:?}", id, value);
-				stack.set(id.clone(), value)
+				stack.set_value(id.clone(), value);
 			},
 			_ => InternalError!("not implemented")
 		}

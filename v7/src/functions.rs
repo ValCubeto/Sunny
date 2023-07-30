@@ -133,7 +133,9 @@ impl Function {
 	}
 }
 
-enum FunctionValue {
-	Builtin(&'static dyn Fn(Arguments) -> Value),
+#[derive(Debug)]
+#[allow(unused)]
+pub enum FunctionValue {
+	Builtin(fn(Arguments) -> Value),
 	Defined(Function)
 }

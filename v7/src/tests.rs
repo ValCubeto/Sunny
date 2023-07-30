@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::{ hashmap, instances::Instance, structs::Struct, id::Id, values::Value };
+use crate::{ hashmap, instances::Instance, structs::Struct, id::Id, values::Value, functions::{FunctionValue, Function} };
 
 #[test]
 #[ignore]
@@ -23,21 +23,25 @@ fn instances() {
 			test => (None, None),
 		}
 	});
+	#[allow(unused)]
 	let instance1 = Instance {
 		parent: Rc::clone(&mine),
 		values: hashmap! {
 			test => Value::Id("".into())
 		}
 	};
+	#[allow(unused)]
 	let instance2 = Instance {
 		parent: Rc::clone(&mine),
 		values: hashmap! {
 			test => Value::Id("".into())
 		}
 	};
-	// dbg!(
-	// 	&instance2.parent.name,
-	// 	&instance1.parent.name,
-	// 	&mine.name
-	// );
+}
+
+#[test]
+fn defined_and_builtin_functions() {
+	let defined = FunctionValue::Defined(Function::new(Id::from("hola"), false));
+	let builtin = FunctionValue::Builtin(|_args| Value::Id(Id::from("hello")));
+	dbg!(defined, builtin); // prints the Function object and the pointer
 }

@@ -18,7 +18,7 @@ fn main() {
 
 	let file_id = Id::from(args.main_path
 		.file_name()
-		.unwrap() // `read_file` already proved that the path is a file
+		.unwrap() // `read_file` has already ensured that the path is a file
 		.to_string_lossy()
 		.to_string());
 	let path_id = Id::from(args.main_path
