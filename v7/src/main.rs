@@ -1,10 +1,12 @@
-use crate::{ argv::{ ParsedArgs, parse_args },
+use crate::{
+	argv::{ ParsedArgs, parse_args },
+	files::read_file,
 	id::Id,
 	context::Context,
 	namespaces::parse_namespace,
 	values::Value,
 	arguments::Arguments,
-	files::read_file };
+};
 
 fn main() {
 	let mut args: ParsedArgs = parse_args();	
@@ -60,4 +62,8 @@ mod numbers;
 mod expressions;
 mod eval;
 mod stack;
+mod structs;
+mod instances;
+
+#[cfg(test)]
 mod tests;

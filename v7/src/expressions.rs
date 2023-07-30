@@ -27,7 +27,7 @@ pub fn collect_string(ctx: &mut Context) -> String {
 }
 
 #[allow(unused)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Expression {
 	Value(Value),
 	Sum(Box<Expression>, Box<Expression>),

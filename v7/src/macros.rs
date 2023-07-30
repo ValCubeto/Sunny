@@ -78,6 +78,17 @@ macro_rules! TypeError {
 
 #[allow(unused)]
 #[macro_export]
+/// Creates a HashMap
+/// 
+/// ```rs
+/// hashmap! {
+///     key => "value"
+/// }
+/// ```
+/// is the same as...
+/// ```rs
+/// HashMap::from([ Rc::<str>::from("key"), "value" ])
+/// ```
 macro_rules! hashmap {
 	() => {
 		::std::collections::HashMap::new()

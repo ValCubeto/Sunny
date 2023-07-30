@@ -1,6 +1,10 @@
+use std::{collections::HashMap, rc::Rc};
+
+use crate::{id::Id, values::Value};
+
 #[derive(PartialEq, Eq)]
 pub struct Struct {
-	extended: Vec<Box<Struct>>,
-	name: Id,
-	props: HashMap<Id, (Box<Struct>, Option<Value>)>
+	pub extended: Option<Vec<Rc<Struct>>>,
+	pub name: Id,
+	pub props: HashMap<Id, (Option<Rc<Struct>>, Option<Value>)>
 }

@@ -1,7 +1,7 @@
 use crate::{id::Id, arguments::Arguments, expressions::Expression};
 
 #[allow(unused)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Statment {
 	Assignment {
 		id: Id,

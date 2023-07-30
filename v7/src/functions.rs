@@ -116,7 +116,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	function
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Function {
 	pub name: Id,
 	pub is_async: bool,
