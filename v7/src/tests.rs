@@ -47,9 +47,7 @@ fn defined_and_builtin_functions() {
 		Value::None
 	});
 
-	if let FunctionValue::Builtin(f) = builtin {
-		f(Vec::new());
-	}
+	builtin.call(Vec::new());
 
-	dbg!(defined, builtin); // prints the Function object and the pointer
+	dbg!(defined, builtin); // prints the Function object and the fn pointer
 }

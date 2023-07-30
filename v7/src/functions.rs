@@ -139,3 +139,14 @@ pub enum FunctionValue {
 	Builtin(fn(Arguments) -> Value),
 	Defined(Function)
 }
+
+impl FunctionValue {
+	pub fn call(&self, args: Arguments) -> Value {
+		use FunctionValue::*;
+		match self {
+			Builtin(func) => func(args),
+			_ => todo!()
+		}
+	}
+}
+
