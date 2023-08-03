@@ -5,7 +5,7 @@ use crate::{
 	context::Context,
 	namespaces::parse_namespace,
 	values::Value,
-	arguments::Arguments,
+	arguments::Arguments, global::make_global,
 };
 
 fn main() {
@@ -26,13 +26,14 @@ fn main() {
 		.to_string());
 
 	let mut ctx = Context::new(path_id, &data);
-	let global = parse_namespace(&mut ctx, file_id);
+	let main = parse_namespace(&mut ctx, file_id);
 	
-	let entrypoint = match global.data.get(&Id::from("main")).cloned() {
+	let entrypoint = match main.data.get(&Id::from("main")).cloned() {
 		Some(value) => value,
 		None => ReferenceError!(ctx, "main function not found")
 	};
-	ctx.stack.push(global.data);
+	ctx.stack.push(make_global());
+	ctx.stack.push(main.data);
 	dbg!(&ctx.stack);
 
 	if let Value::Function(function) = entrypoint {
@@ -64,6 +65,7 @@ mod eval;
 mod stack;
 mod structs;
 mod instances;
+mod global;
 
 #[cfg(test)]
 mod tests;

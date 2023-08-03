@@ -14,7 +14,7 @@ pub struct Context<'a> {
 	pub idx: usize,
 	pub line: usize,
 	pub column: usize,
-	pub stack: Vec<Rc<HashMap<Id, Value>>>
+	pub stack: Vec<HashMap<Id, Value>>
 }
 
 impl<'a> Context<'a> {
@@ -37,7 +37,7 @@ impl<'a> Context<'a> {
 	}
 	#[allow(clippy::boxed_local)]
 	pub fn call_fun(&mut self, function: Box<Function>, args: Arguments) -> Value {
-		self.stack.push(Rc::new(HashMap::new()));
+		self.stack.push(HashMap::new());
 		eval_ast(&(function.body), args, self)
 	}
 	pub fn next_char(&mut self) {

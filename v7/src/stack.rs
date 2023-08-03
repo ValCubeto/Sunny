@@ -11,7 +11,7 @@ pub trait Stack {
 	fn set_value(&mut self, id: Id, value: Value);
 }
 
-impl Stack for Vec<Rc<HashMap<Id, Value>>> {
+impl Stack for Vec<HashMap<Id, Value>> {
 	fn get_value(&self, id: &Id) -> Option<&Value> {
 		for space in self {
 			let value = space.get(id);
@@ -25,6 +25,6 @@ impl Stack for Vec<Rc<HashMap<Id, Value>>> {
 		self
 			.last_mut()
 			.unwrap()
-			.set(id, value);
+			.insert(id, value);
 	}
 }

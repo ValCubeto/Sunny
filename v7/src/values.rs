@@ -1,4 +1,4 @@
-use crate::{id::Id, functions::Function, namespaces::Namespace};
+use crate::{id::Id, functions::{FunctionValue}, namespaces::Namespace};
 use std::collections::HashMap;
 
 #[allow(unused)]
@@ -9,7 +9,7 @@ pub enum Value {
 	Id(Id),
 	Vec(Vec<Value>),
 	Dict(HashMap<Id, Value>),
-	Function(Box<Function>),
+	Function(Box<FunctionValue>),
 	Namespace(Box<Namespace>),
 	// Struct(Box<Struct>),
 	// Instance(Box<Instance>),

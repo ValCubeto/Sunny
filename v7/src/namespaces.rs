@@ -58,14 +58,14 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Namespace {
 	pub name: Id,
-	pub data: Rc<HashMap<Id, Value>>
+	pub data: HashMap<Id, Value>
 }
 
 impl Namespace {
 	pub fn new(name: Id) -> Self {
 		Namespace {
 			name,
-			data: Rc::new(HashMap::new())
+			data: HashMap::new()
 		}
 	}
 	pub fn get(&self, id: &Id) -> Option<&Value> {
