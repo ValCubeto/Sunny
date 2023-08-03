@@ -32,7 +32,7 @@ fn main() {
 		Some(value) => value,
 		None => ReferenceError!(ctx, "main function not found")
 	};
-	ctx.stack.push(global);
+	ctx.stack.push(global.data);
 	dbg!(&ctx.stack);
 
 	if let Value::Function(function) = entrypoint {

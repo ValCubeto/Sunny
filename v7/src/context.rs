@@ -1,11 +1,10 @@
-use std::{str::Chars, collections::HashMap};
+use std::{str::Chars, collections::HashMap, rc::Rc};
 use crate::{ SyntaxError,
 	id::Id,
 	functions::Function,
 	arguments::Arguments,
 	eval::eval_ast,
-	values::Value,
-	stack::Stack, namespaces::Namespace, statments::Statment };
+	values::Value };
 
 pub struct Context<'a> {
 	pub id: Id,
@@ -15,7 +14,7 @@ pub struct Context<'a> {
 	pub idx: usize,
 	pub line: usize,
 	pub column: usize,
-	pub stack: Vec<Namespace>
+	pub stack: Vec<Rc<HashMap<Id, Value>>>
 }
 
 impl<'a> Context<'a> {
@@ -38,7 +37,7 @@ impl<'a> Context<'a> {
 	}
 	#[allow(clippy::boxed_local)]
 	pub fn call_fun(&mut self, function: Box<Function>, args: Arguments) -> Value {
-		self.stack.push(Namespace::new(Id::from("")));
+		self.stack.push(Rc::new(HashMap::new()));
 		eval_ast(&(function.body), args, self)
 	}
 	pub fn next_char(&mut self) {

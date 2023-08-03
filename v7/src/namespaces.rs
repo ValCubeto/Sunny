@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, rc::Rc};
 use crate::{ context::Context,
 	id::Id, values::Value,
 	functions::parse_function,
@@ -58,14 +58,14 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Namespace {
 	pub name: Id,
-	pub data: HashMap<Id, Value>
+	pub data: Rc<HashMap<Id, Value>>
 }
 
 impl Namespace {
 	pub fn new(name: Id) -> Self {
 		Namespace {
 			name,
-			data: HashMap::new()
+			data: Rc::new(HashMap::new())
 		}
 	}
 	pub fn get(&self, id: &Id) -> Option<&Value> {

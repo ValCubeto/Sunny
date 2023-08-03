@@ -1,3 +1,5 @@
+use std::{collections::HashMap, rc::Rc};
+
 use crate::{
 		id::Id,
 		values::Value,
@@ -9,7 +11,7 @@ pub trait Stack {
 	fn set_value(&mut self, id: Id, value: Value);
 }
 
-impl Stack for Vec<Namespace> {
+impl Stack for Vec<Rc<HashMap<Id, Value>>> {
 	fn get_value(&self, id: &Id) -> Option<&Value> {
 		for space in self {
 			let value = space.get(id);
