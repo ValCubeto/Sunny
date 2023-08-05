@@ -37,11 +37,11 @@ fn main() {
 	dbg!(&ctx.stack);
 
 	if let Value::Function(function) = entrypoint {
-		if function.is_async {
+		if function.unwrap_defined().is_async {
 			TypeError!("the main function cannot be async");
 		}
 		let arguments = Arguments::new();
-		ctx.call_fun(function, arguments);
+		function.call(arguments);
 	} else {
 		TypeError!(ctx, "missing main function");
 	}

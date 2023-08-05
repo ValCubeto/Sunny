@@ -133,7 +133,7 @@ impl Function {
 	}
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(unused)]
 pub enum FunctionValue {
 	Builtin(fn(Arguments) -> Value),
@@ -142,10 +142,15 @@ pub enum FunctionValue {
 
 impl FunctionValue {
 	pub fn call(&self, args: Arguments) -> Value {
-		use FunctionValue::*;
 		match self {
-			Builtin(func) => func(args),
+			Self::Builtin(func) => func(args),
 			_ => todo!()
+		}
+	}
+	pub fn unwrap_defined(&self) -> &Function {
+		match self {
+			Self::Defined(func) => func,
+			_ => panic!("unwrapping a builtin function")
 		}
 	}
 }

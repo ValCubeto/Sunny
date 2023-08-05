@@ -1,7 +1,7 @@
-use std::{collections::HashMap, rc::Rc};
+use std::collections::HashMap;
 use crate::{ context::Context,
 	id::Id, values::Value,
-	functions::parse_function,
+	functions::{parse_function, FunctionValue},
 	SyntaxError, ReferenceError };
 
 pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
@@ -31,7 +31,7 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 				ctx.go();
 				let name = ctx.expect_word();
 				let value = parse_function(ctx, name.clone(), false);
-				namespace.set(name, Value::Function(Box::new(value)));
+				namespace.set(name, Value::Function(Box::new(FunctionValue::Defined(value))));
 			}
 			"async" => {
 				ctx.go();
@@ -42,7 +42,7 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 				ctx.go();
 				let name = ctx.expect_word();
 				let value = parse_function(ctx, name.clone(), true);
-				namespace.set(name, Value::Function(Box::new(value)));
+				namespace.set(name, Value::Function(Box::new(FunctionValue::Defined(value))));
 			}
 			"struct" | "extend" | "const" | "import" => SyntaxError!(ctx, "not implemented"),
 			_ => SyntaxError!(ctx, "unexpected identifier {word:?} here")
