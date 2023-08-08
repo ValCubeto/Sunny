@@ -1,0 +1,5 @@
+fun main() {
+	# This is a comment
+	const test = 'hello'
+	println(test)
+}

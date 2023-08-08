@@ -1,7 +1,7 @@
 use crate::{
 	about::{ NAME, VERSION },
 	internal_error, argument_error,
-	id::Id
+	aliases::Id
 };
 use std::{ process::exit, path::PathBuf };
 
@@ -18,7 +18,7 @@ pub fn parse_args() -> ParsedArgs {
 
 	let exec_path: PathBuf = match raw_args.next() {
 		Some((_i, os_string)) => PathBuf::from(os_string),
-		None => InternalError!("argv is empty")
+		None => internal_error!("argv is empty")
 	};
 
 	let mut flags: Vec<Id> = Vec::new();
