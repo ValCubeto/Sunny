@@ -18,6 +18,9 @@ fn main() {
 		.to_string_lossy()
 		.to_string());
 
+	let mut ctx = &mut Context::new(path_id, data);
+
+	let main_namespace = parse_namespace(ctx, file_id);
 	// make_global();
 }
 
