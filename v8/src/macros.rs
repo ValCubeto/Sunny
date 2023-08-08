@@ -3,7 +3,7 @@ macro_rules! error {
 	($error_name:expr, $($arg:expr),*) => {{
 		print!("{}: ", $crate::display_bold!($crate::display_red!("InternalError")));
 		println!($($arg),*);
-		exit(1);
+		std::process::exit(1);
 	}};
 }
 
