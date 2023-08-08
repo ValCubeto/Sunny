@@ -136,7 +136,7 @@ impl Function {
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(unused)]
 pub enum FunctionValue {
-	Builtin(fn(Arguments) -> Value),
+	Builtin(fn(Arguments) -> Value), // Result<Value, &str>
 	Defined(Function)
 }
 
