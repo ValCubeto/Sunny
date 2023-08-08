@@ -67,7 +67,7 @@ pub fn parse_args() -> ParsedArgs {
 	ParsedArgs {
 		exec_path,
 		flags,
-		main_path: main_path.unwrap(), // unwrap_or(PathBuf::new())
+		main_path: main_path.unwrap(), // unwrap_or(PathBuf::from("<stdin>"))
 		args
 	}
 }
