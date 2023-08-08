@@ -1,7 +1,7 @@
 #[macro_export]
 macro_rules! error {
 	($error_name:expr, $($arg:expr),*) => {{
-		print!("{}:", $crate::display_red!("InternalError"));
+		print!("{}: ", $crate::display_bold!($crate::display_red!("InternalError")));
 		println!($($arg),*);
 		exit(1);
 	}};
@@ -15,4 +15,9 @@ macro_rules! internal_error {
 #[macro_export]
 macro_rules! argument_error {
 	($($arg:expr),*) => { $crate::error!("ArgumentError", $($arg),*) }
+}
+
+#[macro_export]
+macro_rules! load_error {
+	($($arg:expr),*) => { $crate::error!("LoadError", $($arg),*) }
 }

@@ -3,13 +3,3 @@ fun main() {
 	const test = 'hello'
 	println(test)
 }
-
-fun test() {
-	var a = 1
-	fun nested() {
-		super::a
-	}
-	const lam = () => a + 5
-	return lam
-	# Function { dependencies: Vec<Rc<Value>> }
-}

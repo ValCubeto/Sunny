@@ -11,3 +11,10 @@ macro_rules! display_red {
 		format!("{}{}{}", $crate::colors::RED, $value, $crate::colors::COLOR_END)
 	};
 }
+
+#[macro_export]
+macro_rules! display_bold {
+	($value:expr) => {
+		format!("{}{}{}", $crate::colors::BOLD, $value, $crate::colors::BOLD_END)
+	};
+}
