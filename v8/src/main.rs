@@ -28,4 +28,5 @@ mod macros;
 mod argv;
 mod files;
 mod values;
+mod functions;
 mod tests;
