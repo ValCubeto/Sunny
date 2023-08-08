@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use crate::{
-	aliases::{Id, Arguments},
-	values::Value, expressions::Expression
+	aliases::{ Id, Arguments },
+	values::Value, statments::Statment
 };
 
 struct Function {
@@ -23,20 +23,4 @@ struct Function {
 enum FunctionValue {
 	Builtin(fn(Arguments) -> Result<Value, Id>),
 	Defined(Vec<Statment>)
-}
-
-enum Statment {
-	Assignment {
-		id: Vec<Id>,
-		value: Expression
-	},
-	Call {
-		id: Vec<Id>,
-		args: Arguments
-	},
-	If {
-		condition: Expression,
-		body: Vec<Statment>,
-		else_body: Vec<Statment>
-	},
 }
