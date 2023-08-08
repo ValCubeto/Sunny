@@ -1,6 +1,6 @@
 use std::rc::Rc;
 use crate::{
-	aliases::Id,
+	aliases::{Id, Arguments},
 	values::Value
 };
 
@@ -11,7 +11,7 @@ struct Function {
 	/// ```sunny
 	/// fun test() {
 	///     const a = 5
-	///     const lamb = (n) => n * 5
+	///     const lamb = (n) => n * a
 	///     return lamb
 	/// }
 	/// ```
@@ -26,11 +26,6 @@ enum FunctionValue {
 }
 
 enum Statment {
-	If {
-		condition: Expression,
-		body: Vec<Statment>,
-		else_body: Vec<Statment>
-	},
 	Assignment {
 		id: Vec<Id>,
 		value: Expression
@@ -38,5 +33,10 @@ enum Statment {
 	Call {
 		id: Vec<Id>,
 		args: Arguments
-	}
+	},
+	If {
+		condition: Expression,
+		body: Vec<Statment>,
+		else_body: Vec<Statment>
+	},
 }

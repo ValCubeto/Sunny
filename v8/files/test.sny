@@ -1,0 +1,6 @@
+fun main([..._, last: String]: String[*]) {
+	println({ last })
+	some_f('positional', named='arg', ...'rest')
+}
+
+List<T = String, S = Range::new(0, infinity)>
