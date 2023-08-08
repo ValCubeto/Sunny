@@ -30,4 +30,5 @@ mod files;
 mod values;
 mod arguments;
 mod functions;
+mod expressions;
 mod tests;
