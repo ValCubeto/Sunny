@@ -20,8 +20,13 @@ struct Function {
 	value: FunctionValue
 }
 
+struct Error {
+	name: Id,
+	description: Id
+}
+
 enum FunctionValue {
-	Builtin(fn(Arguments) -> Result<Value, (Id, Id)>),
+	Builtin(fn(Arguments) -> Result<Value, Error>),
 	Defined(Vec<Statment>)
 }
 
@@ -30,7 +35,7 @@ impl Function {
 		let r = match self.value {
 			FunctionValue::Builtin(func) => match func(args) {
 				Ok(v) => v,
-				Err((err_name, description)) => error!(err_name, "{description}")
+				Err(err) => error!(err.name, "{}", err.description)
 			},
 			_ => todo!("")
 		};
