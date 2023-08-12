@@ -1,3 +1,5 @@
+use std::str::Chars;
+
 pub struct Context {
-	data: Iterable
+	data: Chars<'static>
 }
