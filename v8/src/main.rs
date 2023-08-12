@@ -1,4 +1,7 @@
-use crate::aliases::Id;
+use crate::{
+	aliases::Id,
+	context::Context, namespaces::parse_namespace
+};
 
 fn main() {
 	let mut args = argv::parse_args();
@@ -18,7 +21,7 @@ fn main() {
 		.to_string_lossy()
 		.to_string());
 
-	let mut ctx = &mut Context::new(path_id, data);
+	let mut ctx = &mut Context::new(path_id, &data);
 
 	let main_namespace = parse_namespace(ctx, file_id);
 	// make_global();
@@ -36,4 +39,5 @@ mod functions;
 mod expressions;
 mod statments;
 mod context;
+mod namespaces;
 mod tests;
