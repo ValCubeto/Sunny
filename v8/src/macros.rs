@@ -30,5 +30,5 @@ macro_rules! load_error {
 
 #[macro_export]
 macro_rules! syntax_error {
-	($($arg:expr),*; $ctx:expr) => { $crate::error!("LoadError", $($arg),*; $ctx) }
+	($($arg:expr),*; $ctx:expr) => { $crate::error!("SyntaxError", $($arg),*; $ctx) }
 }

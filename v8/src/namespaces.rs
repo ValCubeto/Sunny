@@ -40,7 +40,7 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 				ctx.go();
 				let kw = ctx.expect_word();
 				if Id::as_ref(&kw) != "fun" {
-					syntax_error!(ctx, "expected keyword \"fun\", found {:?}", kw);
+					syntax_error!("expected keyword \"fun\", found {:?}", kw; ctx);
 				}
 				ctx.go();
 				let name = ctx.expect_word();
