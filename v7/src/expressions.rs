@@ -4,7 +4,7 @@ pub fn parse_expr(ctx: &mut Context) -> Expression {
 	ctx.go();
 	if ctx.is_valid_id() {
 		let word = ctx.collect_word();
-		syntax_error!("id: {word:?}");
+		syntax_error!("id: {word:?}"; ctx);
 	}
 	match ctx.current {
 		'"' | '\'' => {

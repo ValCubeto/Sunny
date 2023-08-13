@@ -9,6 +9,7 @@ macro_rules! error {
 		print!("{}: ", $crate::display_bold!($crate::display_red!($error_name)));
 		println!($($arg),*);
 		println!("    at {}:{}:{}", $ctx.id, $ctx.line, $ctx.column);
+		println!("    at {}:{}:{}", file!(), line!(), column!());
 		std::process::exit(1);
 	}};
 }
@@ -30,8 +31,8 @@ macro_rules! load_error {
 
 #[macro_export]
 macro_rules! syntax_error {
+	($($arg:expr),*; $ctx:expr) => { $crate::error!("SyntaxError"; $($arg),*; $ctx) };
 	($($args:expr),+) => { $crate::error!("SyntaxError"; $($args),+) };
-	($($arg:expr),*; $ctx:expr) => { $crate::error!("SyntaxError"; $($arg),*; $ctx) }
 }
 
 #[macro_export]
