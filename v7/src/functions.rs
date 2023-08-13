@@ -8,7 +8,7 @@ use crate::{ context::Context,
 	values::Value };
 
 pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
-	let mut function = Function::new(name, is_async);
+	let mut function: Vec<Statment> = Vec::new();
 
 	ctx.go();
 
@@ -77,7 +77,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 					'=' => {
 						ctx.next_char();
 						let expr = parse_expr(ctx);
-						function.body.push(Statment::Assignment {
+						function.push(Statment::Assignment {
 							id: word,
 							mutable: false,
 							expr
@@ -116,22 +116,21 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 		ctx.go();
 	}
 
-	function
+	Function { name, /* is_async, */ value: FunctionValue::Defined(function) }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Function {
 	pub name: Id,
-	pub is_async: bool,
-	pub body: Vec<Statment>
+	// pub is_async: bool,
+	pub value: FunctionValue
 }
 
 impl Function {
-	pub fn new(name: Id, is_async: bool) -> Self {
-		Function {
-			name,
-			is_async,
-			body: Vec::new()
+	pub fn call(&self, args: Arguments) -> Result<Value, Error> {
+		match self.value {
+			FunctionValue::Builtin(func) => func(args),
+			_ => todo!()
 		}
 	}
 }
@@ -147,21 +146,6 @@ pub struct Error {
 #[allow(unused)]
 pub enum FunctionValue {
 	Builtin(fn(Arguments) -> Result<Value, Error>), // Result<Value, &str>
-	Defined(Function)
-}
-
-impl FunctionValue {
-	pub fn call(&self, args: Arguments) -> Result<Value, Error> {
-		match self {
-			Self::Builtin(func) => func(args),
-			_ => todo!()
-		}
-	}
-	pub fn unwrap_defined(&self) -> &Function {
-		match self {
-			Self::Defined(func) => func,
-			_ => panic!("unwrapping a builtin function")
-		}
-	}
+	Defined(Vec<Statment>)
 }
 

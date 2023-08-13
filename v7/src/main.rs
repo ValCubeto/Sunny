@@ -37,9 +37,9 @@ fn main() {
 	dbg!(&ctx.stack);
 
 	if let Value::Function(function) = entrypoint {
-		if function.unwrap_defined().is_async {
-			type_error!("the main function cannot be async");
-		}
+		// if function.unwrap_defined().is_async {
+		// 	type_error!("the main function cannot be async");
+		// }
 		let arguments = Arguments::new();
 		match function.call(arguments) {
 			Ok(_) => (),

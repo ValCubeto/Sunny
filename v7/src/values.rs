@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use crate::{
 	id::Id,
-	functions::FunctionValue,
+	functions::{FunctionValue, Function},
 	namespaces::Namespace
 };
 
@@ -13,7 +13,7 @@ pub enum Value {
 	Id(Id),
 	Vec(Vec<Value>),
 	Dict(HashMap<Id, Value>),
-	Function(Box<FunctionValue>),
+	Function(Box<Function>),
 	Namespace(Box<Namespace>),
 	// Struct(Box<Struct>),
 	// Instance(Box<Instance>),
