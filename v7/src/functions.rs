@@ -1,6 +1,6 @@
 use crate::{ context::Context,
 	id::Id,
-	SyntaxError,
+	syntax_error,
 	statments::Statment,
 	// numbers::collect_num,
 	expressions::parse_expr,
@@ -20,7 +20,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 				ctx.next_char();
 				break 'collect;
 			}
-			SyntaxError!(ctx, "function generics to do");
+			syntax_error!("function generics to do"; ctx);
 			// 'sub: {
 			// }
 			// ctx.next_char();
@@ -31,7 +31,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	ctx.go();
 
 	if ctx.current != '(' {
-		SyntaxError!(ctx, "expected '(', found {:?}", ctx.current);
+		syntax_error!("expected '(', found {:?}", ctx.current; ctx);
 	}
 	ctx.next_char();
 	ctx.go();
@@ -40,7 +40,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 			ctx.next_char();
 			break 'collect;
 		}
-		SyntaxError!(ctx, "function parameters to do");
+		syntax_error!("function parameters to do"; ctx);
 		// 'sub: {
 		// }
 		// ctx.next_char();
@@ -51,15 +51,15 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 	if ctx.current == '-' {
 		ctx.next_char();
 		if ctx.current != '>' {
-			SyntaxError!(ctx, "expected '>' (to complete '->'), found {:?}", ctx.current);
+			syntax_error!("expected '>' (to complete '->'), found {:?}", ctx.current; ctx);
 		}
 		ctx.next_char();
 		ctx.go();
-		SyntaxError!(ctx, "functions' return type to do");
+		syntax_error!("functions' return type to do"; ctx);
 	}
 
 	if ctx.current != '{' {
-		SyntaxError!(ctx, "expected '{{', found {:?}", ctx.current);
+		syntax_error!("expected '{{', found {:?}", ctx.current; ctx);
 	}
 	ctx.next_char();
 	ctx.go();
@@ -96,7 +96,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 							// ctx.next_char();
 						}
 					}
-					_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
+					_ => syntax_error!("unexpected character {:?}", ctx.current; ctx)
 				}
 				break 'sub;
 			}
@@ -110,7 +110,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 			// 	// '+' => {}
 			// 	_ => 
 			// }
-			SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
+			syntax_error!("unexpected character {:?}", ctx.current; ctx)
 		}
 		ctx.next_char();
 		ctx.go();

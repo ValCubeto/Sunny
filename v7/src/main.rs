@@ -30,7 +30,7 @@ fn main() {
 	
 	let entrypoint = match main.data.get(&Id::from("main")).cloned() {
 		Some(value) => value,
-		None => ReferenceError!(ctx, "main function not found")
+		None => reference_error!("main function not found"; ctx)
 	};
 	ctx.stack.push(make_global());
 	ctx.stack.push(main.data);
@@ -38,7 +38,7 @@ fn main() {
 
 	if let Value::Function(function) = entrypoint {
 		if function.unwrap_defined().is_async {
-			TypeError!("the main function cannot be async");
+			type_error!("the main function cannot be async");
 		}
 		let arguments = Arguments::new();
 		match function.call(arguments) {
@@ -46,7 +46,7 @@ fn main() {
 			Err(e) => panic!("{e:?}")
 		};
 	} else {
-		TypeError!(ctx, "missing main function");
+		type_error!("missing main function"; ctx);
 	}
 }
 

@@ -3,8 +3,8 @@ use crate::{
 	context::Context,
 	id::Id, values::Value,
 	functions::{ FunctionValue, parse_function },
-	SyntaxError,
-	ReferenceError
+	syntax_error,
+	reference_error
 };
 
 pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
@@ -12,7 +12,7 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 
 	ctx.go();
 	if ctx.current != '{' {
-		SyntaxError!(ctx, "expected '{{', found {:?}", ctx.current);
+		syntax_error!("expected '{{', found {:?}", ctx.current; ctx);
 	}
 	
 	ctx.next_char();
@@ -40,15 +40,15 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 				ctx.go();
 				let kw = ctx.expect_word();
 				if Id::as_ref(&kw) != "fun" {
-					SyntaxError!(ctx, "expected keyword \"fun\", found {:?}", kw);
+					syntax_error!("expected keyword \"fun\", found {:?}", kw; ctx);
 				}
 				ctx.go();
 				let name = ctx.expect_word();
 				let value = parse_function(ctx, name.clone(), true);
 				namespace.set(name, Value::Function(Box::new(FunctionValue::Defined(value))));
 			}
-			"struct" | "extend" | "const" | "import" => SyntaxError!(ctx, "not implemented"),
-			_ => SyntaxError!(ctx, "unexpected identifier {word:?} here")
+			"struct" | "extend" | "const" | "import" => syntax_error!("not implemented"; ctx),
+			_ => syntax_error!("unexpected identifier {word:?} here"; ctx)
 		}
 		ctx.next_char();
 		ctx.go();
@@ -77,7 +77,7 @@ impl Namespace {
 	}
 	pub fn set(&mut self, id: Id, value: Value) {
 		if self.data.contains_key(&id) {
-			ReferenceError!("{:?} already defined as a {}", id, self.data[&id].typename());
+			reference_error!("{:?} already defined as a {}", id, self.data[&id].typename());
 		}
 		self.data.insert(id, value);
 	}

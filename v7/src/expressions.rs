@@ -1,13 +1,17 @@
-use crate::{context::Context, values::Value, SyntaxError, id::Id};
+use crate::{context::Context, values::Value, syntax_error, id::Id};
 
 pub fn parse_expr(ctx: &mut Context) -> Expression {
 	ctx.go();
+	if ctx.is_valid_id() {
+		let word = ctx.collect_word();
+		syntax_error!("id: {word:?}");
+	}
 	match ctx.current {
 		'"' | '\'' => {
 			// return
 			Expression::Value(Value::String(collect_string(ctx)))
 		}
-		_ => SyntaxError!(ctx, "to-do {:?}", ctx.current)
+		_ => syntax_error!("to-do {:?}", ctx.current; ctx)
 	}
 }
 
@@ -17,7 +21,7 @@ pub fn collect_string(ctx: &mut Context) -> String {
 	let mut string = String::new();
 	while ctx.current != quote {
 		if ctx.current == '\n' {
-			SyntaxError!(ctx, "unexpected new line inside of a string");
+			syntax_error!("unexpected new line inside of a string"; ctx);
 		}
 		// if ctx.current == '$'
 		string.push(ctx.current);

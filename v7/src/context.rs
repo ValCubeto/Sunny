@@ -3,7 +3,7 @@ use std::{
 	collections::HashMap,
 };
 use crate::{
-	SyntaxError,
+	syntax_error,
 	id::Id,
 	values::Value
 };
@@ -55,7 +55,7 @@ impl<'a> Context<'a> {
 				self.idx += 1;
 				self.current = ch;
 			}
-			None => SyntaxError!(self, "unexpected end of input")
+			None => syntax_error!("unexpected end of input"; self)
 		}
 	}
 	#[allow(unused)]
@@ -106,7 +106,7 @@ impl<'a> Context<'a> {
 	}
 	pub fn expect_word(&mut self) -> Id {
 		if !self.is_valid_id() {
-			SyntaxError!(self, "expected a word, found {:?}", self.current);
+			syntax_error!("expected a word, found {:?}", self.current; self);
 		}
 		self.collect_word()
 	}

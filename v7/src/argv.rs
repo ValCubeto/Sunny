@@ -1,9 +1,12 @@
 use crate::{
-	about::{NAME, VERSION},
-	InternalError, ArgumentError,
+	about::{ NAME, VERSION },
+	internal_error, argument_error,
 	id::Id
 };
-use std::{process::exit, path::PathBuf};
+use std::{
+	process::exit,
+	path::PathBuf
+};
 
 #[allow(unused)]
 #[derive(Debug)]
@@ -19,7 +22,7 @@ pub fn parse_args() -> ParsedArgs {
 
 	let exec_path: PathBuf = match raw_args.next() {
 		Some((_i, os_string)) => PathBuf::from(os_string),
-		None => InternalError!("argv is empty")
+		None => internal_error!("argv is empty")
 	};
 
 	let mut flags: Vec<Id> = Vec::new();
@@ -29,7 +32,7 @@ pub fn parse_args() -> ParsedArgs {
 	for (i, raw_arg) in &mut raw_args {
 		let flag: &str = match raw_arg.to_str() {
 			Some(flag) => flag,
-			None => ArgumentError!("argument {} has invalid unicode", i + 1)
+			None => argument_error!("argument {} has invalid unicode", i + 1)
 		};
 
 		if !flag.starts_with('-') {
@@ -47,13 +50,13 @@ pub fn parse_args() -> ParsedArgs {
 				exit(0);
 			}
 			"--test" => flags.push(Id::from(flag)),
-			_ => ArgumentError!("invalid flag {:?}", flag)
+			_ => argument_error!("invalid flag {:?}", flag)
 		}
 	}
 
 	if main_path.as_os_str().is_empty() {
 		// TODO: interactive mode
-		ArgumentError!("missing file path (insert REPL here)");
+		argument_error!("missing file path (insert REPL here)");
 	}
 
 	let mut args: Vec<Id> = Vec::new();
@@ -61,7 +64,7 @@ pub fn parse_args() -> ParsedArgs {
 	for (i, arg) in &mut raw_args {
 		args.push(match arg.to_str() {
 			Some(arg) => Id::from(arg),
-			None => ArgumentError!("argument {} has invalid unicode", i + 1)
+			None => argument_error!("argument {} has invalid unicode", i + 1)
 		})
 	}
 

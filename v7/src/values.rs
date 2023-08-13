@@ -1,5 +1,9 @@
-use crate::{id::Id, functions::{FunctionValue}, namespaces::Namespace};
 use std::collections::HashMap;
+use crate::{
+	id::Id,
+	functions::FunctionValue,
+	namespaces::Namespace
+};
 
 #[allow(unused)]
 #[derive(Debug, Clone, PartialEq, Eq)]

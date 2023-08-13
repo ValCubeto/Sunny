@@ -1,5 +1,12 @@
-use std::{ fs, path::PathBuf, process::exit };
-use crate::{ LoadError, about::EXTENSION };
+use std::{
+	fs::read as fs_read,
+	path::PathBuf,
+	process::exit
+};
+use crate::{
+	load_error,
+	about::EXTENSION
+};
 
 pub fn read_file(path: &mut PathBuf) -> String {
 	if !path.exists() {
@@ -7,18 +14,18 @@ pub fn read_file(path: &mut PathBuf) -> String {
 			path.extension().is_some()
 			|| !path.with_extension(EXTENSION).exists()
 		{
-			LoadError!("file {path:?} not found");
+			load_error!("file {path:?} not found");
 		}
 		path.set_extension(EXTENSION);
 	}
 
 	if !path.is_file() {
-		LoadError!("{path:?} is not a file");
+		load_error!("{path:?} is not a file");
 	}
 	
-	let bytes = match fs::read(&path) {
+	let bytes = match fs_read(&path) {
 		Ok(bytes) => bytes,
-		Err(err) => LoadError!("failed to read {path:?} ({err})")
+		Err(err) => load_error!("failed to read {path:?} ({err})")
 	};
 
 	let mut data = String::with_capacity(bytes.len() + 3);
@@ -33,7 +40,7 @@ pub fn read_file(path: &mut PathBuf) -> String {
 			}
 			data.push_str(code);
 		},
-		Err(err) => LoadError!("the file {path:?} has invalid UTF-8 ({err})")
+		Err(err) => load_error!("the file {path:?} has invalid UTF-8 ({err})")
 	};
 	data.push('}');
 

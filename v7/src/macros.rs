@@ -1,79 +1,59 @@
 #[macro_export]
-macro_rules! do_error {
-	($name:ident, $ctx:ident, $($args:expr),+) => {{
-		print!("{}: ", $crate::colors::error(stringify!($name)));
-		println!($($args),+);
+macro_rules! error {
+	($error_name:expr; $($arg:expr),*) => {{
+		print!("{}: ", $crate::display_bold!($crate::display_red!($error_name)));
+		println!($($arg),*);
+		std::process::exit(1);
+	}};
+	($error_name:expr; $($arg:expr),*; $ctx:expr) => {{
+		print!("{}: ", $crate::display_bold!($crate::display_red!($error_name)));
+		println!($($arg),*);
 		println!("    at {}:{}:{}", $ctx.id, $ctx.line, $ctx.column);
-		println!("    at {}:{}:{}", file!(), line!(), column!());
-		std::process::exit(1);
-	}};
-	($name:ident, $($args:expr),+) => {{
-		print!("{}: ", $crate::colors::error(stringify!($name)));
-		println!($($args),+);
 		std::process::exit(1);
 	}};
 }
 
 #[macro_export]
-macro_rules! InternalError {
-	($($args:expr),+) => {
-		$crate::do_error!(InternalError, $($args),+)
-	};
+macro_rules! internal_error {
+	($($arg:expr),*) => { $crate::error!("InternalError"; $($arg),*) }
 }
 
 #[macro_export]
-macro_rules! ArgumentError {
-	($ctx:ident, $($args:expr),+) => {
-		$crate::do_error!(ArgumentError, $ctx, $($args),+)
-	};
-
-	($($args:expr),+) => {
-		$crate::do_error!(ArgumentError, $($args),+)
-	};
+macro_rules! argument_error {
+	($($arg:expr),*) => { $crate::error!("ArgumentError"; $($arg),*) }
 }
 
 #[macro_export]
-macro_rules! LoadError {
-	($ctx:ident, $($args:expr),+) => {
-		$crate::do_error!(LoadError, $ctx, $($args),+)
-	};
-
-	($($args:expr),+) => {
-		$crate::do_error!(LoadError, $($args),+)
-	};
+macro_rules! load_error {
+	($($arg:expr),*) => { $crate::error!("LoadError"; $($arg),*) }
 }
 
 #[macro_export]
-macro_rules! SyntaxError {
-	($ctx:ident, $($args:expr),+) => {
-		$crate::do_error!(SyntaxError, $ctx, $($args),+)
-	};
-
-	($($args:expr),+) => {
-		$crate::do_error!(SyntaxError, $($args),+)
-	};
+macro_rules! syntax_error {
+	($($args:expr),+) => { $crate::error!("SyntaxError"; $($args),+) };
+	($($arg:expr),*; $ctx:expr) => { $crate::error!("SyntaxError"; $($arg),*; $ctx) }
 }
 
 #[macro_export]
-macro_rules! ReferenceError {
-	($ctx:ident, $($args:expr),+) => {
-		$crate::do_error!(ReferenceError, $ctx, $($args),+)
-	};
-
-	($($args:expr),+) => {{
-		$crate::do_error!(ReferenceError, $($args),+);
-	}};
+macro_rules! reference_error {
+	($($args:expr),+) => { $crate::error!("ReferenceError"; $($args),+) };
+	($($args:expr),+; $ctx:expr) => { $crate::error!("ReferenceError"; $($args),+; $ctx) };
 }
 
 #[macro_export]
-macro_rules! TypeError {
-	($ctx:ident, $($args:expr),+) => {
-		$crate::do_error!(TypeError, $ctx, $($args),+)
-	};
+macro_rules! type_error {
+	($($args:expr),+) => { $crate::error!("TypeError"; $($args),+) };
+	($($args:expr),+; $ctx:expr) => { $crate::error!("TypeError"; $($args),+; $ctx) };
+}
 
-	($($args:expr),+) => {
-		$crate::do_error!(TypeError, $($args),+)
-	};
+#[macro_export]
+macro_rules! display_red {
+	($text:expr) => { format!("{}{}{}", $crate::colors::RED, $text, $crate::colors::COLOR_END) }
+}
+
+#[macro_export]
+macro_rules! display_bold {
+	($text:expr) => { format!("{}{}{}", $crate::colors::BOLD, $text, $crate::colors::BOLD_END) }
 }
 
 #[allow(unused)]
