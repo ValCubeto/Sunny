@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use crate::{
 	id::Id,
-	functions::{FunctionValue, Function},
+	functions::Function,
 	namespaces::Namespace
 };
 

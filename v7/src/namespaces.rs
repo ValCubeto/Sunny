@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use crate::{
 	context::Context,
 	id::Id, values::Value,
-	functions::{ FunctionValue, parse_function },
+	functions::parse_function,
 	syntax_error,
 	reference_error
 };
@@ -33,21 +33,10 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 			"fun" => {
 				ctx.go();
 				let name = ctx.expect_word();
-				let value = parse_function(ctx, name.clone(), false);
-				namespace.set(name, Value::Function(Box::new(FunctionValue::Defined(value))));
+				let value = parse_function(ctx, name.clone(), /* false */);
+				namespace.set(name, Value::Function(Box::new(value)));
 			}
-			"async" => {
-				ctx.go();
-				let kw = ctx.expect_word();
-				if Id::as_ref(&kw) != "fun" {
-					syntax_error!("expected keyword \"fun\", found {:?}", kw; ctx);
-				}
-				ctx.go();
-				let name = ctx.expect_word();
-				let value = parse_function(ctx, name.clone(), true);
-				namespace.set(name, Value::Function(Box::new(FunctionValue::Defined(value))));
-			}
-			"struct" | "extend" | "const" | "import" => syntax_error!("not implemented"; ctx),
+			"async" | "struct" | "extend" | "const" | "import" => syntax_error!("{word:?} not implemented"; ctx),
 			_ => syntax_error!("unexpected identifier {word:?} here"; ctx)
 		}
 		ctx.next_char();

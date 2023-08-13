@@ -83,3 +83,10 @@ macro_rules! hashmap {
 		::std::collections::HashMap::from([ $(($key, $value)),* ])
 	};
 }
+
+#[macro_export]
+macro_rules! builtin_function {
+	($name:expr, $fn:expr) => {
+		Value::Function(Box::new(Function { name: Id::from($name), value: FunctionValue::Builtin($fn) }))
+	};
+}

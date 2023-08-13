@@ -2,10 +2,10 @@ use crate::{
 	values::Value,
 	arguments::Arguments,
 	statments::Statment,
-	internal_error, syntax_error,
 	context::Context,
 	expressions::Expression,
-	stack::Stack
+	stack::Stack,
+	{ internal_error, syntax_error },
 };
 
 #[allow(unused)]
