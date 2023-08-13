@@ -1,4 +1,9 @@
-use crate::{context::Context, values::Value, syntax_error, id::Id};
+use crate::{
+	context::Context,
+	values::Value,
+	id::Id,
+	syntax_error,
+};
 
 pub fn parse_expr(ctx: &mut Context) -> Expression {
 	ctx.go();
@@ -11,7 +16,7 @@ pub fn parse_expr(ctx: &mut Context) -> Expression {
 			// return
 			Expression::Value(Value::String(collect_string(ctx)))
 		}
-		_ => syntax_error!("to-do {:?}", ctx.current; ctx)
+		_ => syntax_error!("unexpected {:?}", ctx.current; ctx)
 	}
 }
 
