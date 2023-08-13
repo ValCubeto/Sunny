@@ -8,7 +8,7 @@ pub fn make_global() -> HashMap<Id, Value> {
 			for arg in &args {
 				println!("println: {:?}", arg);
 			}
-			Value::None
+			Ok(Value::None)
 		})))
 	}
 }

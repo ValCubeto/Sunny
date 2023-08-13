@@ -1,8 +1,11 @@
 use std::collections::HashMap;
-use crate::{ context::Context,
+use crate::{
+	context::Context,
 	id::Id, values::Value,
-	functions::{parse_function, FunctionValue},
-	SyntaxError, ReferenceError };
+	functions::{ FunctionValue, parse_function },
+	SyntaxError,
+	ReferenceError
+};
 
 pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 	let mut namespace = Namespace::new(name);
@@ -68,6 +71,7 @@ impl Namespace {
 			data: HashMap::new()
 		}
 	}
+	#[allow(unused)]
 	pub fn get(&self, id: &Id) -> Option<&Value> {
 		self.data.get(id)
 	}

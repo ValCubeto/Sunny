@@ -91,6 +91,7 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 								ctx.next_char();
 								break;
 							}
+							#[allow(unused)]
 							let expr = parse_expr(ctx);
 							// ctx.next_char();
 						}
@@ -104,10 +105,12 @@ pub fn parse_function(ctx: &mut Context, name: Id, is_async: bool) -> Function {
 			// 	dbg!(&number);
 			// 	break 'sub
 			// }
-			match ctx.current {
-				// '+' => {}
-				_ => SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
-			}
+
+			// match ctx.current {
+			// 	// '+' => {}
+			// 	_ => 
+			// }
+			SyntaxError!(ctx, "unexpected character {:?}", ctx.current)
 		}
 		ctx.next_char();
 		ctx.go();
@@ -133,15 +136,22 @@ impl Function {
 	}
 }
 
+#[allow(unused)]
+#[derive(Debug)]
+pub struct Error {
+	name: Id,
+	description: Id
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(unused)]
 pub enum FunctionValue {
-	Builtin(fn(Arguments) -> Value), // Result<Value, &str>
+	Builtin(fn(Arguments) -> Result<Value, Error>), // Result<Value, &str>
 	Defined(Function)
 }
 
 impl FunctionValue {
-	pub fn call(&self, args: Arguments) -> Value {
+	pub fn call(&self, args: Arguments) -> Result<Value, Error> {
 		match self {
 			Self::Builtin(func) => func(args),
 			_ => todo!()

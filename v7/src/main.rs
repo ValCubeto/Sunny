@@ -41,7 +41,10 @@ fn main() {
 			TypeError!("the main function cannot be async");
 		}
 		let arguments = Arguments::new();
-		function.call(arguments);
+		match function.call(arguments) {
+			Ok(_) => (),
+			Err(e) => panic!("{e:?}")
+		};
 	} else {
 		TypeError!(ctx, "missing main function");
 	}

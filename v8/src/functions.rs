@@ -7,6 +7,7 @@ use crate::{
 struct Function {
 	name: Id,
 	params: Arguments,
+
 	/// Example:
 	/// ```sunny
 	/// fun test() {
@@ -20,7 +21,7 @@ struct Function {
 	value: FunctionValue
 }
 
-struct Error {
+pub struct Error {
 	name: Id,
 	description: Id
 }

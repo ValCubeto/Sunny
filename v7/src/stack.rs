@@ -1,10 +1,8 @@
-use std::{collections::HashMap, rc::Rc};
-
+use std::collections::HashMap;
 use crate::{
-		id::Id,
-		values::Value,
-		namespaces::Namespace
-	};
+	id::Id,
+	values::Value
+};
 
 pub trait Stack {
 	fn get_value(&self, id: &Id) -> Option<&Value>;

@@ -1,30 +1,4 @@
-
-# comment
-fun main(args: String[*]) {
-	message = 'Hello, world!'
-	println(message)
-	println({ args })
-	println({ ñandú::text })
-	lambda = () => {
-		println('Hello from lambda')
-	}
-	lambda()
+fun main() {
+	test = 'hello';
+	println(test)
 }
-
-namespace ñandú {
-	const text = 'Hello'
-}
-
-struct Person {
-	name: String
-}
-
-extend Person {
-	fun new(name: String) -> Self {
-		return Person {
-			name
-		}
-	}
-}
-
-import sunny::math::sqrt

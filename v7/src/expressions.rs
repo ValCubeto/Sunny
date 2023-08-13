@@ -4,7 +4,8 @@ pub fn parse_expr(ctx: &mut Context) -> Expression {
 	ctx.go();
 	match ctx.current {
 		'"' | '\'' => {
-			return Expression::Value(Value::String(collect_string(ctx)))
+			// return
+			Expression::Value(Value::String(collect_string(ctx)))
 		}
 		_ => SyntaxError!(ctx, "to-do {:?}", ctx.current)
 	}

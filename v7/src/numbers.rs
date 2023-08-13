@@ -1,5 +1,6 @@
 use crate::context::Context;
 
+#[allow(unused)]
 pub fn collect_num(ctx: &mut Context) -> (String, NumberKind) {
 	let mut num = String::from(ctx.current);
 	ctx.next_char();
@@ -49,6 +50,7 @@ if !ctx.current.is_ascii_digit() {
 	loop {}
 } */
 
+#[allow(unused)]
 pub enum NumberKind {
 	Int, Float
 }

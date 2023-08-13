@@ -1,10 +1,12 @@
-use std::{str::Chars, collections::HashMap, rc::Rc};
-use crate::{ SyntaxError,
+use std::{
+	str::Chars,
+	collections::HashMap,
+};
+use crate::{
+	SyntaxError,
 	id::Id,
-	functions::Function,
-	arguments::Arguments,
-	eval::eval_ast,
-	values::Value };
+	values::Value
+};
 
 pub struct Context<'a> {
 	pub id: Id,
@@ -34,11 +36,6 @@ impl<'a> Context<'a> {
 	#[allow(unused)]
 	pub fn debug(&self) {
 		println!("[{:?}:{}:{}] chars[{}] = {:?}", self.id, self.line, self.column, self.idx, self.current);
-	}
-	#[allow(clippy::boxed_local)]
-	pub fn call_fun(&mut self, function: Box<Function>, args: Arguments) -> Value {
-		self.stack.push(HashMap::new());
-		eval_ast(&(function.body), args, self)
 	}
 	pub fn next_char(&mut self) {
 		match self.chars.next() {

@@ -1,13 +1,15 @@
-use crate::{ values::Value,
+use crate::{
+	values::Value,
 	arguments::Arguments,
 	statments::Statment,
 	InternalError, SyntaxError,
 	context::Context,
 	expressions::Expression,
-	stack::Stack };
+	stack::Stack
+};
 
+#[allow(unused)]
 pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { stack, .. }: &mut Context) -> Value {
-
 	for statment in ast {
 		use Statment::*;
 		match statment {
@@ -23,6 +25,7 @@ pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { stack
 }
 
 pub fn resolve(expr: &Expression) -> Value {
+	#[allow(unused)]
 	let mut value: Value = Value::None;
 	match expr {
 		Expression::Value(v) => {
