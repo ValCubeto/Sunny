@@ -2,9 +2,11 @@ use std::str::Chars;
 use crate::aliases::Id;
 
 pub struct Context<'a> {
-	id: Id,
-	chars: Chars<'a>,
-	current: char
+	pub id: Id,
+	pub chars: Chars<'a>,
+	pub current: char,
+	pub line: usize,
+	pub column: usize,
 }
 
 impl<'a> Context<'a> {
@@ -13,7 +15,9 @@ impl<'a> Context<'a> {
 		Context {
 			id,
 			current: chars.next().unwrap(),
-			chars
+			chars,
+			line: 0,
+			column: 1
 		}
 	}
 }

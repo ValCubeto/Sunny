@@ -12,7 +12,7 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 
 	ctx.go();
 	if ctx.current != '{' {
-		syntax_error!(ctx, "expected '{{', found {:?}", ctx.current);
+		syntax_error!("expected '{{', found {:?}", ctx.current; ctx);
 	}
 	
 	ctx.next_char();
@@ -47,8 +47,8 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 				let value = parse_function(ctx, name.clone(), true);
 				namespace.set(name, Value::Function(Box::new(FunctionValue::Defined(value))));
 			}
-			"struct" | "extend" | "const" | "import" => syntax_error!(ctx, "not implemented"),
-			_ => syntax_error!(ctx, "unexpected identifier {word:?} here")
+			"struct" | "extend" | "const" | "import" => syntax_error!("not implemented"; ctx),
+			_ => syntax_error!("unexpected identifier {word:?} here"; ctx)
 		}
 		ctx.next_char();
 		ctx.go();
