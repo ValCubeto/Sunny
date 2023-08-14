@@ -1,6 +1,13 @@
-use std::{collections::HashMap, rc::Rc};
-
-use crate::{id::Id, values::Value};
+use {
+	std::{
+		collections::HashMap,
+		rc::Rc
+	},
+	crate::{
+		aliases::Id,
+		values::Value
+	}
+};
 
 #[derive(PartialEq, Eq)]
 pub struct Struct {

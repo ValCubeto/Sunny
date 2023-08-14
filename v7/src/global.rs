@@ -1,9 +1,11 @@
-use std::collections::HashMap;
-use crate::{
-	id::Id,
-	values::Value,
-	functions::{ Function, FunctionValue },
-	{ hashmap, builtin_function }
+use {
+	std::collections::HashMap,
+	crate::{
+		aliases::Id,
+		values::Value,
+		functions::{ Function, FunctionValue },
+		{ hashmap, builtin_function }
+	}
 };
 
 pub fn make_global() -> HashMap<Id, Value> {

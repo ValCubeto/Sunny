@@ -1,7 +1,9 @@
-use std::collections::HashMap;
-use crate::{
-	id::Id,
-	values::Value
+use {
+	std::collections::HashMap,
+	crate::{
+		aliases::Id,
+		values::Value
+	}
 };
 
 pub trait Stack {

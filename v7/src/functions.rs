@@ -1,11 +1,12 @@
-use crate::{ context::Context,
-	id::Id,
-	syntax_error,
-	statments::Statment,
+use crate::{
 	// numbers::collect_num,
+	context::Context,
+	aliases::{ Id, Arguments },
+	statments::Statment,
 	expressions::parse_expr,
-	arguments::Arguments,
-	values::Value };
+	values::Value,
+	syntax_error
+};
 
 pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 	let mut function: Vec<Statment> = Vec::new();

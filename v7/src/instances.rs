@@ -1,11 +1,13 @@
-use std::{
-	collections::HashMap,
-	rc::Rc
-};
-use crate::{
-	structs::Struct,
-	values::Value,
-	id::Id
+use {
+	std::{
+		collections::HashMap,
+		rc::Rc
+	},
+	crate::{
+		structs::Struct,
+		values::Value,
+		aliases::Id
+	}
 };
 
 #[allow(unused)]

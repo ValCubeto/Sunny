@@ -1,11 +1,11 @@
 use crate::{
 	argv::{ ParsedArgs, parse_args },
 	files::read_file,
-	id::Id,
+	aliases::{ Id, Arguments },
 	context::Context,
 	namespaces::parse_namespace,
 	values::Value,
-	arguments::Arguments, global::make_global,
+	global::make_global,
 };
 
 fn main() {
@@ -54,7 +54,7 @@ mod about;
 mod macros;
 mod argv;
 mod colors;
-mod id;
+mod aliases;
 mod files;
 mod context;
 mod namespaces;

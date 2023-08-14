@@ -1,14 +1,15 @@
-use crate::{
-	about::{ NAME, VERSION },
-	internal_error, argument_error,
-	id::Id
-};
-use std::{
-	process::exit,
-	path::PathBuf
+use {
+	std::{
+		path::PathBuf,
+		process::exit 
+	},
+	crate::{
+		about::{ NAME, VERSION },
+		aliases::Id,
+		{ internal_error, argument_error }
+	}
 };
 
-#[allow(unused)]
 #[derive(Debug)]
 pub struct ParsedArgs {
 	pub exec_path: PathBuf,
@@ -27,16 +28,16 @@ pub fn parse_args() -> ParsedArgs {
 
 	let mut flags: Vec<Id> = Vec::new();
 
-	let mut main_path = PathBuf::new();
+	let mut main_path = None;
 
 	for (i, raw_arg) in &mut raw_args {
 		let flag: &str = match raw_arg.to_str() {
 			Some(flag) => flag,
-			None => argument_error!("argument {} has invalid unicode", i + 1)
+			None => argument_error!("the argument at position {} has some invalid unicode", i + 1)
 		};
 
 		if !flag.starts_with('-') {
-			main_path.push(raw_arg);
+			main_path = Some(PathBuf::from(raw_arg));
 			break;
 		}
 
@@ -54,9 +55,9 @@ pub fn parse_args() -> ParsedArgs {
 		}
 	}
 
-	if main_path.as_os_str().is_empty() {
+	if main_path.is_none() {
 		// TODO: interactive mode
-		argument_error!("missing file path (insert REPL here)");
+		argument_error!("missing file path");
 	}
 
 	let mut args: Vec<Id> = Vec::new();
@@ -64,14 +65,14 @@ pub fn parse_args() -> ParsedArgs {
 	for (i, arg) in &mut raw_args {
 		args.push(match arg.to_str() {
 			Some(arg) => Id::from(arg),
-			None => argument_error!("argument {} has invalid unicode", i + 1)
+			None => argument_error!("the argument at position {} has some invalid unicode", i + 1)
 		})
 	}
 
 	ParsedArgs {
 		exec_path,
 		flags,
-		main_path,
+		main_path: main_path.unwrap(), // unwrap_or(PathBuf::from("<stdin>"))
 		args
 	}
 }

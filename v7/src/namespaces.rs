@@ -1,10 +1,12 @@
-use std::collections::HashMap;
-use crate::{
-	context::Context,
-	id::Id, values::Value,
-	functions::parse_function,
-	syntax_error,
-	reference_error
+use {
+	std::collections::HashMap,
+	crate::{
+		context::Context,
+		aliases::Id,
+		values::Value,
+		functions::parse_function,
+		{ syntax_error, reference_error }
+	}
 };
 
 pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {

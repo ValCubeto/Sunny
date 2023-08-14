@@ -1,11 +1,13 @@
-use std::{
-	fs::read as fs_read,
-	path::PathBuf,
-	process::exit
-};
-use crate::{
-	load_error,
-	about::EXTENSION
+use {
+	std::{
+		fs::read as fs_read,
+		path::PathBuf,
+		process::exit
+	},
+	crate::{
+		about::EXTENSION,
+		load_error
+	}
 };
 
 pub fn read_file(path: &mut PathBuf) -> String {

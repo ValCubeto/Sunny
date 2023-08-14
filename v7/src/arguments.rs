@@ -2,5 +2,3 @@
 pub struct Argument {
 	// name: Id, type: &'static Struct, value: Option<Value>
 }
-
-pub type Arguments = Vec<Argument>;

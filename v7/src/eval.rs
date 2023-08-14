@@ -1,10 +1,10 @@
 use crate::{
 	values::Value,
-	arguments::Arguments,
+	aliases::Arguments,
 	statments::Statment,
 	context::Context,
 	expressions::Expression,
-	stack::Stack,
+	stack::Stack as _,
 	{ internal_error, syntax_error },
 };
 

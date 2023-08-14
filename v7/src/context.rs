@@ -1,11 +1,13 @@
-use std::{
-	str::Chars,
-	collections::HashMap,
-};
-use crate::{
-	syntax_error,
-	id::Id,
-	values::Value
+use {
+	std::{
+		str::Chars,
+		collections::HashMap,
+	},
+	crate::{
+		aliases::Id,
+		values::Value,
+		syntax_error
+	}
 };
 
 pub struct Context<'a> {

@@ -1,8 +1,10 @@
-use std::collections::HashMap;
-use crate::{
-	id::Id,
-	functions::Function,
-	namespaces::Namespace
+use {
+	std::collections::HashMap,
+	crate::{
+		aliases::Id,
+		functions::Function,
+		namespaces::Namespace
+	}
 };
 
 #[allow(unused)]
