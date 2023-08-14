@@ -7,7 +7,7 @@ use crate::{ context::Context,
 	arguments::Arguments,
 	values::Value };
 
-pub fn parse_function(ctx: &mut Context, name: Id, /* is_async: bool */) -> Function {
+pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 	let mut function: Vec<Statment> = Vec::new();
 
 	ctx.go();

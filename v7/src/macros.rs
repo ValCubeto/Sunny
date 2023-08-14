@@ -85,8 +85,24 @@ macro_rules! hashmap {
 }
 
 #[macro_export]
+/// ```rust
+///
+/// ($name:expr, $closure:expr)
+///
+/// Value::Function(
+///     Box::new(
+///         Function {
+///             name: Id::from($name),
+///             value: FunctionValue::Builtin($closure)
+///         }
+///     )
+/// )
+/// ```
 macro_rules! builtin_function {
-	($name:expr, $fn:expr) => {
-		Value::Function(Box::new(Function { name: Id::from($name), value: FunctionValue::Builtin($fn) }))
+	($name:expr, $closure:expr) => {
+		Value::Function(Box::new(Function {
+			name: Id::from($name),
+			value: FunctionValue::Builtin($closure)
+		}))
 	};
 }
