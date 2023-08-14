@@ -94,7 +94,8 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 							}
 							#[allow(unused)]
 							let expr = parse_expr(ctx);
-							// ctx.next_char();
+							ctx.next_char();
+							panic!("{:?}", ctx.current);
 						}
 					}
 					_ => syntax_error!("unexpected character {:?}", ctx.current; ctx)
