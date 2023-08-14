@@ -26,13 +26,13 @@ fn main() {
 		.to_string());
 
 	let mut ctx = Context::new(path_id, &data);
+	ctx.stack.push(make_global());
 	let main = parse_namespace(&mut ctx, file_id);
 	
 	let entrypoint = match main.data.get(&Id::from("main")).cloned() {
 		Some(value) => value,
 		None => reference_error!("main function not found"; ctx)
 	};
-	ctx.stack.push(make_global());
 	ctx.stack.push(main.data);
 	dbg!(&ctx.stack);
 

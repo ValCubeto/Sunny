@@ -38,6 +38,7 @@ impl<'a> Context<'a> {
 	#[allow(unused)]
 	pub fn debug(&self) {
 		println!("[{:?}:{}:{}] chars[{}] = {:?}", self.id, self.line, self.column, self.idx, self.current);
+		println!("stack = {:#?}", self.stack);
 	}
 	pub fn next_char(&mut self) {
 		match self.chars.next() {
