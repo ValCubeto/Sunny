@@ -12,10 +12,7 @@ use {
 
 pub fn read_file(path: &mut PathBuf) -> String {
 	if !path.exists() {
-		if
-			path.extension().is_some()
-			|| !path.with_extension(EXTENSION).exists()
-		{
+		if path.extension().is_some() || !path.with_extension(EXTENSION).exists() {
 			load_error!("file {path:?} not found");
 		}
 		path.set_extension(EXTENSION);
