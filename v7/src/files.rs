@@ -30,7 +30,7 @@ pub fn read_file(path: &mut PathBuf) -> String {
 		Err(err) => load_error!("failed to read {path:?} ({err})")
 	};
 
-	let mut data = String::from("{\n");
+	let mut data = "{\n".to_owned();
 
 	match String::from_utf8(bytes) {
 		Ok(code) => {
