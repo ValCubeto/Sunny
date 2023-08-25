@@ -13,7 +13,7 @@ fn main() {
 	let data = read_file(&mut args.main_path);
 
 	println!("args = {args:#?}");
-	println!("data = {:?}", data);
+	println!("data = {data:?}");
 	println!();
 
 	let file_id = Id::from(args.main_path

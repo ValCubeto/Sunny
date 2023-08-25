@@ -20,22 +20,19 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 	ctx.next_char();
 	ctx.go();
 
-	'collect: loop {
-		if ctx.current == '}' {
-			break 'collect;
-		}
-		let word: Id = ctx.expect_word();
-		match Id::as_ref(&word) {
+	while ctx.current != '}' {
+		let word: &str = ctx.expect_word();
+		match word {
 			"namespace" => {
 				ctx.go();
-				let name = ctx.expect_word();
+				let name = Id::from(ctx.expect_word());
 				let value = parse_namespace(ctx, name.clone());
 				namespace.set(name, Value::Namespace(Box::new(value)));
 			}
 			"fun" => {
 				ctx.go();
-				let name = ctx.expect_word();
-				let value = parse_function(ctx, name.clone(), /* false */);
+				let name = Id::from(ctx.expect_word());
+				let value = parse_function(ctx, name.clone());
 				namespace.set(name, Value::Function(Box::new(value)));
 			}
 			"async" | "struct" | "extend" | "const" | "import" => syntax_error!("{word:?} not implemented"; ctx),
@@ -68,8 +65,9 @@ impl Namespace {
 	}
 	pub fn set(&mut self, id: Id, value: Value) {
 		if self.data.contains_key(&id) {
-			reference_error!("{:?} already defined as a {}", id, self.data[&id].typename());
+			reference_error!("identifier {id:?} already used");
 		}
+		// check same type
 		self.data.insert(id, value);
 	}
 }

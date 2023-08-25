@@ -23,21 +23,21 @@ pub fn read_file(path: &mut PathBuf) -> String {
 	}
 	
 	let bytes = match fs_read(&path) {
-		Ok(bytes) => bytes,
-		Err(err) => load_error!("failed to read {path:?} ({err})")
+		Err(err) => load_error!("failed to read {path:?}. {err}"),
+		Ok(bytes) => bytes
 	};
 
-	let mut data = "{\n".to_owned();
+	let mut data = String::from("{\n");
 
 	match String::from_utf8(bytes) {
+		Err(err) => load_error!("the file {path:?} must be valid UTF-8. {err}"),
 		Ok(code) => {
 			let code = code.trim();
 			if code.is_empty() {
 				exit(0);
 			}
 			data.push_str(code);
-		},
-		Err(err) => load_error!("the file {path:?} must be valid UTF-8 ({err})")
+		}
 	};
 	data.push('}');
 

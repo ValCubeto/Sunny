@@ -12,7 +12,7 @@ pub fn make_global() -> HashMap<Id, Value> {
 	hashmap! {
 		println => builtin_function!("println", |args| {
 			for arg in &args {
-				println!("println: {:?}", arg);
+				println!("println: {arg:?}");
 			}
 			Ok(Value::None)
 		})
