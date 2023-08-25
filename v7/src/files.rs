@@ -30,10 +30,8 @@ pub fn read_file(path: &mut PathBuf) -> String {
 		Err(err) => load_error!("failed to read {path:?} ({err})")
 	};
 
-	let mut data = String::with_capacity(bytes.len() + 3);
+	let mut data = String::from("{\n");
 
-	data.push('{');
-	data.push('\n');
 	match String::from_utf8(bytes) {
 		Ok(code) => {
 			let code = code.trim();
@@ -42,7 +40,7 @@ pub fn read_file(path: &mut PathBuf) -> String {
 			}
 			data.push_str(code);
 		},
-		Err(err) => load_error!("the file {path:?} has invalid UTF-8 ({err})")
+		Err(err) => load_error!("the file {path:?} must be valid UTF-8 ({err})")
 	};
 	data.push('}');
 

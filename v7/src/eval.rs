@@ -16,7 +16,7 @@ pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { stack
 			Assignment { id, mutable, expr } => {
 				let value = resolve(expr);
 				println!("set {} = {:?}", id, value);
-				stack.set_value(id.clone(), value);
+				stack.set_value(id.clone(), *value);
 			},
 			_ => internal_error!("not implemented")
 		}
@@ -24,12 +24,12 @@ pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { stack
 	Value::None
 }
 
-pub fn resolve(expr: &Expression) -> Value {
+pub fn resolve(expr: &Expression) -> &Value {
 	#[allow(unused)]
-	let mut value: Value = Value::None;
+	let mut value: &Value = &Value::None;
 	match expr {
 		Expression::Value(v) => {
-			value = v.clone()
+			value = v
 		}
 		_ => syntax_error!("to-do")
 	}
