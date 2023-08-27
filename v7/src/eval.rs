@@ -13,7 +13,7 @@ pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { stack
 	for statment in ast {
 		use Statment::*;
 		match statment {
-			Assignment { id, mutable, expr } => {
+			Assignment { id, expr } => {
 				let value = resolve(expr);
 				println!("set {} = {:?}", id, value);
 				stack.set_value(id.clone(), *value);

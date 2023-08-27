@@ -42,6 +42,7 @@ impl<'a> Context<'a> {
 	}
 	pub fn next_char(&mut self) {
 		match self.chars.next() {
+			None => syntax_error!("unexpected end of input"; self),
 			Some(ch) => {
 				match self.current {
 					'\n' => {
@@ -58,7 +59,6 @@ impl<'a> Context<'a> {
 				self.idx += 1;
 				self.current = ch;
 			}
-			None => syntax_error!("unexpected end of input"; self)
 		}
 	}
 	#[allow(unused)]
@@ -104,11 +104,8 @@ impl<'a> Context<'a> {
 		}
 		word
 	}
-	pub fn is_valid_id(&self) -> bool {
-		self.current.is_alphanumeric() && !self.current.is_ascii_digit()
-	}
 	pub fn expect_word(&mut self) -> String {
-		if !self.is_valid_id() {
+		if !self.current.is_alphabetic() {
 			syntax_error!("expected a word, found {:?}", self.current; self);
 		}
 		self.collect_word()

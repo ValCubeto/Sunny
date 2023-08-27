@@ -7,7 +7,7 @@ use crate::{
 
 pub fn parse_expr(ctx: &mut Context) -> Expression {
 	ctx.go();
-	if ctx.is_valid_id() {
+	if ctx.current.is_alphabetic() {
 		ctx.debug();
 		let word = ctx.collect_word();
 		syntax_error!("id: {word:?}"; ctx);
