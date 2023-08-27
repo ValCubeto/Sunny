@@ -29,7 +29,7 @@ pub fn collect_string(ctx: &mut Context) -> String {
     if ctx.current == '\n' {
       syntax_error!("unexpected new line inside of a string"; ctx);
     }
-    // if ctx.current == '$'
+    // if ctx.current == '$' { ctx.next_char(); if ctx.current != '(' { idk } }
     string.push(ctx.current);
     ctx.next_char();
   }

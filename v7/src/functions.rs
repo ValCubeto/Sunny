@@ -96,7 +96,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
               let expr = parse_expr(ctx);
               ctx.next_char();
               syntax_error!("function call params not implemented"; ctx);
-              ctx.go();
+              // ctx.go();
             }
             ctx.next_char();
           }

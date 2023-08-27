@@ -1,30 +1,25 @@
-
 # comment
-fun main(args: String[*]) {
-	message = 'Hello, world!'
-	println(message)
-	println({ args })
-	println({ ñandú::text })
-	lambda = () => {
-		println('Hello from lambda')
-	}
-	lambda()
+
+trait New<T> {
+	fun new(*) -> (T | Result<T, _>)
 }
 
-namespace ñandú {
-	const text = 'Hello'
+fun create<T>(p: T = T::new()) -> T
+where
+	T: New<T>
+{
+	return p
 }
 
-struct Person {
-	name: String
+struct Point {
+	x: u8
+	y: u8
 }
 
-extend Person {
-	fun new(name: String) -> Self {
-		return Person {
-			name
-		}
-	}
+fun Point::new(x = 0_u8, y = 0_u8) {
+	return Point { x, y }
 }
 
-import sunny::math::sqrt
+fun main(_args: String[]) {
+	create<Point>()
+}
