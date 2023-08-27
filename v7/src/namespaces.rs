@@ -1,3 +1,5 @@
+use crate::aliases::Dict;
+
 use {
 	std::collections::HashMap,
 	crate::{
@@ -21,8 +23,8 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 	ctx.go();
 
 	while ctx.current != '}' {
-		let word: &str = ctx.expect_word();
-		match word {
+		let word: String = ctx.expect_word();
+		match word.as_str() {
 			"namespace" => {
 				ctx.go();
 				let name = Id::from(ctx.expect_word());
@@ -49,25 +51,27 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Namespace {
 	pub name: Id,
-	pub data: HashMap<Id, Value>
+	pub public: Dict,
+	pub private: Dict
 }
 
 impl Namespace {
 	pub fn new(name: Id) -> Self {
 		Namespace {
 			name,
-			data: HashMap::new()
+			public: HashMap::new(),
+			private: HashMap::new(),
 		}
 	}
 	#[allow(unused)]
 	pub fn get(&self, id: &Id) -> Option<&Value> {
-		self.data.get(id)
+		self.public.get(id)
 	}
 	pub fn set(&mut self, id: Id, value: Value) {
-		if self.data.contains_key(&id) {
+		if self.public.contains_key(&id) {
 			reference_error!("identifier {id:?} already used");
 		}
 		// check same type
-		self.data.insert(id, value);
+		self.public.insert(id, value);
 	}
 }

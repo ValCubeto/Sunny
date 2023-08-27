@@ -29,11 +29,11 @@ fn main() {
 	ctx.stack.push(make_global());
 	let main = parse_namespace(&mut ctx, file_id);
 	
-	let entrypoint = match main.data.get(&Id::from("main")).cloned() {
+	let entrypoint = match main.public.get(&Id::from("main")).cloned() {
 		Some(value) => value,
 		None => reference_error!("main function not found"; ctx)
 	};
-	ctx.stack.push(main.data);
+	ctx.stack.push(main.public);
 	dbg!(&ctx.stack);
 
 	if let Value::Function(function) = entrypoint {

@@ -92,7 +92,7 @@ impl<'a> Context<'a> {
 			break;
 		}
 	}
-	pub fn collect_word(&mut self) -> &str {
+	pub fn collect_word(&mut self) -> String {
 		let mut word = String::from(self.current);
 		self.next_char();
 		loop {
@@ -102,12 +102,12 @@ impl<'a> Context<'a> {
 			word.push(self.current);
 			self.next_char();
 		}
-		word.as_str()
+		word
 	}
 	pub fn is_valid_id(&self) -> bool {
 		self.current.is_alphanumeric() && !self.current.is_ascii_digit()
 	}
-	pub fn expect_word(&mut self) -> &str {
+	pub fn expect_word(&mut self) -> String {
 		if !self.is_valid_id() {
 			syntax_error!("expected a word, found {:?}", self.current; self);
 		}

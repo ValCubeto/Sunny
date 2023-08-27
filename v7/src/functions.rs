@@ -21,7 +21,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 				ctx.next_char();
 				break 'collect;
 			}
-			syntax_error!("function generics to do"; ctx);
+			syntax_error!("function generics not implemented"; ctx);
 			// 'sub: {
 			// }
 			// ctx.next_char();
@@ -41,7 +41,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 			ctx.next_char();
 			break 'collect;
 		}
-		syntax_error!("function parameters to do"; ctx);
+		syntax_error!("function parameters not implemented"; ctx);
 		// 'sub: {
 		// }
 		// ctx.next_char();
@@ -56,7 +56,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 		}
 		ctx.next_char();
 		ctx.go();
-		syntax_error!("functions' return type to do"; ctx);
+		syntax_error!("functions' return type not implemented"; ctx);
 	}
 
 	if ctx.current != '{' {
@@ -70,7 +70,13 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 			break 'collect;
 		}
 		'sub: {
-			if ctx.is_valid_id() {
+			if ctx.current.is_ascii_digit() {
+				syntax_error!("numbers not implemented"; ctx);
+				// let number = collect_num(ctx);
+				// dbg!(&number);
+				// break 'sub
+			}
+			if ctx.current.is_alphabetic() {
 				let word = ctx.collect_word();
 				ctx.go();
 				// match word
@@ -79,8 +85,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 						ctx.next_char();
 						let expr = parse_expr(ctx);
 						function.push(Statment::Assignment {
-							id: word,
-							mutable: false,
+							id: Id::from(word),
 							expr
 						})
 					}
@@ -102,11 +107,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 				}
 				break 'sub;
 			}
-			// if ctx.current.is_ascii_digit() {
-			// 	let number = collect_num(ctx);
-			// 	dbg!(&number);
-			// 	break 'sub
-			// }
+			
 
 			// match ctx.current {
 			// 	// '+' => {}
@@ -118,7 +119,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 		ctx.go();
 	}
 
-	Function { name, /* is_async, */ value: FunctionValue::Defined(function) }
+	Function { name, value: FunctionValue::Defined(function) }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

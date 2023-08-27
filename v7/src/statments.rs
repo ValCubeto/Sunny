@@ -8,7 +8,6 @@ use crate::{
 pub enum Statment {
 	Assignment {
 		id: Id,
-		mutable: bool,
 		expr: Expression
 	},
 	Call {
