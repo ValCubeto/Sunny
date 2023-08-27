@@ -91,17 +91,14 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 					}
 					'(' => {
 						ctx.next_char();
-						loop {
-							ctx.go();
-							if ctx.current == ')' {
-								ctx.next_char();
-								break;
-							}
+						while ctx.current != ')' {
 							#[allow(unused)]
 							let expr = parse_expr(ctx);
 							ctx.next_char();
 							panic!("{:?}", ctx.current);
+							ctx.go();
 						}
+						ctx.next_char();
 					}
 					_ => syntax_error!("unexpected character {:?}", ctx.current; ctx)
 				}
