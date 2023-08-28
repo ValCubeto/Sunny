@@ -1,3 +1,5 @@
+use crate::reference_error;
+
 use {
   std::collections::HashMap,
   crate::{
@@ -7,19 +9,19 @@ use {
 };
 
 pub trait Stack {
-  fn get_value(&self, id: &Id) -> Option<&Value>;
+  fn get_value(&self, id: &Id) -> &Value;
   fn set_value(&mut self, id: Id, value: Value);
 }
 
 impl Stack for Vec<HashMap<Id, Value>> {
-  fn get_value(&self, id: &Id) -> Option<&Value> {
+  fn get_value(&self, id: &Id) -> &Value {
     for space in self {
       let value = space.get(id);
-      if value.is_some() {
+      if let Some(value) = value {
         return value
       }
     }
-    None
+    reference_error!("hola")
   }
   fn set_value(&mut self, id: Id, value: Value) {
     self

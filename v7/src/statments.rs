@@ -7,6 +7,7 @@ use crate::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Statment {
   Assignment {
+    // FIXME: add Vec<Id>
     id: Id,
     expr: Expression
   },

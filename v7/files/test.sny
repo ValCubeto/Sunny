@@ -1,25 +1,20 @@
 # comment
 
-trait New<T> {
-	fun new(*) -> (T | Result<T, _>)
-}
-
 fun create<T>(p: T = T::new()) -> T
 where
-	T: New<T>
+	T
 {
 	return p
 }
 
 struct Point {
-	x: u8
-	y: u8
+	pub (x: u8, y: i32) = 0
 }
 
-fun Point::new(x = 0_u8, y = 0_u8) {
+fun Point::new(x = 0, y = 0) {
 	return Point { x, y }
 }
 
 fun main(_args: String[]) {
-	create<Point>()
+	create<Point>().display()
 }

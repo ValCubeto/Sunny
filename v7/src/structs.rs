@@ -9,7 +9,7 @@ use {
   }
 };
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Struct {
   pub extended: Option<Vec<Rc<Struct>>>,
   pub name: Id,
