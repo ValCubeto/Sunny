@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::aliases::Dict;
 
 use {
@@ -29,13 +31,13 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
         ctx.go();
         let name = Id::from(ctx.expect_word());
         let value = parse_namespace(ctx, name.clone());
-        namespace.set(name, Value::Namespace(Box::new(value)));
+        namespace.set(name, Value::Namespace(Rc::new(value)));
       }
       "fun" => {
         ctx.go();
         let name = Id::from(ctx.expect_word());
         let value = parse_function(ctx, name.clone());
-        namespace.set(name, Value::Function(Box::new(value)));
+        namespace.set(name, Value::Function(Rc::new(value)));
       }
       "async" | "struct" | "extend" | "const" | "import" => syntax_error!("{word:?} not implemented"; ctx),
       _ => syntax_error!("unexpected identifier {word:?} here"; ctx)

@@ -1,3 +1,7 @@
+use std::rc::Rc;
+
+use crate::aliases::Dict;
+
 use {
   std::collections::HashMap,
   crate::{
@@ -16,9 +20,9 @@ pub enum Value {
   String(String),
   Id(Id),
   Vec(Vec<Value>),
-  Dict(HashMap<Id, Value>),
-  Function(Box<Function>),
-  Namespace(Box<Namespace>),
-  Struct(Box<Struct>),
-  Instance(Box<Instance>),
+  Dict(Rc<Dict>),
+  Function(Rc<Function>),
+  Namespace(Rc<Namespace>),
+  Struct(Rc<Struct>),
+  Instance(Rc<Instance>),
 }

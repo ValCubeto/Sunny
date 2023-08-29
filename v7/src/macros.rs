@@ -100,7 +100,7 @@ macro_rules! hashmap {
 /// ```
 macro_rules! builtin_function {
   ($name:expr, $closure:expr) => {
-    Value::Function(Box::new(Function {
+    Value::Function(std::rc::Rc::new(Function {
       name: Id::from($name),
       value: FunctionValue::Builtin($closure)
     }))
