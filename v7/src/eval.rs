@@ -22,5 +22,5 @@ pub fn eval_ast(ast: &Vec<Statment>, additional_data: Arguments, Context { stack
       _ => internal_error!("not implemented")
     }
   }
-  Value::None
+  Value::Null
 }

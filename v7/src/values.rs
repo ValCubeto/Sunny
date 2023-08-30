@@ -1,10 +1,8 @@
-use std::rc::Rc;
-
-use crate::aliases::Dict;
 
 use {
-  std::collections::HashMap,
+  std::rc::Rc,
   crate::{
+    aliases::Dict,
     aliases::Id,
     functions::Function,
     namespaces::Namespace,
@@ -16,7 +14,7 @@ use {
 #[allow(unused)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Value {
-  None,
+  Null,
   String(String),
   Id(Id),
   Vec(Vec<Value>),

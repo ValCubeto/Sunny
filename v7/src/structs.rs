@@ -1,8 +1,5 @@
 use {
-  std::{
-    collections::HashMap,
-    rc::Rc
-  },
+  std::rc::Rc,
   crate::{
     aliases::Id,
     values::Value
@@ -11,7 +8,6 @@ use {
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct Struct {
-  pub extended: Option<Vec<Rc<Struct>>>,
   pub name: Id,
-  pub props: HashMap<Id, (Option<Rc<Struct>>, Option<Value>)>
+  pub props: Vec<(Id, Rc<Struct>, Value)>
 }
