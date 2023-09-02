@@ -21,6 +21,7 @@ impl Stack for Vec<HashMap<Id, Value>> {
         return value
       }
     }
+    let a: [u8; 1] = vec![1][..];
     reference_error!("hola")
   }
   fn set_value(&mut self, id: Id, value: Value) {

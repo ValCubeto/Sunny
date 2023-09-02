@@ -18,6 +18,7 @@ pub enum Value {
   String(String),
   Id(Id),
   Vec(Vec<Value>),
+  // Array(Box<[Value]>),
   Dict(Rc<Dict>),
   Function(Rc<Function>),
   Namespace(Rc<Namespace>),
