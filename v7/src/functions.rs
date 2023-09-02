@@ -144,8 +144,8 @@ pub struct FunError {
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(unused)]
 pub enum FunctionValue {
+  // Vec<Node>
   // Value::Instance(Instance { parent: (Rc<Struct>) name, values: [(Id) desc] })
   Builtin(fn(Arguments) -> Result<Value, FunError>),
   Defined(Vec<Statment>)
 }
-
