@@ -122,7 +122,6 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
 #[derive(Debug, PartialEq, Eq)]
 pub struct Function {
   pub name: Id,
-  // pub is_async: bool,
   pub value: FunctionValue
 }
 
@@ -137,7 +136,7 @@ impl Function {
 
 #[allow(unused)]
 #[derive(Debug)]
-pub struct Error {
+pub struct FunError {
   name: Id,
   description: Id
 }
@@ -145,7 +144,8 @@ pub struct Error {
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(unused)]
 pub enum FunctionValue {
-  Builtin(fn(Arguments) -> Result<Value, Error>), // Result<Value, &str>
+  // Value::Instance(Instance { parent: (Rc<Struct>) name, values: [(Id) desc] })
+  Builtin(fn(Arguments) -> Result<Value, FunError>),
   Defined(Vec<Statment>)
 }
 
