@@ -9,7 +9,7 @@ use crate::{
 };
 
 /// TODO:
-/// stack = [global, ...uppers, current, recent]
+/// stack: Rc<Dict> = [global, ...uppers, current, recent]
 
 fn main() {
   let mut args: ParsedArgs = parse_args();	
