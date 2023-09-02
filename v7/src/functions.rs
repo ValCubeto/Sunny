@@ -29,17 +29,11 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
   }
   ctx.next_char();
   ctx.go();
-  'collect: loop {
-    if ctx.current == ')' {
-      ctx.next_char();
-      break 'collect;
-    }
+  while ctx.current != ')' {
+    ctx.next_char();
     syntax_error!("function parameters not implemented"; ctx);
-    // 'sub: {
-    // }
-    // ctx.next_char();
-    // ctx.go();
   }
+  ctx.next_char();
   ctx.go();
 
   if ctx.current == '-' {
@@ -53,58 +47,50 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
   }
 
   if ctx.current != '{' {
-    syntax_error!("expected '{{', found {:?}", ctx.current; ctx);
+    syntax_error!("expected '{{' or '->', found {:?}", ctx.current; ctx);
   }
   ctx.next_char();
   ctx.go();
 
-  'collect: loop {
-    if ctx.current == '}' {
-      break 'collect;
+  while ctx.current != '}' {
+    if ctx.current.is_ascii_digit() {
+      syntax_error!("numbers not implemented"; ctx);
+      // let number = collect_num(ctx);
+      // dbg!(&number);
+      // break 'sub
     }
-    'sub: {
-      if ctx.current.is_ascii_digit() {
-        syntax_error!("numbers not implemented"; ctx);
-        // let number = collect_num(ctx);
-        // dbg!(&number);
-        // break 'sub
-      }
-      if ctx.current.is_alphabetic() {
-        let word = ctx.collect_word();
-        ctx.go();
-        // match word
-        match ctx.current {
-          '=' => {
-            ctx.next_char();
-            let expr = parse_expr(ctx);
-            function.push(Node::Assignment {
-              id: Id::from(word),
-              expr
-            })
-          }
-          '(' => {
-            ctx.next_char();
-            while ctx.current != ')' {
-              #[allow(unused)]
-              let expr = parse_expr(ctx);
+    if ctx.current.is_alphabetic() {
+      let word = ctx.collect_word();
+      ctx.go();
+      match word.as_str() {
+        "const" => syntax_error!("not implemented"; ctx),
+        _ => {
+          match ctx.current {
+            '=' => {
               ctx.next_char();
-              syntax_error!("function call params not implemented"; ctx);
-              // ctx.go();
+              let expr = parse_expr(ctx);
+              function.push(Node::Assignment {
+                id: Id::from(word),
+                expr
+              })
             }
-            ctx.next_char();
+            '(' => {
+              ctx.next_char();
+              while ctx.current != ')' {
+                #[allow(unused)]
+                let expr = parse_expr(ctx);
+                ctx.next_char();
+                syntax_error!("function call params not implemented"; ctx);
+                // ctx.go();
+              }
+              ctx.next_char();
+            }
+            _ => syntax_error!("unexpected character {:?}", ctx.current; ctx)
           }
-          _ => syntax_error!("unexpected character {:?}", ctx.current; ctx)
+          syntax_error!("unexpected character {:?}", ctx.current; ctx);
         }
-        break 'sub;
-      }
-      
-
-      // match ctx.current {
-      // 	// '+' => {}
-      // 	_ => 
-      // }
-      syntax_error!("unexpected character {:?}", ctx.current; ctx)
-    }
+        }
+      };
     ctx.next_char();
     ctx.go();
   }

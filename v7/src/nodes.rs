@@ -3,16 +3,15 @@ use crate::{
   expressions::Expression
 };
 
+// FIXME: change { id: Id } to { path: Vec<Id> }
 #[allow(unused)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Node {
   Assignment {
-    // FIXME: add Vec<Id>
     id: Id,
     expr: Expression
   },
   Call {
-    // FIXME: add Vec<Id>
     id: Id,
     args: Arguments
   }
