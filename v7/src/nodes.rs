@@ -5,7 +5,7 @@ use crate::{
 
 #[allow(unused)]
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Statment {
+pub enum Node {
   Assignment {
     // FIXME: add Vec<Id>
     id: Id,

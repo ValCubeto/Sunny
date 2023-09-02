@@ -2,14 +2,14 @@ use crate::{
   // numbers::collect_num,
   context::Context,
   aliases::{ Id, Arguments },
-  statments::Statment,
+  nodes::Node,
   expressions::parse_expr,
   values::Value,
   syntax_error
 };
 
 pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
-  let mut function: Vec<Statment> = Vec::new();
+  let mut function: Vec<Node> = Vec::new();
 
   ctx.go();
 
@@ -84,7 +84,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
           '=' => {
             ctx.next_char();
             let expr = parse_expr(ctx);
-            function.push(Statment::Assignment {
+            function.push(Node::Assignment {
               id: Id::from(word),
               expr
             })
@@ -147,5 +147,5 @@ pub enum FunctionValue {
   // Vec<Node>
   // Value::Instance(Instance { parent: (Rc<Struct>) name, values: [(Id) desc] })
   Builtin(fn(Arguments) -> Result<Value, FunError>),
-  Defined(Vec<Statment>)
+  Defined(Vec<Node>)
 }
