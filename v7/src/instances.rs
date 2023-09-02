@@ -1,12 +1,8 @@
 use {
-  std::{
-    collections::HashMap,
-    rc::Rc
-  },
+  std::rc::Rc,
   crate::{
     structs::Struct,
-    values::Value,
-    aliases::Id
+    values::Value
   }
 };
 
@@ -14,5 +10,5 @@ use {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Instance {
   pub parent: Rc<Struct>,
-  pub values: HashMap<Id, Value>
+  pub values: Box<[Value]>
 }

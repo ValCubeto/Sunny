@@ -8,6 +8,9 @@ use crate::{
   global::make_global,
 };
 
+/// TODO:
+/// stack = [global, ...uppers, current, recent]
+
 fn main() {
   let mut args: ParsedArgs = parse_args();	
   let data = read_file(&mut args.main_path);
