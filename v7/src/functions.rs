@@ -126,7 +126,7 @@ pub struct Function {
 }
 
 impl Function {
-  pub fn call(&self, args: Arguments) -> Result<Value, Error> {
+  pub fn call(&self, args: Arguments) -> Result<Value, FunError> {
     match self.value {
       FunctionValue::Builtin(func) => func(args),
       _ => todo!()
