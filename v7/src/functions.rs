@@ -16,16 +16,9 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
   if ctx.current == '<' {
     ctx.next_char();
     ctx.go();
-    'collect: loop {
-      if ctx.current == '>' {
-        ctx.next_char();
-        break 'collect;
-      }
+    while ctx.current != '>' {
+      ctx.next_char();
       syntax_error!("function generics not implemented"; ctx);
-      // 'sub: {
-      // }
-      // ctx.next_char();
-      // ctx.go();
     }
   }
 

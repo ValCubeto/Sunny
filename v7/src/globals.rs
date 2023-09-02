@@ -11,9 +11,7 @@ use {
 pub fn make_global() -> HashMap<Id, Value> {
   hashmap! {
     println => builtin_function!("println", |args| {
-      for arg in &args {
-        println!("println: {arg:?}");
-      }
+      println!("{:?}", args[0]);
       Ok(Value::Null)
     }),
     null => Value::Null

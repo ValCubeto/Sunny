@@ -5,7 +5,7 @@ use crate::{
   context::Context,
   namespaces::parse_namespace,
   values::Value,
-  global::make_global,
+  globals::make_global,
 };
 
 /// TODO:
@@ -70,7 +70,7 @@ mod eval;
 mod stack;
 mod structs;
 mod instances;
-mod global;
+mod globals;
 
 #[cfg(test)]
 mod tests;

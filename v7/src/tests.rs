@@ -1,4 +1,4 @@
-use crate::global::make_global;
+use crate::globals::make_global;
 
 #[test]
 fn yo() {
