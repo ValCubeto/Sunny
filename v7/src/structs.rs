@@ -6,7 +6,7 @@ use {
   }
 };
 
-#[derive(PartialEq, Eq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct Struct {
   pub name: Id,
   pub props: Vec<(Id, Rc<Struct>, Value)>

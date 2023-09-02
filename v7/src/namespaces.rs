@@ -50,7 +50,7 @@ pub fn parse_namespace(ctx: &mut Context, name: Id) -> Namespace {
 }
 
 #[allow(unused)]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Namespace {
   pub name: Id,
   pub public: Dict,
