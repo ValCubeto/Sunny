@@ -1,19 +1,16 @@
-use crate::reference_error;
-
-use {
-  std::collections::HashMap,
-  crate::{
-    aliases::Id,
-    values::Value
-  }
+use crate::{
+  aliases::{ Id, Dict },
+  values::Value,
+  reference_error
 };
 
 pub trait Stack {
   fn get_value(&self, id: &Id) -> &Value;
   fn set_value(&mut self, id: Id, value: Value);
+  fn preppend(&mut self, value: Dict);
 }
 
-impl Stack for Vec<HashMap<Id, Value>> {
+impl Stack for Vec<Dict> {
   fn get_value(&self, id: &Id) -> &Value {
     for space in self {
       let value = space.get(id);
@@ -28,5 +25,8 @@ impl Stack for Vec<HashMap<Id, Value>> {
       .last_mut()
       .unwrap()
       .insert(id, value);
+  }
+  fn preppend(&mut self, value: Dict) {
+    self.insert(0, value);
   }
 }

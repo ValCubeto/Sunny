@@ -6,6 +6,7 @@ use crate::{
   namespaces::parse_namespace,
   values::Value,
   globals::make_global,
+  stack::Stack as _,
 };
 
 /// TODO:
@@ -30,14 +31,14 @@ fn main() {
     .to_string());
 
   let mut ctx = Context::new(path_id, &data);
-  ctx.stack.push(make_global());
+  ctx.stack.insert(0, make_global());
   let main = parse_namespace(&mut ctx, file_id);
   
   let entrypoint = match main.public.get(&Id::from("main")).cloned() {
     None => reference_error!("main function not found"; ctx),
     Some(value) => value
   };
-  ctx.stack.push(main.public);
+  ctx.stack.preppend(main.public);
   dbg!(&ctx.stack);
 
   if let Value::Function(function) = entrypoint {
