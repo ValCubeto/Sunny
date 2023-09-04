@@ -5,7 +5,7 @@ use crate::{
   statments::Statment,
   expressions::parse_expr,
   values::Value,
-  syntax_error
+  syntax_error, eval::eval_ast
 };
 
 pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
@@ -64,6 +64,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
       let word = word.as_str();
       ctx.go();
       match word {
+        // word @ (p)
         "const" | "var" => {
           let is_const = word == "const";
           if ctx.current == '{' || ctx.current == '[' {
@@ -125,13 +126,13 @@ pub struct Function {
 }
 
 impl Function {
-  pub fn call(&self, args: Arguments) -> Result<Value, FunError> {
+  pub fn call(&self, args: &'static Arguments, ctx: &mut Context) -> Value {
     use FunctionValue as F;
     match self.value {
       F::Builtin(func) => func(args),
       F::Defined(ref func) => {
-        func;
-        Ok(Value::Null)
+        // func;
+        eval_ast(func, ctx)
       }
     }
   }
@@ -149,6 +150,6 @@ pub struct FunError {
 pub enum FunctionValue {
   // Vec<Statment>
   // Value::Instance(Instance { parent: (Rc<Struct>) name, values: [(Id) desc] })
-  Builtin(fn(Arguments) -> Result<Value, FunError>),
+  Builtin(fn(&Arguments) -> Value),
   Defined(Vec<Statment>)
 }

@@ -3,6 +3,7 @@ macro_rules! error {
   ($error_name:expr; $($arg:expr),*) => {{
     eprint!("{}: ", $crate::display_bold!($crate::display_red!($error_name)));
     eprintln!($($arg),*);
+    eprintln!("    at {}:{}:{}", file!(), line!(), column!());
     std::process::exit(1);
   }};
   ($error_name:expr; $($arg:expr),*; $ctx:expr) => {{

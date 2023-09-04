@@ -2,19 +2,19 @@
 
 fun create<T>(p: T = T::new()) -> T
 where
-	T
+  T
 {
-	return p
+  return p
 }
 
 struct Point {
-	pub (x: u8, y: i32) = 0
+  pub (x: u8, y: i32) = 0
 }
 
 fun Point::new(x = 0, y = 0) {
-	return Point { x, y }
+  return Point { x, y }
 }
 
 fun main(_args: String[]) {
-	create<Point>().display()
+  create<Point>().display()
 }

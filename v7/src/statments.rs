@@ -3,7 +3,7 @@ use crate::{
   expressions::Expression
 };
 
-// FIXME: change { id: Id } to { path: Vec<Id> }
+// FIXME: change { id: Id } to { value: Expression }
 #[allow(unused)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Statment {
