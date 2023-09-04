@@ -9,7 +9,7 @@ use crate::{
 };
 
 pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
-  let mut function: Vec<Statment> = Vec::new();
+  let mut body: Vec<Statment> = Vec::new();
 
   ctx.go();
 
@@ -65,20 +65,21 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
       ctx.go();
       match word {
         "const" | "var" => {
+          let is_const = word == "const";
           if ctx.current == '{' || ctx.current == '[' {
             syntax_error!("destructuring not implemented"; ctx);
           } else if ctx.current.is_alphabetic() {
             let id = Id::from(ctx.collect_word());
             ctx.go();
             if ctx.current == ':' {
-              syntax_error!("typed {}s not implemented", if word == "const" { "constant" } else { "variable" }; ctx);
+              syntax_error!("typed {}s not implemented", if is_const { "constant" } else { "variable" }; ctx);
             }
             if ctx.current != '=' {
               syntax_error!("expected '=', got {:?}", ctx.current; ctx);
             }
             ctx.next_char();
             ctx.go();
-            function.push(Statment::Assignment { id, expr: parse_expr(ctx) });
+            body.push(Statment::Declaration { id, mutable: !is_const, expr: parse_expr(ctx) });
           } else {
             syntax_error!("unexpected character {:?}", ctx.current; ctx);
           }
@@ -88,7 +89,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
             '=' => {
               ctx.next_char();
               let expr = parse_expr(ctx);
-              function.push(Statment::Assignment {
+              body.push(Statment::Assignment {
                 id: Id::from(word),
                 expr
               })
@@ -114,7 +115,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
     ctx.go();
   }
 
-  Function { name, value: FunctionValue::Defined(function) }
+  Function { name, value: FunctionValue::Defined(body) }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -125,9 +126,13 @@ pub struct Function {
 
 impl Function {
   pub fn call(&self, args: Arguments) -> Result<Value, FunError> {
+    use FunctionValue as F;
     match self.value {
-      FunctionValue::Builtin(func) => func(args),
-      _ => todo!()
+      F::Builtin(func) => func(args),
+      F::Defined(ref func) => {
+        func;
+        Ok(Value::Null)
+      }
     }
   }
 }

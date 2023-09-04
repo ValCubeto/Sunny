@@ -7,6 +7,11 @@ use crate::{
 #[allow(unused)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Statment {
+  Declaration {
+    id: Id,
+    mutable: bool,
+    expr: Expression
+  },
   Assignment {
     id: Id,
     expr: Expression

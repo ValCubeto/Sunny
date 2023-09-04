@@ -1,4 +1,4 @@
 fun main() {
   const test = 'hello';
-  println(test)
+  # println(test)
 }
