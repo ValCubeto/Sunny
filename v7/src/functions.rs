@@ -126,10 +126,10 @@ pub struct Function {
 }
 
 impl Function {
-  pub fn call(&self, args: &'static Arguments, ctx: &mut Context) -> Value {
+  pub fn call(&self, args: Arguments, ctx: &mut Context) -> Value {
     use FunctionValue as F;
     match self.value {
-      F::Builtin(func) => func(args),
+      F::Builtin(func) => func(&args),
       F::Defined(ref func) => {
         // func;
         eval_ast(func, ctx)

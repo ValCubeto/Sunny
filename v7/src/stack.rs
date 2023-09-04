@@ -29,7 +29,4 @@ impl Stack for Vec<Dict> {
   fn preppend(&mut self, value: Dict) {
     self.insert(0, value);
   }
-  fn expect<T>(self, i: u8) -> T {
-    i as Value;
-  }
 }

@@ -7,7 +7,7 @@ use crate::{
 
 #[allow(unused)]
 pub fn eval_ast(ast: &Vec<Statment>, ctx: &mut Context) -> Value {
-  for statment in ast {
+  for statment in &ast[..] {
     use Statment as S;
     match statment {
       S::Call { id, args } => {

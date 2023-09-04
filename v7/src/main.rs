@@ -42,7 +42,7 @@ fn main() {
   dbg!(&ctx.stack);
 
   if let Value::Function(function) = entrypoint {
-    let arguments = &Arguments::new();
+    let arguments = Arguments::new();
     function.call(arguments, &mut ctx);
   } else {
     type_error!("missing main function"; ctx);
