@@ -43,7 +43,7 @@ fn main() {
 
   if let Value::Function(function) = entrypoint {
     let arguments = Arguments::new();
-    function.call(arguments, &mut ctx);
+    function.call(&arguments, &mut ctx);
   } else {
     type_error!("missing main function"; ctx);
   }
