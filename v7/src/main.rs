@@ -31,7 +31,7 @@ fn main() {
     .to_string());
 
   let mut ctx = Context::new(path_id, &data);
-  ctx.stack.insert(0, make_global());
+  ctx.stack.preppend(make_global());
   let main = parse_namespace(&mut ctx, file_id);
   
   let entrypoint = match main.public.get(&Id::from("main")).cloned() {
