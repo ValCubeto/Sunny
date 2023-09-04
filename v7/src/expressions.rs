@@ -42,6 +42,9 @@ pub fn collect_string(ctx: &mut Context) -> String {
 pub enum Expression {
   Value(Value),
 
+  // FIXME: Vec<Id>
+  Call(Id, Box<Expression>),
+
 	Sum(Box<Expression>, Box<Expression>),
 	Sub(Box<Expression>, Box<Expression>),
 	Mul(Box<Expression>, Box<Expression>),
