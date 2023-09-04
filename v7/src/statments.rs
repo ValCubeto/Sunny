@@ -6,7 +6,7 @@ use crate::{
 // FIXME: change { id: Id } to { path: Vec<Id> }
 #[allow(unused)]
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Node {
+pub enum Statment {
   Assignment {
     id: Id,
     expr: Expression

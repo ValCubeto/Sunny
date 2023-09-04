@@ -2,14 +2,14 @@ use crate::{
   // numbers::collect_num,
   context::Context,
   aliases::{ Id, Arguments },
-  nodes::Node,
+  statments::Statment,
   expressions::parse_expr,
   values::Value,
   syntax_error
 };
 
 pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
-  let mut function: Vec<Node> = Vec::new();
+  let mut function: Vec<Statment> = Vec::new();
 
   ctx.go();
 
@@ -78,6 +78,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
             }
             ctx.next_char();
             ctx.go();
+            function.push(Statment::Assignment { id, expr: parse_expr(ctx) });
           } else {
             syntax_error!("unexpected character {:?}", ctx.current; ctx);
           }
@@ -87,7 +88,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
             '=' => {
               ctx.next_char();
               let expr = parse_expr(ctx);
-              function.push(Node::Assignment {
+              function.push(Statment::Assignment {
                 id: Id::from(word),
                 expr
               })
@@ -141,8 +142,8 @@ pub struct FunError {
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(unused)]
 pub enum FunctionValue {
-  // Vec<Node>
+  // Vec<Statment>
   // Value::Instance(Instance { parent: (Rc<Struct>) name, values: [(Id) desc] })
   Builtin(fn(Arguments) -> Result<Value, FunError>),
-  Defined(Vec<Node>)
+  Defined(Vec<Statment>)
 }
