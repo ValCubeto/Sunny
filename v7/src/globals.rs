@@ -14,6 +14,10 @@ pub fn make_global() -> HashMap<Id, Value> {
       println!("{:?}", args[0]);
       Ok(Value::Null)
     }),
+    print => builtin_function!("println", |args| {
+      print!("{:?}", args[0]);
+      Ok(Value::Null)
+    }),
     null => Value::Null
   }
 }

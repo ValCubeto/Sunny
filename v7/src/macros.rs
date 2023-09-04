@@ -1,15 +1,15 @@
 #[macro_export]
 macro_rules! error {
   ($error_name:expr; $($arg:expr),*) => {{
-    print!("{}: ", $crate::display_bold!($crate::display_red!($error_name)));
-    println!($($arg),*);
+    eprint!("{}: ", $crate::display_bold!($crate::display_red!($error_name)));
+    eprintln!($($arg),*);
     std::process::exit(1);
   }};
   ($error_name:expr; $($arg:expr),*; $ctx:expr) => {{
-    print!("{}: ", $crate::display_bold!($crate::display_red!($error_name)));
-    println!($($arg),*);
-    println!("    at {}:{}:{}", $ctx.id, $ctx.line, $ctx.column);
-    println!("    at {}:{}:{}", file!(), line!(), column!());
+    eprint!("{}: ", $crate::display_bold!($crate::display_red!($error_name)));
+    eprintln!($($arg),*);
+    eprintln!("    at {}:{}:{}", $ctx.id, $ctx.line, $ctx.column);
+    eprintln!("    at {}:{}:{}", file!(), line!(), column!());
     std::process::exit(1);
   }};
 }
@@ -37,14 +37,14 @@ macro_rules! syntax_error {
 
 #[macro_export]
 macro_rules! reference_error {
-  ($($args:expr),+) => { $crate::error!("ReferenceError"; $($args),+) };
   ($($args:expr),+; $ctx:expr) => { $crate::error!("ReferenceError"; $($args),+; $ctx) };
+  ($($args:expr),+) => { $crate::error!("ReferenceError"; $($args),+) };
 }
 
 #[macro_export]
 macro_rules! type_error {
-  ($($args:expr),+) => { $crate::error!("TypeError"; $($args),+) };
   ($($args:expr),+; $ctx:expr) => { $crate::error!("TypeError"; $($args),+; $ctx) };
+  ($($args:expr),+) => { $crate::error!("TypeError"; $($args),+) };
 }
 
 #[macro_export]
@@ -66,10 +66,12 @@ macro_rules! display_bold {
 ///     key => "value"
 /// }
 /// ```
-/// is the same as...
+/// is the same as:
 /// ```rs
 /// HashMap::from([ Rc::<str>::from("key"), "value" ])
 /// ```
+/// 
+/// [```Rc<str>```](std::rc::Rc) is used because you will copy the key reference instead of the value and the keys are inmutable so we use str instead of String
 macro_rules! hashmap {
   () => {
     ::std::collections::HashMap::new()

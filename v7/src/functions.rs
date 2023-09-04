@@ -61,9 +61,27 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
     }
     if ctx.current.is_alphabetic() {
       let word = ctx.collect_word();
+      let word = word.as_str();
       ctx.go();
-      match word.as_str() {
-        "const" => syntax_error!("not implemented"; ctx),
+      match word {
+        "const" | "var" => {
+          if ctx.current == '{' || ctx.current == '[' {
+            syntax_error!("destructuring not implemented"; ctx);
+          } else if ctx.current.is_alphabetic() {
+            let id = Id::from(ctx.collect_word());
+            ctx.go();
+            if ctx.current == ':' {
+              syntax_error!("typed {}s not implemented", if word == "const" { "constant" } else { "variable" }; ctx);
+            }
+            if ctx.current != '=' {
+              syntax_error!("expected '=', got {:?}", ctx.current; ctx);
+            }
+            ctx.next_char();
+            ctx.go();
+          } else {
+            syntax_error!("unexpected character {:?}", ctx.current; ctx);
+          }
+        },
         _ => {
           match ctx.current {
             '=' => {

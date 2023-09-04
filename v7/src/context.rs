@@ -25,7 +25,7 @@ impl<'a> Context<'a> {
   pub fn new(id: Id, code: &'a String) -> Self {
     let mut chars: Chars<'a> = code.chars();
     Context {
-      stack: Vec::new(),
+      stack: Vec::with_capacity(2), // global + main
       id,
       code,
       current: chars.next().unwrap(),
@@ -77,6 +77,7 @@ impl<'a> Context<'a> {
       break;
     }
   }
+  /// Ignores spaces, new lines and comments
   pub fn go(&mut self) {
     loop {
       if matches!(self.current, ' ' | '\t' | '\r' | '\n') {
