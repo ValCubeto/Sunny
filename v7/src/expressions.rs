@@ -45,7 +45,7 @@ pub enum Expression {
   // FIXME: Vec<Id>
   Call(Id, Box<Expression>),
 
-	Sum(Box<Expression>, Box<Expression>),
+	Add(Box<Expression>, Box<Expression>),
 	Sub(Box<Expression>, Box<Expression>),
 	Mul(Box<Expression>, Box<Expression>),
 	Div(Box<Expression>, Box<Expression>),
@@ -59,4 +59,16 @@ pub enum Expression {
 	// LogAnd, LogOr, LogXor
 	And(Box<Expression>, Box<Expression>),
 	Or(Box<Expression>, Box<Expression>),
+}
+
+impl Expression {
+  #[allow(unused)]
+  fn solve(self) -> Value {
+    use Expression as E;
+    match self {
+      E::Value(value) => value,
+      // E::Add(a, b) => a + b,
+      _ => todo!()
+    }
+  }
 }
