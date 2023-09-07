@@ -1,12 +1,9 @@
 use {
-  std::{
-    str::Chars,
-    collections::HashMap,
-  },
+  std::str::Chars,
   crate::{
     aliases::Id,
-    values::Value,
-    syntax_error
+    stack::Stack,
+    syntax_error,
   }
 };
 
@@ -18,14 +15,14 @@ pub struct Context<'a> {
   pub idx: usize,
   pub line: usize,
   pub column: usize,
-  pub stack: Vec<HashMap<Id, Value>>
+  pub stack: Stack
 }
 
 impl<'a> Context<'a> {
   pub fn new(id: Id, code: &'a String) -> Self {
     let mut chars: Chars<'a> = code.chars();
     Context {
-      stack: Vec::with_capacity(2), // global + main
+      stack: Stack::new(), // global + main
       id,
       code,
       current: chars.next().unwrap(),

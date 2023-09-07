@@ -4,29 +4,35 @@ use crate::{
   reference_error
 };
 
-pub trait Stack {
-  fn get_value(&mut self, id: &Id) -> &Value;
-  fn set_value(&mut self, id: Id, value: Value);
-  fn preppend(&mut self, value: Dict);
-}
+#[derive(Debug)]
+pub struct Stack(Vec<Dict>);
 
-impl Stack for Vec<Dict> {
-  fn get_value(&mut self, id: &Id) -> &Value {
-    for space in self {
-      let value = space.get(id);
-      if let Some(value) = value {
-        return value
+impl Stack {
+  pub fn new() -> Self {
+    Stack(Vec::with_capacity(2))
+  }
+  pub fn get_value(&mut self, id: &Id) -> &Value {
+    for space in &self.0 {
+      if let Some(value) = space.get(id) {
+        return value;
       }
     }
-    reference_error!("hola")
+    reference_error!("{id:?} is not defined");
   }
-  fn set_value(&mut self, id: Id, value: Value) {
-    self
-      .last_mut()
-      .unwrap()
-      .insert(id, value);
+  pub fn assign(&mut self, id: Id, value: Value) {
+    let last = self.0.last_mut().unwrap();
+    // if !last.contains_key(&id) { reference_error!("{id:?} is not defined"; ctx); }
+    // if typeof(last.get(&id)) != typeof(value) { type_error!("cannot assign a {t1:?} to a {t2:?}"; ctx) }
+    last.insert(id, value);
   }
-  fn preppend(&mut self, value: Dict) {
-    self.insert(0, value);
+  pub fn declare(&mut self, id: Id, value: Value) {
+    let last = self.0.last_mut().unwrap();
+    if last.contains_key(&id) {
+      reference_error!("{id:?} is already defined");
+    }
+    last.insert(id, value);
+  }
+  pub fn preppend(&mut self, value: Dict) {
+    self.0.insert(0, value);
   }
 }

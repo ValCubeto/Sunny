@@ -2,7 +2,7 @@ use crate::{
   values::Value,
   statments::Statment,
   context::Context,
-  stack::Stack as _, type_error, internal_error
+  type_error, internal_error
 };
 
 #[allow(unused)]
@@ -19,13 +19,11 @@ pub fn eval_ast(ast: &[Statment], ctx: &mut Context) -> Value {
         }
       }
       S::Declaration { id, mutable, expr } => {
-        todo!("declaration")
+        ctx.stack.declare(id.clone(), expr.solve());
       }
-      // Assignment { id, expr } => {
-      //   let value = resolve(expr);
-      //   println!("set {} = {:?}", id, value);
-      //   stack.set_value(id.clone(), *value);
-      // },
+      S::Assignment { id, expr } => {
+        ctx.stack.assign(id.clone(), expr.solve());
+      },
       _ => internal_error!("not implemented")
     }
   }

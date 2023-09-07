@@ -63,10 +63,10 @@ pub enum Expression {
 
 impl Expression {
   #[allow(unused)]
-  fn solve(self) -> Value {
+  pub fn solve(&self) -> Value {
     use Expression as E;
     match self {
-      E::Value(value) => value,
+      E::Value(value) => value.clone(),
       // E::Add(a, b) => a + b,
       _ => todo!()
     }
