@@ -15,7 +15,7 @@ pub fn parse_expr(ctx: &mut Context) -> Expression {
   match ctx.current {
     '"' | '\'' => {
       // return
-      Expression::Value(Value::String(collect_string(ctx)))
+      Expression::Literal(Value::String(collect_string(ctx)))
     }
     _ => syntax_error!("unexpected character {:?}", ctx.current; ctx)
   }
@@ -40,7 +40,7 @@ pub fn collect_string(ctx: &mut Context) -> String {
 #[allow(unused)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Expression {
-  Value(Value),
+  Literal(Value),
 
   // FIXME: Vec<Id>
   Call(Id, Box<Expression>),
@@ -66,7 +66,7 @@ impl Expression {
   pub fn solve(&self) -> Value {
     use Expression as E;
     match self {
-      E::Value(value) => value.clone(),
+      E::Literal(value) => value.clone(),
       // E::Add(a, b) => a + b,
       _ => todo!()
     }

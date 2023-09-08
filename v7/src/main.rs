@@ -5,8 +5,7 @@ use crate::{
   context::Context,
   namespaces::parse_namespace,
   values::Value,
-  globals::make_global,
-  stack::Stack as _,
+  globals::make_global, expressions::Expression
 };
 
 /// TODO:
@@ -42,7 +41,8 @@ fn main() {
   dbg!(&ctx.stack);
 
   if let Value::Function(function) = entrypoint {
-    let arguments = Arguments::new();
+    let argv = Value::Array(args.args.iter().map(|v| Value::Id(v.clone())).collect());
+    let arguments: Arguments = vec![Expression::Literal(argv)];
     function.call(&arguments, &mut ctx);
   } else {
     type_error!("missing main function"; ctx);

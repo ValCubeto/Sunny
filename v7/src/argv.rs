@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use {
   std::{
     path::PathBuf,
@@ -13,9 +15,9 @@ use {
 #[derive(Debug)]
 pub struct ParsedArgs {
   pub exec_path: PathBuf,
-  pub flags: Vec<Id>,
+  pub flags: Rc<[Id]>,
   pub main_path: PathBuf,
-  pub args: Vec<Id>
+  pub args: Rc<[Id]>
 }
 
 pub fn parse_args() -> ParsedArgs {
@@ -71,8 +73,8 @@ pub fn parse_args() -> ParsedArgs {
 
   ParsedArgs {
     exec_path,
-    flags,
+    flags: Rc::from(flags.as_slice()),
     main_path: main_path.unwrap(), // unwrap_or(PathBuf::from("<stdin>"))
-    args
+    args: Rc::from(args.as_slice())
   }
 }

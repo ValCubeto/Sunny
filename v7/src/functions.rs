@@ -119,7 +119,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
   Function { name, value: FunctionValue::Defined(body) }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub struct Function {
   pub name: Id,
   pub value: FunctionValue
@@ -135,6 +135,16 @@ impl Function {
         eval_ast(func, ctx)
       }
     }
+  }
+}
+
+impl std::fmt::Debug for Function {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let ty = match self.value {
+      FunctionValue::Defined(_) => "defined",
+      FunctionValue::Builtin(_) => "builtin"
+    };
+    write!(f, "{} fun {}()", ty, self.name)
   }
 }
 
