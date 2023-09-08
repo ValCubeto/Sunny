@@ -38,8 +38,8 @@ impl Value {
         if !a.is_empty() {
           let vec = a.to_vec();
           let last = vec.remove(vec.len() - 1);
-          for v in &vec[..] {
-            string.push_str(v.to_string(depth + 1).as_str())
+          for v in vec {
+            string.push_str((v.to_string(depth + 1) + ",\n").as_str())
           }
         }
         string.push(']');
