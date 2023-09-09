@@ -12,6 +12,20 @@ pub fn parse_expr(ctx: &mut Context) -> Expression {
     let word = ctx.collect_word();
     syntax_error!("id: {word:?}"; ctx);
   }
+  while ctx.current != ';' {
+    ctx.skip_spaces();
+    if ctx.current == '\n' {
+      ctx.next_char();
+      ctx.skip_spaces();
+      match ctx.current {
+        '+' => {
+          todo!()
+        }
+        _ => syntax_error!("unexpected character {:?}", ctx.current; ctx)
+      }
+    }
+    ctx.next_char();
+  }
   match ctx.current {
     '"' | '\'' => {
       // return
