@@ -1,5 +1,9 @@
 # comment
 
+trait Init {
+  fn new()
+}
+
 fun create<T>(p: T) -> T
 where
   T: Init
@@ -8,12 +12,14 @@ where
 }
 
 struct Point {
-  pub (x: u8, y: i32) = 0
+  pub [x, y]: u8 = [0, 0]
 }
 
-fun Point::new(x = 0, y = 0) {
+fun Point::new(x, y) {
   return Point { x, y }
 }
+
+extend Point with Display
 
 fun main(_args: String[]) {
   create<Point>().display()
