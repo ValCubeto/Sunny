@@ -36,6 +36,7 @@ pub fn parse_expr(ctx: &mut Context) -> Expression {
   Expression::Literal(Value::Null)
 }
 
+#[allow(unused)]
 pub fn collect_string(ctx: &mut Context) -> String {
   let quote = ctx.current;
   ctx.next_char();
