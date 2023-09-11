@@ -14,10 +14,10 @@ use crate::{
 
 fn main() {
   let mut args: ParsedArgs = parse_args();	
-  let data = read_file(&mut args.main_path);
+  let code = read_file(&mut args.main_path);
 
   println!("args = {args:#?}");
-  println!("data = {data:?}");
+  println!("code = {code:?}");
   println!();
 
   let file_id = Id::from(args.main_path
@@ -29,7 +29,11 @@ fn main() {
     .to_string_lossy()
     .to_string());
 
-  let mut ctx = Context::new(path_id, &data);
+  println!("file_id = {file_id:?}");
+  println!("path_id = {path_id:?}");
+  println!();
+
+  let mut ctx = Context::new(path_id, &code);
   ctx.stack.preppend(make_global());
   let main = parse_namespace(&mut ctx, file_id);
   

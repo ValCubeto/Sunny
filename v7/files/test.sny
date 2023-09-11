@@ -1,10 +1,10 @@
 # comment
 
-fun create<T>(p: T = T::new()) -> T
+fun create<T>(p: T) -> T
 where
-  T
+  T: Init
 {
-  return p
+  return T::new()
 }
 
 struct Point {

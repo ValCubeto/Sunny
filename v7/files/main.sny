@@ -1,4 +1,4 @@
 fun main() {
-  const p = 'hello' -
-    # test)
+  const msg = 'hello' -
+  # print('${msg}')
 }
