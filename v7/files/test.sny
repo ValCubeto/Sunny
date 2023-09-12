@@ -1,5 +1,7 @@
 # comment
 
+trait Any {}
+
 trait Init {
   fn new()
 }
@@ -12,15 +14,18 @@ where
 }
 
 struct Point {
-  pub [x, y]: u8 = [0, 0]
+  pub [x, y]: u8  
 }
 
-fun Point::new(x, y) {
-  return Point { x, y }
+extend Point {
+  impl Display, Debug
+  pub fun new(x = 0, y = 0) {
+    return Point { x, y }
+  }
 }
-
-extend Point with Display
 
 fun main(_args: String[]) {
-  create<Point>().display()
+  let point = create<Point>()
+  println(point)
+  assert point.x == 0
 }
