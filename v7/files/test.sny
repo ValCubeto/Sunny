@@ -1,15 +1,12 @@
-# comment
+# Comment
 
 trait Any {}
 
 trait Init {
-  fn new()
+  fun new()
 }
 
-fun create<T>(p: T) -> T
-where
-  T: Init
-{
+fun create<T: impl Init>() -> T {
   return T::new()
 }
 
@@ -18,14 +15,40 @@ struct Point {
 }
 
 extend Point {
-  impl Display, Debug
+  impl Display
   pub fun new(x = 0, y = 0) {
     return Point { x, y }
   }
 }
 
 fun main(_args: String[]) {
-  let point = create<Point>()
+  let point = Point::new()
   println(point)
   assert point.x == 0
+}
+
+trait Number
+where
+  Self: Add + Sub + Mul + Div + Pow + Mod
+{
+  const [MIN, MAX]: Self
+}
+
+struct u8 { ... }
+
+extend u8 {
+  impl Number {
+    const MIN: u8 = 0_u8
+    const MAX: u8 = 255_u8
+  }
+  impl Add {
+    internal fun add<T>(self, other: T) -> T
+    where
+      Self: From<T>
+      T: From<Self>
+    {
+      let [a, b] = [self, other].sort()
+      return Type::of(b)::from(a) + b
+    }
+  }
 }
