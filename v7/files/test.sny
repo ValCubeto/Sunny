@@ -37,9 +37,9 @@ where
 struct u8 { ... }
 
 extend u8 {
+  priv const fun min() -> Self { return 0_u8 }
   impl Number {
-    const MIN: u8 = 0_u8
-    const MAX: u8 = 255_u8
+    const [MIN, MAX]: Self = [Self::min(), 255_u8]
   }
   impl Add {
     internal fun add<T>(self, other: T) -> T
@@ -51,4 +51,11 @@ extend u8 {
       return Type::of(b)::from(a) + b
     }
   }
+  impl FromString {
+    fun from(string: String) -> Self {}
+  }
 }
+
+trait Number { ... }
+trait Int { ... }
+trait Float { ... }
