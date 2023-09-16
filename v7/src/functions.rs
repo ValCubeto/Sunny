@@ -2,14 +2,14 @@ use crate::{
   // numbers::collect_num,
   context::Context,
   aliases::{ Id, Arguments },
-  statments::Statment,
+  statements::Statement,
   expressions::parse_expr,
   values::Value,
   syntax_error, eval::eval_ast
 };
 
 pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
-  let mut body: Vec<Statment> = Vec::new();
+  let mut body: Vec<Statement> = Vec::new();
 
   ctx.go();
 
@@ -80,7 +80,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
             }
             ctx.next_char();
             ctx.go();
-            body.push(Statment::Declaration { id, mutable: !is_const, expr: parse_expr(ctx) });
+            body.push(Statement::Declaration { id, mutable: !is_const, expr: parse_expr(ctx) });
           } else {
             syntax_error!("unexpected character {:?}", ctx.current; ctx);
           }
@@ -90,7 +90,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
             '=' => {
               ctx.next_char();
               let expr = parse_expr(ctx);
-              body.push(Statment::Assignment {
+              body.push(Statement::Assignment {
                 id: Id::from(word),
                 expr
               })
@@ -158,8 +158,8 @@ pub struct FunError {
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(unused)]
 pub enum FunctionValue {
-  // Vec<Statment>
+  // Vec<Statement>
   // Value::Instance(Instance { parent: (Rc<Struct>) name, values: [(Id) desc] })
   Builtin(fn(&Arguments) -> Value),
-  Defined(Vec<Statment>)
+  Defined(Vec<Statement>)
 }

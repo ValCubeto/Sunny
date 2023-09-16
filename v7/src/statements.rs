@@ -6,7 +6,7 @@ use crate::{
 // FIXME: change { id: Id } to { value: Expression }
 #[allow(unused)]
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Statment {
+pub enum Statement {
   Declaration {
     id: Id,
     mutable: bool,

@@ -63,7 +63,7 @@ mod context;
 mod namespaces;
 mod values;
 mod functions;
-mod statments;
+mod statements;
 mod numbers;
 mod expressions;
 mod eval;
