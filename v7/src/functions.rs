@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{
   // numbers::collect_num,
   context::Context,
@@ -116,7 +118,7 @@ pub fn parse_function(ctx: &mut Context, name: Id) -> Function {
     ctx.go();
   }
 
-  Function { name, value: FunctionValue::Defined(body) }
+  Function { name, value: FunctionValue::Defined(Rc::from(&body[..])) }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -126,13 +128,13 @@ pub struct Function {
 }
 
 impl Function {
-  pub fn call(&self, args: &Arguments, ctx: &mut Context) -> Value {
+  pub fn call(&self, args: Arguments, ctx: &mut Context) -> Value {
     use FunctionValue as F;
     match self.value {
       F::Builtin(func) => func(args),
       F::Defined(ref func) => {
         // func;
-        eval_ast(func, ctx)
+        eval_ast(func.clone(), ctx)
       }
     }
   }
@@ -160,6 +162,6 @@ pub struct FunError {
 pub enum FunctionValue {
   // Vec<Statement>
   // Value::Instance(Instance { parent: (Rc<Struct>) name, values: [(Id) desc] })
-  Builtin(fn(&Arguments) -> Value),
-  Defined(Vec<Statement>)
+  Builtin(fn(Arguments) -> Value),
+  Defined(Rc<[Statement]>)
 }

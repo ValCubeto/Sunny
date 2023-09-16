@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::{
   argv::{ ParsedArgs, parse_args },
   files::read_file,
@@ -46,8 +48,8 @@ fn main() {
 
   if let Value::Function(function) = entrypoint {
     let argv = Value::Array(args.args.iter().map(|v| Value::Id(v.clone())).collect());
-    let arguments: Arguments = vec![Expression::Literal(argv)];
-    function.call(&arguments, &mut ctx);
+    let arguments: Arguments = Rc::from([Expression::Literal(argv)]);
+    function.call(arguments, &mut ctx);
   } else {
     type_error!("missing main function"; ctx);
   }

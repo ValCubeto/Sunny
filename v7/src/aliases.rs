@@ -1,3 +1,14 @@
-pub type Id = std::rc::Rc<str>;
-pub type Dict = std::collections::HashMap<Id, crate::values::Value>;
-pub type Arguments = Vec<crate::expressions::Expression>;
+use {
+	std::{
+		rc::Rc,
+		collections::HashMap
+	},
+	crate::{
+		values::Value,
+		expressions::Expression
+	}
+};
+
+pub type Id = Rc<str>;
+pub type Dict = HashMap<Id, Value>;
+pub type Arguments = Rc<[Expression]>;
