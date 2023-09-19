@@ -13,6 +13,7 @@ use crate::{
 /// TODO:
 /// stack: Rc<Dict> = [global, ...uppers, current, recent (maybe)]
 /// check arguments' types, quantity, etc
+/// regex
 
 fn main() {
   let mut args: ParsedArgs = parse_args();	
