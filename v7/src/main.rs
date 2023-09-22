@@ -11,8 +11,8 @@ use crate::{
 };
 
 /// TODO:
-/// stack: Rc<Dict> = [global, ...uppers, current, recent (maybe)]
-/// check arguments' types, quantity, etc
+/// stack: Array<Dict> = [global, ...uppers, current, recent (maybe)]
+/// check function arguments' types, quantity, etc
 /// regex
 
 fn main() {
@@ -48,7 +48,7 @@ fn main() {
   dbg!(&ctx.stack);
 
   if let Value::Function(function) = entrypoint {
-    let argv = Value::Array(args.args.iter().map(|v| Value::Id(v.clone())).collect());
+    let argv = Value::Array(args.args.iter().map(|v| Value::Id(Rc::clone(v))).collect());
     let arguments: Arguments = Rc::from([Expression::Literal(argv)]);
     function.call(arguments, &mut ctx);
   } else {
