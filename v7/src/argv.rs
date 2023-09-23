@@ -1,7 +1,7 @@
-use std::io::Write;
 
 use {
   std::{
+    io::{ stdout, stdin, Write as _ },
     path::PathBuf,
     process::exit,
     rc::Rc
@@ -50,16 +50,16 @@ pub fn parse_args() -> ParsedArgs {
         print!("w> ");
 
         // otherwise the program reads the line and then prints the prompt
-        std::io::stdout()
+        stdout()
           .flush()
           .expect("failed to print the prompt");
 
-        let mut line = String::new();
-        std::io::stdin()
-          .read_line(&mut line)
-          .expect("failed to read the line lol");
+        let mut buf: String = String::new();
+        stdin()
+          .read_line(&mut buf)
+          .expect("failed to read the line");
 
-        let line = line.trim();
+        let line: &str = buf.trim();
         // if line.is_empty() { continue; }
 
         println!("read: {line:?}");
