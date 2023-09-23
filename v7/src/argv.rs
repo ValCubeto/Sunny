@@ -1,14 +1,15 @@
-use std::rc::Rc;
+use std::io::Write;
 
 use {
   std::{
     path::PathBuf,
-    process::exit 
+    process::exit,
+    rc::Rc
   },
   crate::{
     about::{ NAME, VERSION },
     aliases::Id,
-    { internal_error, argument_error }
+    internal_error, argument_error
   }
 };
 
@@ -21,60 +22,77 @@ pub struct ParsedArgs {
 }
 
 pub fn parse_args() -> ParsedArgs {
-  let mut raw_args = std::env::args_os().enumerate();
+  let mut raw_args = std::env::args();
 
   let exec_path: PathBuf = match raw_args.next() {
     None => internal_error!("argv is empty"),
-    Some((_i, os_string)) => PathBuf::from(os_string)
+    Some(string) => PathBuf::from(string)
   };
 
   let mut flags: Vec<Id> = Vec::new();
 
   let mut main_path = None;
 
-  for (i, raw_arg) in &mut raw_args {
-    let flag: &str = match raw_arg.to_str() {
-      None => argument_error!("the arguments must be valid Unicode. Failed at position {}", i + 1),
-      Some(flag) => flag
-    };
+  for arg in &mut raw_args {
+    let flag: &str = arg.as_str();
 
     if !flag.starts_with('-') {
-      main_path = Some(PathBuf::from(raw_arg));
+      main_path = Some(PathBuf::from(arg));
       break;
     }
 
     match flag {
       "-v" | "--version" => {
-        let arg_count = raw_args.len();
-        if arg_count > 0 {
-          println!("# unused {} extra arguments", arg_count);
-        }
-        println!("{NAME} {VERSION}");
+        println!("{VERSION}");
+        exit(0);
+      }
+      "--repl" => {
+        print!("w> ");
+
+        // otherwise the program reads the line and then prints the prompt
+        std::io::stdout()
+          .flush()
+          .expect("failed to print the prompt");
+
+        let mut line = String::new();
+        std::io::stdin()
+          .read_line(&mut line)
+          .expect("failed to read the line lol");
+
+        let line = line.trim();
+        // if line.is_empty() { continue; }
+
+        println!("read: {line:?}");
+
+        todo!();
+      }
+      "-h" | "--help" => {
+        println!("{NAME} v{VERSION}");
+        println!();
+        println!("-h | --help        Prints this message");
+        println!("-v | --version     Prints the current {NAME} version");
+        println!("     --repl        Starts the REPL");
         exit(0);
       }
       "--test" => flags.push(Id::from(flag)),
-      _ => argument_error!("invalid flag {:?}", flag)
+      _ => argument_error!("unknown flag {flag:?}")
     }
   }
 
   if main_path.is_none() {
-    // TODO: interactive mode
     argument_error!("missing file path");
   }
 
   let mut args: Vec<Id> = Vec::new();
 
-  for (i, arg) in &mut raw_args {
-    args.push(match arg.to_str() {
-      None => argument_error!("the arguments must be valid Unicode. Failed at position {}", i + 1),
-      Some(arg) => Id::from(arg),
-    })
+  for arg in &mut raw_args {
+    args.push(Id::from(arg));
   }
 
   ParsedArgs {
     exec_path,
     flags: Rc::from(flags.as_slice()),
-    main_path: main_path.unwrap(), // unwrap_or(PathBuf::from("<stdin>"))
+    main_path: main_path.unwrap_or(PathBuf::from("<stdin>")),
     args: Rc::from(args.as_slice())
   }
 }

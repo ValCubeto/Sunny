@@ -42,20 +42,17 @@ extend u8 {
     const [MIN, MAX]: Self = [Self::min(), 255_u8]
   }
   impl Add {
-    internal fun add<T>(self, other: T) -> T
-    where
-      Self: From<T>
-      T: From<Self>
-    {
-      let [a, b] = [self, other].sort()
-      return Type::of(b)::from(a) + b
-    }
+    internal fun add<T>(self, other: T) -> T { ... }
   }
   impl FromString {
-    fun from(string: String) -> Self {}
+    fun from(string: String) -> Self { ... }
   }
 }
 
 trait Number { ... }
 trait Int { ... }
 trait Float { ... }
+
+extend BigDecimal {
+  impl Float { ... }
+}
