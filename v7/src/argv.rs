@@ -71,7 +71,7 @@ pub fn parse_args() -> ParsedArgs {
         println!();
         println!("-h | --help        Prints this message");
         println!("-v | --version     Prints the current {NAME} version");
-        println!("     --repl        Starts the REPL");
+        println!("     --repl        Starts a new REPL session");
         exit(0);
       }
       "--test" => flags.push(Id::from(flag)),
