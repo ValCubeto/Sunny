@@ -58,28 +58,14 @@ macro_rules! display_bold {
   ($text:expr) => { format!("{}{}{}", $crate::colors::BOLD, $text, $crate::colors::BOLD_END) }
 }
 
-#[allow(unused)]
 #[macro_export]
-/// Creates a HashMap
-/// 
+/// Creates a HashMap. It's a shorthand for the following code
 /// ```rs
-/// hashmap! {
-///     key => "value"
-/// }
+/// HashMap::from([ (key, value) ])
 /// ```
-/// is the same as:
-/// ```rs
-/// HashMap::from([ Rc::<str>::from("key"), "value" ])
-/// ```
-/// 
-/// [```Rc<str>```](std::rc::Rc) is used because you will copy the key reference instead of the value and the keys are inmutable so we use str instead of String
 macro_rules! hashmap {
   () => {
     ::std::collections::HashMap::new()
-  };
-
-  ($($key:ident => $value:expr),+ $(,)?) => {
-    ::std::collections::HashMap::from([ $((::std::rc::Rc::<str>::from(stringify!($key)), $value)),* ])
   };
 
   ($($key:expr => $value:expr),+ $(,)?) => {

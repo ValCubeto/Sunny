@@ -27,6 +27,6 @@ pub fn make_global() -> HashMap<Id, Value> {
         .expect("failed to read the line");
       Value::String(buf.trim().to_owned())
     }),
-    (Id::from("null")) => Value::Null
+    (Id::from("null")) => Value::Null,
   }
 }
