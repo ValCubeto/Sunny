@@ -93,7 +93,7 @@ macro_rules! hashmap {
 /// ($name:expr, $closure:expr)
 ///
 /// Value::Function(
-///     Box::new(
+///     Rc::new(
 ///         Function {
 ///             name: Id::from($name),
 ///             value: FunctionValue::Builtin($closure)
