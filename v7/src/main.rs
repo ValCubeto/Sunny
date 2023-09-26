@@ -1,7 +1,6 @@
 use std::rc::Rc;
-
 use crate::{
-  argv::{ ParsedArgs, parse_args },
+  args::{ ParsedArgs, parse_args },
   files::read_file,
   aliases::{ Id, Arguments },
   context::Context,
@@ -59,7 +58,7 @@ fn main() {
 
 mod about;
 mod macros;
-mod argv;
+mod args;
 mod colors;
 mod aliases;
 mod files;
