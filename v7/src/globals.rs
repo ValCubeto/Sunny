@@ -3,7 +3,6 @@ use {
   crate::{
     aliases::Id,
     values::Value,
-    functions::{ Function, FunctionValue },
     { hashmap, builtin_function }
   }
 };

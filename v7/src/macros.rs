@@ -4,14 +4,14 @@ macro_rules! error {
     eprint!("{}: ", $crate::display_bold!($crate::display_red!($error_name)));
     eprintln!($($arg),*);
     eprintln!("    at {}:{}:{}", file!(), line!(), column!());
-    std::process::exit(1);
+    ::std::process::exit(1);
   }};
   ($error_name:expr; $($arg:expr),*; $ctx:expr) => {{
     eprint!("{}: ", $crate::display_bold!($crate::display_red!($error_name)));
     eprintln!($($arg),*);
     eprintln!("    at {}:{}:{}", $ctx.id, $ctx.line, $ctx.column);
     eprintln!("    at {}:{}:{}", file!(), line!(), column!());
-    std::process::exit(1);
+    ::std::process::exit(1);
   }};
 }
 
@@ -50,19 +50,23 @@ macro_rules! type_error {
 
 #[macro_export]
 macro_rules! display_red {
-  ($text:expr) => { format!("{}{}{}", $crate::colors::RED, $text, $crate::colors::COLOR_END) }
+  ($text:expr) => {
+    format!("{}{}{}", $crate::colors::RED, $text, $crate::colors::COLOR_END)
+  }
 }
 
 #[macro_export]
 macro_rules! display_bold {
-  ($text:expr) => { format!("{}{}{}", $crate::colors::BOLD, $text, $crate::colors::BOLD_END) }
+  ($text:expr) => {
+    format!("{}{}{}", $crate::colors::BOLD, $text, $crate::colors::BOLD_END)
+  }
 }
 
-#[macro_export]
-/// Creates a HashMap. It's a shorthand for the following code
+/// Creates a HashMap lol
 /// ```rs
-/// HashMap::from([ (key, value) ])
+/// HashMap::from([ ($key, $value) ])
 /// ```
+#[macro_export]
 macro_rules! hashmap {
   () => {
     ::std::collections::HashMap::new()
@@ -73,25 +77,27 @@ macro_rules! hashmap {
   };
 }
 
-#[macro_export]
 /// ```rust
 ///
 /// ($name:expr, $closure:expr)
 ///
 /// Value::Function(
-///     Rc::new(
-///         Function {
-///             name: Id::from($name),
-///             value: FunctionValue::Builtin($closure)
-///         }
-///     )
+///     Rc::new(Function {
+///         name: Id::from($name),
+///         value: FunctionValue::Builtin($closure)
+///     })
 /// )
 /// ```
+#[macro_export]
 macro_rules! builtin_function {
   ($name:expr, $closure:expr) => {
-    Value::Function(std::rc::Rc::new(Function {
-      name: Id::from($name),
-      value: FunctionValue::Builtin($closure)
-    }))
+    $crate::values::Value::Function(
+      ::std::rc::Rc::new(
+        $crate::functions::Function {
+          name: $crate::aliases::Id::from($name),
+          value: $crate::functions::FunctionValue::Builtin($closure)
+        }
+      )
+    )
   };
 }
