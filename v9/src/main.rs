@@ -6,7 +6,10 @@ mod run;
 mod repl;
 
 use std::mem::size_of;
-use crate::{values::Value, aliases::{Id, Dict, ConstArray, Array}};
+use crate::{
+  values::Value,
+  aliases::{ Id, Dict, Array }
+};
 
 pub fn main() {
   // let jhonn_id = Id::from("Jhonn");
@@ -26,7 +29,6 @@ pub fn main() {
   println!("Size of Id: {} bytes", size_of::<Id>());
   println!();
   println!("Size of Array: {} bytes", size_of::<Array>());
-  println!("Size of ConstArray: {} bytes", size_of::<ConstArray>());
   println!();
   println!("Size of Dict: {} bytes", size_of::<Dict>());
   // println!();
