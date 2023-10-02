@@ -17,14 +17,11 @@ pub fn main() {
   let marie_id = Id::from("Marie");
   let values = Value::Dict(Dict::new(hashmap! {
     Id::clone(&jhonn_id) => Value::u8(30),
-    // Id::clone(&marie_id) => Value::String("treinta".to_string())
+    Id::clone(&marie_id) => Value::String(Id::from("treinta"))
   }));
 
   debug!(size_of::<Value>());
   debug!(size_of::<fn()>());
-  let a: fn () = || {};
-  { a(); }
-  a();
 
-  debug!(values);
+  debug!(size_of::<Dict>() + size_of::<std::collections::HashMap<Id, Value>>() + size_of::<Id>() + size_of::<Value>())
 }
