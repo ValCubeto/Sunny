@@ -43,10 +43,23 @@ macro_rules! red {
 
 #[macro_export]
 macro_rules! debug {
-  ($($args: expr),*) => {{
-    print!("{}: ", $crate::bold!($crate::green!("Debug")));
-    println!($($args),*);
+  ($expr: expr) => {{
+    println!(
+      "{}: {} = {:?}",
+      $crate::bold!($crate::green!("Debug")),
+      $crate::bold!(stringify!($expr)),
+      $expr
+    );
+    println!("    at {}:{}:{}", file!(), line!(), column!());
   }};
+}
+
+#[macro_export]
+macro_rules! warning {
+  ($($arg: expr),*) => {
+    print!("{}: ", $crate::bold!($crate::yellow("Warning")));
+    println!($($arg),*)
+  };
 }
 
 #[macro_export]

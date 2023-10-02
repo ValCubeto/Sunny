@@ -17,10 +17,14 @@ pub fn main() {
   let marie_id = Id::from("Marie");
   let values = Value::Dict(Dict::new(hashmap! {
     Id::clone(&jhonn_id) => Value::u8(30),
-    Id::clone(&marie_id) => Value::String("treinta".to_string())
+    // Id::clone(&marie_id) => Value::String("treinta".to_string())
   }));
 
-  debug!("Size of Value: {} bytes", size_of::<Value>());
-  println!();
-  println!("values = {values:?}");
+  debug!(size_of::<Value>());
+  debug!(size_of::<fn()>());
+  let a: fn () = || {};
+  { a(); }
+  a();
+
+  debug!(values);
 }
