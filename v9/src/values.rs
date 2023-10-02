@@ -1,6 +1,4 @@
-use std::rc::Rc;
-
-use crate::aliases::{ Dict, Array, Id, /* Id, ConstArray */ };
+use crate::aliases::{ Dict, Array, Id };
 
 #[allow(non_camel_case_types, unused)]
 #[derive(Debug)]
@@ -14,13 +12,3 @@ pub enum Value {
   usize(usize),
   Function(fn ())
 }
-
-// pub enum StringValue {
-//   Mutable(String),
-//   Constant(Id)
-// }
-
-// pub enum ArrayValue {
-//   Mutable(Vec<Value>),
-//   Constant(ConstArray<Value>)
-// }
