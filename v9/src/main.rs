@@ -1,7 +1,9 @@
 mod colors;
+mod about;
 mod macros;
 mod aliases;
 mod values;
+mod context;
 mod args;
 mod run;
 mod repl;
@@ -17,7 +19,7 @@ pub fn main() {
   let marie_id = Id::from("Marie");
   let _values = Value::Dict(Dict::new(hashmap! {
     Id::clone(&jhonn_id) => Value::u8(30),
-    Id::clone(&marie_id) => Value::String(Id::from("treinta"))
+    Id::clone(&marie_id) => Value::String("treinta".into())
   }));
 
   debug!(size_of::<Value>());
