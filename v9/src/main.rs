@@ -10,8 +10,8 @@ mod repl;
 
 use std::mem::size_of;
 use crate::{
-  values::Value, aliases::{Dict, Id},
-  // aliases::{ Id, Dict, Array }
+  values::Value,
+  aliases::{ Dict, Id },
 };
 
 pub fn main() {
