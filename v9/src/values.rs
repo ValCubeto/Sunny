@@ -1,10 +1,10 @@
-use crate::aliases::{ Dict, Array, Id };
+use crate::aliases::{ DictPtr, ArrayPtr, Id };
 
 #[allow(non_camel_case_types, unused)]
 #[derive(Debug)]
 pub enum Value {
-  Dict(Dict),
-  Array(Array),
+  Dict(DictPtr),
+  Array(ArrayPtr),
   String(Id),
   i8(i8),
   u8(u8),
