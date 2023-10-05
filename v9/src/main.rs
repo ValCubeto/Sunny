@@ -15,7 +15,6 @@ use crate::{
 };
 
 pub fn main() {
-  error!("SyntaxError"; "test");
   let jhonn_id = Id::from("Jhonn");
   let marie_id = Id::from("Marie");
   let values = dict! {
