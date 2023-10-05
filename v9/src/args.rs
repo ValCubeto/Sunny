@@ -9,7 +9,7 @@ pub struct ParsedArgs {
   pub args: Vec<Id>
 }
 
-
+/* 
 pub fn parse_args() -> ParsedArgs {
   let mut raw_args = std::env::args();
 
@@ -84,4 +84,4 @@ pub fn parse_args() -> ParsedArgs {
     main_path: main_path.unwrap(),
     args
   }
-}
+} */

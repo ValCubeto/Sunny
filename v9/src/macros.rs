@@ -6,10 +6,29 @@ macro_rules! hashmap {
   };
   ($($key: expr => $value: expr),* $(,)?) => {
     ::std::collections::HashMap::from([
-      $(
-        ($key, $value)
-      ),*
+      $( ($key, $value) ),*
     ])
+  };
+}
+
+/// Create a HashMap in a cooler way using the arrow syntax
+#[macro_export]
+macro_rules! dict {
+  () => {
+    $crate::values::Value::Dict(
+      $crate::aliases::DictPtr::new(
+        ::std::collections::HashMap::new()
+      )
+    )
+  };
+  ($($key: expr => $value: expr),* $(,)?) => {
+    $crate::values::Value::Dict(
+      $crate::aliases::DictPtr::new(
+        ::std::collections::HashMap::from([
+          $( ($key, $value) ),*
+        ])
+      )
+    )
   };
 }
 
@@ -57,14 +76,18 @@ macro_rules! debug {
 #[macro_export]
 macro_rules! warning {
   ($($arg: expr),*) => {
-    print!("{}: ", $crate::bold!($crate::yellow("Warning")));
+    print!("{}: ", $crate::bold!($crate::yellow!("Warning")));
     println!($($arg),*)
   };
 }
 
 #[macro_export]
 macro_rules! error {
-  ($name: expr, ) => {
-    todo!()
+  ($name: expr; $($arg: expr),* $(; $ctx: expr)?) => {
+    print!("{}: ", $crate::bold!($crate::red!($name)));
+    println!($($arg),*);
+    println!("    at {}:{}:{}", file!(), line!(), column!());
+    $( println!("    at {}", $ctx); )?
+    std::process::exit(1);
   };
 }
