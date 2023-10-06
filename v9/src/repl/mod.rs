@@ -4,7 +4,8 @@ use crate::about::NAME;
 #[allow(unused)]
 pub fn main() {
   loop {
-    print!("{}> ", NAME);
+    print!("{NAME}> ");
+
     // otherwise the program reads the line
     // and THEN prints the prompt
     stdout()
