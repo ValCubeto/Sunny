@@ -5,7 +5,8 @@ use crate::about::NAME;
 pub fn main() {
   loop {
     print!("{}> ", NAME);
-    // otherwise the program reads the line and THEN prints the prompt
+    // otherwise the program reads the line
+    // and THEN prints the prompt
     stdout()
       .flush()
       .expect("failed to print the prompt");
@@ -14,8 +15,15 @@ pub fn main() {
     stdin()
       .read_line(&mut buf)
       .expect("failed to read the line");
-    let line: &str = buf.trim();
-    drop(buf); // no longer needed
+
+    // I use String because I need
+    // to index later
+    let line: String = buf
+      .trim()
+      .to_string();
+
+    // no longer needed
+    drop(buf);
 
     if line.is_empty() {
       continue;
