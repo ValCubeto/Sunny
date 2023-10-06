@@ -84,10 +84,10 @@ macro_rules! warning {
 #[macro_export]
 macro_rules! error {
   ($name: expr; $($arg: expr),* $(; $ctx: expr)?) => {{
-    print!("{}: ", $crate::bold!($crate::red!($name)));
-    println!($($arg),*);
-    println!("    at {}:{}:{}", file!(), line!(), column!());
-    $( println!("    at {}", $ctx); )?
-    std::process::exit(1);
+    eprint!("{}: ", $crate::bold!($crate::red!($name)));
+    eprintln!($($arg),*);
+    eprintln!("    at {}:{}:{}", file!(), line!(), column!());
+    $( eprintln!("    at {}", $ctx); )?
+    ::std::process::exit(1);
   }};
 }
