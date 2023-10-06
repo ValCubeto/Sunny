@@ -75,19 +75,19 @@ macro_rules! debug {
 
 #[macro_export]
 macro_rules! warning {
-  ($($arg: expr),*) => {
+  ($($arg: expr),*) => {{
     print!("{}: ", $crate::bold!($crate::yellow!("Warning")));
     println!($($arg),*)
-  };
+  }};
 }
 
 #[macro_export]
 macro_rules! error {
-  ($name: expr; $($arg: expr),* $(; $ctx: expr)?) => {
+  ($name: expr; $($arg: expr),* $(; $ctx: expr)?) => {{
     print!("{}: ", $crate::bold!($crate::red!($name)));
     println!($($arg),*);
     println!("    at {}:{}:{}", file!(), line!(), column!());
     $( println!("    at {}", $ctx); )?
     std::process::exit(1);
-  };
+  }};
 }
