@@ -12,11 +12,12 @@ pub struct ParsedArgs {
 /* 
 pub fn parse_args() -> ParsedArgs {
   let mut raw_args = std::env::args();
-
-  let exec_path: PathBuf = match raw_args.next() {
-    None => internal_error!("argv is empty"),
-    Some(string) => PathBuf::from(string)
-  };
+  println!("{NAME} v{VERSION}");
+  let exec_path: Option<PathBuf> = raw_args.next();
+  println!(
+    "Usage: {} [flags]* [command]",
+    exec_path.unwrap_or(NAME.to_lowercase().into())
+  );
 
   let mut flags: Vec<Id> = Vec::new();
 
@@ -57,6 +58,7 @@ pub fn parse_args() -> ParsedArgs {
       }
       "-h" | "--help" => {
         println!("{NAME} v{VERSION}");
+        println!("Usage: {NAME:e"} [flags]* [command]);
         println!();
         println!("-h | --help        Prints this message");
         println!("-v | --version     Prints the current {NAME} version");
