@@ -7,13 +7,8 @@ mod context;
 mod args;
 mod commands;
 
-use std::mem::size_of;
-use crate::{
-  values::Value,
-  args::parse_args,
-};
+use args::parse_args;
 
 pub fn main() {
-  debug!(size_of::<Value>());
   parse_args();
 }
