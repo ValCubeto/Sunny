@@ -91,3 +91,45 @@ macro_rules! error {
     ::std::process::exit(1);
   }};
 }
+
+#[macro_export]
+macro_rules! internal_error {
+  ($( $arg: expr ),* $( ; $ctx: expr )?) => {
+    $crate::error!("InternalError"; $( $arg )* $( ; $ctx )?)
+  };
+}
+
+#[macro_export]
+macro_rules! argument_error {
+  ($( $arg: expr ),* $( ; $ctx: expr )?) => {
+    $crate::error!("ArgumentError"; $( $arg )* $( ; $ctx )?)
+  };
+}
+
+#[macro_export]
+macro_rules! load_error {
+  ($( $arg: expr ),* $( ; $ctx: expr )?) => {
+    $crate::error!("LoadError"; $( $arg )* $( ; $ctx )?)
+  };
+}
+
+#[macro_export]
+macro_rules! syntax_error {
+  ($( $arg: expr ),* $( ; $ctx: expr )?) => {
+    $crate::error!("SyntaxError"; $( $arg )* $( ; $ctx )?)
+  };
+}
+
+#[macro_export]
+macro_rules! reference_error {
+  ($( $arg: expr ),* $( ; $ctx: expr )?) => {
+    $crate::error!("ReferenceError"; $( $arg )* $( ; $ctx )?)
+  };
+}
+
+#[macro_export]
+macro_rules! type_error {
+  ($( $arg: expr ),* $( ; $ctx: expr )?) => {
+    $crate::error!("TypeError"; $( $arg )* $( ; $ctx )?)
+  };
+}

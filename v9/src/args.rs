@@ -7,12 +7,13 @@ use std::{
 use crate::{
   about::{ NAME, VERSION },
   aliases::Id,
-  help, repl, run, version,
+  commands::{ help, repl, run, version },
+  argument_error,
 };
 
 #[derive(Debug)]
 pub struct ParsedArgs {
-  pub exec_path: PathBuf,
+  pub exec_path: Option<Id>,
   pub flags: Vec<Id>,
   pub command: Id,
   pub args: Vec<Id>
@@ -21,7 +22,11 @@ pub struct ParsedArgs {
 pub fn parse_args() -> ParsedArgs {
   let mut argv = env::args();
 
-  let exec_path: Option<String> = argv.next();
+  let exec_path: Option<Id> = match argv.next() {
+    None => None,
+    Some(string) => Some(Id::from(string))
+  };
+
   if argv.len() == 0 {
     println!("{NAME} v{VERSION}");
     println!(
@@ -65,7 +70,7 @@ pub fn parse_args() -> ParsedArgs {
   ParsedArgs {
     exec_path,
     flags,
-    command,
+    command: Id::from(command),
     args
   }
 }

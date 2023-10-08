@@ -1,5 +1,11 @@
-use std::io::{ stdout, stdin, Write as _ };
-use crate::about::NAME;
+use std::io::{
+  stdout, stdin,
+  Write as _
+};
+use crate::{
+  about::NAME,
+  debug
+};
 
 #[allow(unused)]
 pub fn main() {

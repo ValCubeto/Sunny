@@ -5,10 +5,7 @@ mod aliases;
 mod values;
 mod context;
 mod args;
-mod run;
-mod repl;
-mod help;
-mod version;
+mod commands;
 
 use std::mem::size_of;
 use crate::{
