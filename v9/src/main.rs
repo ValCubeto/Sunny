@@ -7,6 +7,8 @@ mod context;
 mod args;
 mod run;
 mod repl;
+mod help;
+mod version;
 
 use std::mem::size_of;
 use crate::{
