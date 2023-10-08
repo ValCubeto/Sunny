@@ -62,12 +62,12 @@ macro_rules! red {
 
 #[macro_export]
 macro_rules! debug {
-  ($expr: expr) => {{
+  ($value: expr) => {{
     println!(
-      "{}: {} = {:?}",
+      "{}: {} = {:#?}",
       $crate::bold!($crate::green!("Debug")),
-      $crate::bold!(stringify!($expr)),
-      $expr
+      $crate::bold!(stringify!($value)),
+      $value
     );
     println!("    at {}:{}:{}", file!(), line!(), column!());
   }};

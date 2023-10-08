@@ -4,11 +4,12 @@ use std::io::{
 };
 use crate::{
   about::NAME,
-  debug
+  args::ParsedArgs,
+  debug,
 };
 
-#[allow(unused)]
-pub fn main() {
+pub fn main(args: ParsedArgs) {
+  debug!(args);
   loop {
     print!("{NAME}> ");
 
@@ -19,9 +20,9 @@ pub fn main() {
       .expect("failed to print the prompt");
 
     let mut buf: String = String::new();
-    stdin()
-      .read_line(&mut buf)
-      .expect("failed to read the line");
+    if let Err(error) = stdin().read_line(&mut buf) {
+      eprintln!("failed to read the line. {error}");
+    }
 
     // I use String because I need
     // to index later
@@ -37,6 +38,6 @@ pub fn main() {
     }
 
     debug!(line);
-    todo!();
+    // todo!();
   }
 }
