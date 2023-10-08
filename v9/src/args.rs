@@ -1,6 +1,6 @@
 use std::{
   process::exit,
-  env
+  env, path::Path
 };
 
 use crate::{
@@ -26,10 +26,10 @@ pub fn parse_args() {
 
   if argv.len() == 0 {
     println!("{NAME} v{VERSION}");
-    println!(
-      "Usage: {:?} [flags]* [command]",
-      exec_path.unwrap_or(NAME.to_lowercase().into())
-    );
+    // convert into a String again?
+    let id = exec_path.map(|id| id.to_string()).unwrap_or(NAME.to_lowercase());
+    let path = Path::new(&id).file_name();
+    println!("Usage: {path:?} [flags]* [command]");
     exit(0);
   }
 
