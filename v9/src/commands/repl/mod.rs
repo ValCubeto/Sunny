@@ -5,7 +5,7 @@ use std::io::{
 use crate::{
   about::NAME,
   args::ParsedArgs,
-  debug,
+  debug, context::Context,
 };
 
 pub fn main(args: ParsedArgs) {
@@ -15,9 +15,9 @@ pub fn main(args: ParsedArgs) {
 
     // otherwise the program reads the line
     // and THEN prints the prompt
-    stdout()
-      .flush()
-      .expect("failed to print the prompt");
+    if let Err(error) = stdout().flush() {
+      eprintln!("failed to print the prompt. {error}");
+    }
 
     let mut buf: String = String::new();
     if let Err(error) = stdin().read_line(&mut buf) {
@@ -38,6 +38,9 @@ pub fn main(args: ParsedArgs) {
     }
 
     debug!(line);
-    // todo!();
+
+    // let mut ctx = Context::new(line);
+
+    todo!();
   }
 }

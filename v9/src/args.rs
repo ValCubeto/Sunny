@@ -1,6 +1,7 @@
 use std::{
   process::exit,
-  env, path::Path
+  env,
+  path::Path
 };
 
 use crate::{
@@ -8,6 +9,7 @@ use crate::{
   aliases::Id,
   commands::{ help, repl, run, version },
   argument_error,
+  bold
 };
 
 #[derive(Debug)]
@@ -20,19 +22,19 @@ pub struct ParsedArgs {
 
 pub fn parse_args() {
   let mut argv = env::args();
-
-  // if there's Some(path), converts that String into an Id
-  let exec_path: Option<Id> = argv.next().map(Id::from);
+  let exec_path: Option<String> = argv.next();
 
   if argv.len() == 0 {
+    let id = exec_path.unwrap_or(NAME.to_lowercase());
+    let path = Path::new(&id).file_name().unwrap();
+    println!("{}: {} [flags]* [command] [args]*", bold!("Usage"), path.to_str().unwrap());
+    println!();
     println!("{NAME} v{VERSION}");
-    // convert into a String again?
-    let id = exec_path.map(|id| id.to_string()).unwrap_or(NAME.to_lowercase());
-    let path = Path::new(&id).file_name();
-    println!("Usage: {path:?} [flags]* [command]");
     exit(0);
   }
 
+  // if there's Some(path), converts that String into an Id
+  let exec_path = exec_path.map(Id::from);
   let mut flags: Vec<Id> = Vec::new();
 
   for arg in &mut argv {

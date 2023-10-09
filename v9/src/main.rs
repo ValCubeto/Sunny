@@ -6,6 +6,7 @@ mod values;
 mod context;
 mod args;
 mod commands;
+mod table;
 
 use args::parse_args;
 
