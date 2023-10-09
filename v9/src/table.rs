@@ -1,6 +1,7 @@
-use std::ops::Div;
-
-use crate::debug;
+#[cfg(windows)]
+const LINE_ENDING: &str = "\r\n";
+#[cfg(not(windows))]
+const LINE_ENDING: &str = "\n";
 
 const HORIZONTAL: char = '─';
 const VERTICAL: char = '│';
@@ -12,10 +13,11 @@ const RIGHT_DOWN: char = '┘';
 
 const HORIZONTAL_DOWN: char = '┬';
 const HORIZONTAL_UP: char = '┴';
-const CROSSED: char = '┼';
+const INTERSECTION: char = '┼';
 const VERTICAL_RIGHT: char = '├';
 const VERTICAL_LEFT: char = '┤';
 
+// TODO: liberar algo de memoria antes de insertar slices para mejorar un poco el rendimiento
 pub fn print_table<const C: usize, const R: usize>(titles: [&str; C], rows: [[&str; C]; R]) {
   let mut table = String::from(LEFT_UP);
 
@@ -30,12 +32,67 @@ pub fn print_table<const C: usize, const R: usize>(titles: [&str; C], rows: [[&s
       }
     }
   }
+
+
   let mut iter = max_lens.iter();
-  let len = iter.next().unwrap();
-  table.push_str(HORIZONTAL.to_string().repeat(len + 2).as_str());
+  table.push_str(HORIZONTAL.to_string().repeat(iter.next().unwrap() + 2).as_str());
   for column_len in iter {
     table.push(HORIZONTAL_DOWN);
     table.push_str(HORIZONTAL.to_string().repeat(column_len + 2).as_str());
   }
-  debug!(table);
+  table.push(RIGHT_UP);
+
+
+  table.push_str(LINE_ENDING);
+
+
+  table.push(VERTICAL);
+  for (i, len) in max_lens.iter().enumerate() {
+    let title = titles[i];
+    let half = (len - title.len()) as f64 / 2.0;
+    table.push_str(" ".repeat(half.floor() as usize + 1).as_str());
+    table.push_str(title);
+    table.push_str(" ".repeat(half.ceil() as usize + 1).as_str());
+    table.push(VERTICAL);
+  }
+
+  table.push_str(LINE_ENDING);
+  table.push(VERTICAL_RIGHT);
+  let mut iter = max_lens.iter();
+  table.push_str(HORIZONTAL.to_string().repeat(iter.next().unwrap() + 2).as_str());
+  for column_len in iter {
+    table.push(INTERSECTION);
+    table.push_str(HORIZONTAL.to_string().repeat(column_len + 2).as_str());
+  }
+  table.push(VERTICAL_LEFT);
+
+
+  for row in rows.iter() {
+    table.push_str(LINE_ENDING);
+    table.push(VERTICAL);
+    for (i, column) in row.iter().enumerate() {
+      let len = max_lens[i];
+      let half = (len - column.len()) as f64 / 2.0;
+      table.push_str(" ".repeat(half.floor() as usize + 1).as_str());
+      table.push_str(column);
+      table.push_str(" ".repeat(half.ceil() as usize + 1).as_str());
+      table.push(VERTICAL);
+    }
+  }
+
+
+  table.push_str(LINE_ENDING);
+
+
+  table.push(LEFT_DOWN);
+  let mut iter = max_lens.iter();
+  table.push_str(HORIZONTAL.to_string().repeat(iter.next().unwrap() + 2).as_str());
+  for column_len in iter {
+    table.push(HORIZONTAL_UP);
+    table.push_str(HORIZONTAL.to_string().repeat(column_len + 2).as_str());
+  }
+  table.push(RIGHT_DOWN);
+
+
+  println!("{table}");
 }
