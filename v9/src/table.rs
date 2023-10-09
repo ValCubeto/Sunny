@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use crate::debug;
 
 const HORIZONTAL: &str = "─";
@@ -22,7 +20,7 @@ pub fn print_table<const C: usize, const R: usize>(titles: [&str; C], rows: [[&s
   let mut max_lens: Vec<usize> = Vec::with_capacity(C);
   for row in rows.iter() {
     let mut max_len = row[0].len();
-    for column in row.iter().skip(0) {
+    for (i, column) in row.iter().skip(1).enumerate() {
       let len = column.len();
       if len > max_len {
         max_len = len;
