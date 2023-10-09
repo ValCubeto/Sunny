@@ -8,7 +8,7 @@ use crate::{
 pub fn main() {
   println!("{}: {} [flags]* [command]", bold!("Usage"), NAME.to_lowercase());
   print_table(
-    ["Commandosexo", "Description"],
+    ["Command", "Description"],
     [
       ["help", "Prints this message"],
       ["version", format!("Prints the current {NAME} version").as_str()],
