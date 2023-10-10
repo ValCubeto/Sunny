@@ -89,7 +89,7 @@ macro_rules! error {
     eprint!("{}: ", $crate::bold!($crate::red!($name)));
     eprintln!($($arg),*);
     eprintln!("    at {}:{}:{}", file!(), line!(), column!());
-    $( eprintln!("    at {}", $ctx); )?
+    $( eprintln!("    at {}:{}:{}", $ctx.src, $ctx.line, $ctx.column); )?
     ::std::process::exit(1);
   }};
 }

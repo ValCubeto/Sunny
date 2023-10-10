@@ -26,12 +26,7 @@ pub fn main(args: ParsedArgs) {
 
     // I use String because I need
     // to index later
-    let line: String = buf
-      .trim()
-      .to_string();
-
-    // no longer needed
-    drop(buf);
+    let line = buf.trim();
 
     if line.is_empty() {
       continue;
@@ -39,7 +34,7 @@ pub fn main(args: ParsedArgs) {
 
     debug!(line);
 
-    // let mut ctx = Context::new(line);
+    let mut ctx = Context::new("<stdin>".into(), line);
 
     todo!();
   }
