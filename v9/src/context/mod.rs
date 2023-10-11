@@ -29,32 +29,33 @@ impl<'a> Context<'a> {
       chars,
       current,
       idx: 1,
-      line: 0,
-      column: 0
+      line: 1,
+      column: 1
     }
   }
 
   #[allow(unused)]
   pub fn next_char(&mut self) {
-    match self.chars.next() {
-      None => syntax_error!("unexpected end of input"; self),
-      Some(ch) => {
-        match self.current {
-          '\n' => {
-            self.line += 1;
-            self.column = 1;
-          }
-          '\t' => {
-            self.column += 4;
-          }
-          _ => {
-            self.column += 1;
-          }
-        }
-        self.idx += 1;
-        self.current = ch;
+    let ch = self.chars.next();
+    if ch.is_none() {
+      syntax_error!("unexpected end of input"; self);
+    }
+    let ch = ch.unwrap();
+    // match self.current
+    match ch {
+      '\n' => {
+        self.line += 1;
+        self.column = 1;
+      }
+      '\t' => {
+        self.column += 4;
+      }
+      _ => {
+        self.column += 1;
       }
     }
+    self.idx += 1;
+    self.current = ch;
   }
 
   #[allow(unused)]
