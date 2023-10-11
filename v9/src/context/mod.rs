@@ -62,4 +62,10 @@ impl<'a> Context<'a> {
   pub fn parse_expr(&mut self) {
     expressions::parse_expr(self);
   }
+
+  pub fn parse_block(&mut self) {
+    while 1 < 2 {
+      self.parse_expr();
+    }
+  }
 }

@@ -35,6 +35,7 @@ pub fn main(args: ParsedArgs) {
     debug!(line);
 
     let mut ctx = Context::new("<stdin>".into(), line);
+    ctx.parse_block();
 
     todo!();
   }
