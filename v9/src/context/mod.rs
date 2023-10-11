@@ -36,11 +36,12 @@ impl<'a> Context<'a> {
 
   #[allow(unused)]
   pub fn next_char(&mut self) {
-    let ch = self.chars.next();
-    if ch.is_none() {
-      syntax_error!("unexpected end of input"; self);
+    let ch = match self.chars.next() {
+      Some(ch) => ch,
+      None => {
+        syntax_error!("unexpected end of input"; self);
+      }
     }
-    let ch = ch.unwrap();
     // match self.current
     match ch {
       '\n' => {
