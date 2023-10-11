@@ -13,7 +13,7 @@ pub fn main() {
       ["help", "Prints this message"],
       ["version", format!("Prints the current {NAME} version").as_str()],
       ["repl", "Starts a new REPL session"],
-      ["run", ""]
+      ["run", "asd"]
     ]
   );
   println!();
