@@ -1,7 +1,4 @@
-use crate::{
-  context::Context,
-  debug_expr
-};
+use crate::context::Context;
 
 /// # What is an expression?
 /// - An identifier
@@ -11,15 +8,16 @@ use crate::{
 /// - An operation
 
 impl<'a> Context<'a> {
-  pub fn parse_expr(ctx: &mut Context) {
+  pub fn parse_expr(&mut self) {
     loop {
-      match ctx.current {
+      match self.current {
         n if n.is_ascii_digit() => {
           todo!();
-          // let number = ctx.parse_number();
+          // let number = self.parse_number();
         }
         c if c.is_alphanumeric() => {
-          let mut word = ctx.parse_word();
+          let mut word = self.parse_word();
+          todo!()
         }
         _ => break
       }

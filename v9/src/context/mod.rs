@@ -1,5 +1,6 @@
-mod expressions;
 mod statements;
+mod expressions;
+mod tokens;
 
 use std::str::Chars;
 use crate::{
