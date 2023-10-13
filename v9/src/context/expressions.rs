@@ -16,7 +16,7 @@ pub fn parse_expr(ctx: &mut Context) {
     match ctx.current {
       n if n.is_ascii_digit() => {}
       c if c.is_alphabetic() => {
-        let mut word = 
+        let mut word = String::from(c);
         debug_expr!(c);
         ctx.next_char();
       }
