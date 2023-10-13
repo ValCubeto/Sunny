@@ -38,10 +38,8 @@ impl<'a> Context<'a> {
   pub fn next_char(&mut self) {
     let ch = match self.chars.next() {
       Some(ch) => ch,
-      None => {
-        syntax_error!("unexpected end of input"; self);
-      }
-    }
+      None => syntax_error!("unexpected end of input"; self)
+    };
     // match self.current
     match ch {
       '\n' => {
