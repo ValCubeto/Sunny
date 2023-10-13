@@ -62,18 +62,6 @@ impl<'a> Context<'a> {
     debug!("               called next_char(). Current: {:?}", self.current);
   }
 
-  #[allow(unused)]
-  #[inline]
-  pub fn parse_expr(&mut self) {
-    expressions::parse_expr(self);
-  }
-
-  #[allow(unused)]
-  #[inline]
-  pub fn parse_statement(&mut self) {
-    statements::parse_statement(self);
-  }
-
   pub fn parse_block(&mut self) {
     debug!("parsing block: {:?}", self.code);
     if self.current != '{' {

@@ -10,17 +10,19 @@ use crate::{
 /// - A function call
 /// - An operation
 
-#[allow(unused)]
-pub fn parse_expr(ctx: &mut Context) {
-  loop {
-    match ctx.current {
-      n if n.is_ascii_digit() => {}
-      c if c.is_alphanumeric() => {
-        let mut word = String::from(c);
-        debug_expr!(c);
-        ctx.next_char();
+impl<'a> Context<'a> {
+  pub fn parse_expr(ctx: &mut Context) {
+    loop {
+      match ctx.current {
+        n if n.is_ascii_digit() => {
+          todo!();
+          // let number = ctx.parse_number();
+        }
+        c if c.is_alphanumeric() => {
+          let mut word = ctx.parse_word();
+        }
+        _ => break
       }
-      _ => break
     }
   }
 }

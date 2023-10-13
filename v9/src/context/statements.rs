@@ -3,6 +3,8 @@ use super::{
   expressions::parse_expr
 };
 
-pub fn parse_statement(ctx: &mut Context) {
-  parse_expr(ctx);
+impl<'a> Context<'a> {
+  pub fn parse_statement(&mut self) {
+    parse_expr(self);
+  }
 }
