@@ -1,4 +1,5 @@
 mod expressions;
+mod statements;
 
 use std::str::Chars;
 use crate::{
@@ -67,6 +68,12 @@ impl<'a> Context<'a> {
     expressions::parse_expr(self);
   }
 
+  #[allow(unused)]
+  #[inline]
+  pub fn parse_statement(&mut self) {
+    statements::parse_statement(self);
+  }
+
   pub fn parse_block(&mut self) {
     debug!("parsing block: {:?}", self.code);
     if self.current != '{' {
@@ -74,7 +81,8 @@ impl<'a> Context<'a> {
     }
     self.next_char();
     while self.current != '}' {
-      self.parse_expr();
+      self.parse_statement();
+      // self.next_token();
     }
   }
 }
