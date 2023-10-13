@@ -61,8 +61,8 @@ macro_rules! red {
 }
 
 #[macro_export]
-macro_rules! debug {
-  ($($value: expr),*) => {{
+macro_rules! debug_expr {
+  ($( $value: expr ),*) => {{
     $(
       println!(
         "{}: {} = {:#?}",
@@ -71,7 +71,15 @@ macro_rules! debug {
         $value
       );
     )*
-    println!("    at {}:{}:{}", file!(), line!(), column!());
+    // println!("    at {}:{}:{}", file!(), line!(), column!());
+  }};
+}
+
+#[macro_export]
+macro_rules! debug {
+  ($( $value: expr ),*) => {{
+    print!("{}: ", $crate::bold!($crate::green!("Debug")));
+    println!($( $value ),*);
   }};
 }
 
@@ -85,9 +93,9 @@ macro_rules! warning {
 
 #[macro_export]
 macro_rules! error {
-  ($name: expr; $($arg: expr),* $(; $ctx: expr)?) => {{
+  ($name: expr; $( $arg: expr ),* $( ; $ctx: expr )?) => {{
     eprint!("{}: ", $crate::bold!($crate::red!($name)));
-    eprintln!($($arg),*);
+    eprintln!($( $arg ),*);
     eprintln!("    at {}:{}:{}", file!(), line!(), column!());
     $( eprintln!("    at {}:{}:{}", $ctx.src, $ctx.line, $ctx.column); )?
     ::std::process::exit(1);
@@ -97,41 +105,41 @@ macro_rules! error {
 #[macro_export]
 macro_rules! internal_error {
   ($( $arg: expr ),* $( ; $ctx: expr )?) => {
-    $crate::error!("InternalError"; $( $arg )* $( ; $ctx )?)
+    $crate::error!("InternalError"; $( $arg ),* $( ; $ctx )?)
   };
 }
 
 #[macro_export]
 macro_rules! argument_error {
   ($( $arg: expr ),* $( ; $ctx: expr )?) => {
-    $crate::error!("ArgumentError"; $( $arg )* $( ; $ctx )?)
+    $crate::error!("ArgumentError"; $( $arg ),* $( ; $ctx )?)
   };
 }
 
 #[macro_export]
 macro_rules! load_error {
   ($( $arg: expr ),* $( ; $ctx: expr )?) => {
-    $crate::error!("LoadError"; $( $arg )* $( ; $ctx )?)
+    $crate::error!("LoadError"; $( $arg ),* $( ; $ctx )?)
   };
 }
 
 #[macro_export]
 macro_rules! syntax_error {
   ($( $arg: expr ),* $( ; $ctx: expr )?) => {
-    $crate::error!("SyntaxError"; $( $arg )* $( ; $ctx )?)
+    $crate::error!("SyntaxError"; $( $arg ),* $( ; $ctx )?)
   };
 }
 
 #[macro_export]
 macro_rules! reference_error {
   ($( $arg: expr ),* $( ; $ctx: expr )?) => {
-    $crate::error!("ReferenceError"; $( $arg )* $( ; $ctx )?)
+    $crate::error!("ReferenceError"; $( $arg ),* $( ; $ctx )?)
   };
 }
 
 #[macro_export]
 macro_rules! type_error {
   ($( $arg: expr ),* $( ; $ctx: expr )?) => {
-    $crate::error!("TypeError"; $( $arg )* $( ; $ctx )?)
+    $crate::error!("TypeError"; $( $arg ),* $( ; $ctx )?)
   };
 }

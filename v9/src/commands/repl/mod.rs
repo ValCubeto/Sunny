@@ -5,11 +5,12 @@ use std::io::{
 use crate::{
   about::NAME,
   args::ParsedArgs,
-  debug, context::Context,
+  context::Context,
+  debug, debug_expr,
 };
 
 pub fn main(args: ParsedArgs) {
-  debug!(args);
+  debug!("{args:?}");
   loop {
     print!("{NAME}> ");
 
@@ -32,7 +33,13 @@ pub fn main(args: ParsedArgs) {
       continue;
     }
 
-    debug!(line);
+    debug_expr!(line);
+
+    let mut code = String::with_capacity(line.len() + 2);
+    code.push('{');
+    code.push_str(line);
+    code.push('}');
+    let line = code.as_str();
 
     let mut ctx = Context::new("<stdin>".into(), line);
     ctx.parse_block();

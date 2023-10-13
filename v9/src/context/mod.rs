@@ -1,9 +1,11 @@
+mod expressions;
+
 use std::str::Chars;
 use crate::{
   aliases::Id,
-  internal_error, syntax_error
+  syntax_error,
+  debug
 };
-mod expressions;
 
 #[allow(unused)]
 pub struct Context<'a> {
@@ -18,9 +20,6 @@ pub struct Context<'a> {
 
 impl<'a> Context<'a> {
   pub fn new(src: Id, code: &'a str) -> Self {
-    if code.is_empty() {
-      internal_error!("empty code passed to the context manager");
-    }
     let mut chars = code.chars();
     let current = chars.next().unwrap();
     Context {
@@ -30,8 +29,13 @@ impl<'a> Context<'a> {
       current,
       idx: 1,
       line: 1,
-      column: 1
+      column: 0 // usually '{' is the first character
     }
+  }
+
+  #[allow(unused)]
+  pub fn debug(&self) {
+    debug!("chars[{}]({}:{}:{}) = {:?}", self.idx, self.src, self.line, self.column, self.current);
   }
 
   #[allow(unused)]
@@ -40,8 +44,7 @@ impl<'a> Context<'a> {
       Some(ch) => ch,
       None => syntax_error!("unexpected end of input"; self)
     };
-    // match self.current
-    match ch {
+    match self.current {
       '\n' => {
         self.line += 1;
         self.column = 1;
@@ -55,6 +58,7 @@ impl<'a> Context<'a> {
     }
     self.idx += 1;
     self.current = ch;
+    debug!("               called next_char(). Current: {:?}", self.current);
   }
 
   #[allow(unused)]
@@ -64,7 +68,12 @@ impl<'a> Context<'a> {
   }
 
   pub fn parse_block(&mut self) {
-    while 1 < 2 {
+    debug!("parsing block: {:?}", self.code);
+    if self.current != '{' {
+      syntax_error!("expected '{{', got {:?}", self.current; self);
+    }
+    self.next_char();
+    while self.current != '}' {
       self.parse_expr();
     }
   }

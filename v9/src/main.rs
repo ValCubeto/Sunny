@@ -13,10 +13,7 @@ mod commands;
 mod table;
 
 use args::parse_args;
-use rand::Rng;
 
 pub fn main() {
-  let mut thread = rand::thread_rng();
-  debug!(thread.gen_range(0..=100));
   parse_args();
 }
