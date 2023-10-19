@@ -1,7 +1,4 @@
-use crate::context::{
-  Context,
-  tokens::numbers::Number
-};
+use super::Context;
 
 /// # What is an expression?
 /// - An identifier
@@ -11,6 +8,7 @@ use crate::context::{
 /// - An operation between expressions
 /// - A path
 
+#[allow(unused)]
 impl<'a> Context<'a> {
   pub fn parse_expr(&mut self) {
     loop {
@@ -27,9 +25,4 @@ impl<'a> Context<'a> {
       }
     }
   }
-}
-
-pub enum Token<'a> {
-  Ident(&'a str),
-  Number(Number<'a>)
 }

@@ -1,4 +1,4 @@
-use crate::{context::Context, syntax_error};
+/* use crate::{context::Context, syntax_error};
 
 use super::expressions::Token;
 
@@ -16,3 +16,4 @@ impl<'a> Context<'a> {
     }
   }
 }
+ */
