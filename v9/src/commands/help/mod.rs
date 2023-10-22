@@ -1,8 +1,8 @@
 use std::process::exit;
 use crate::{
   about::{ NAME, VERSION },
+  table::print_table,
   bold,
-  table::print_table
 };
 
 pub fn main() {

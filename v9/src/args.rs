@@ -1,15 +1,14 @@
 use std::{
   process::exit,
   env,
-  path::Path
+  path::Path,
 };
 
 use crate::{
   about::{ NAME, VERSION },
   aliases::Id,
   commands::{ help, repl, run, version },
-  argument_error,
-  bold
+  argument_error, bold,
 };
 
 #[derive(Debug)]
@@ -17,7 +16,7 @@ pub struct ParsedArgs {
   pub exec_path: Option<Id>,
   pub flags: Vec<Id>,
   pub command: Id,
-  pub args: Vec<Id>
+  pub args: Vec<Id>,
 }
 
 pub fn parse_args() {

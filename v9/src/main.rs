@@ -13,59 +13,15 @@ mod commands;
 mod table;
 
 use args::parse_args;
-use context::tokens::Node;
 
-use crate::{context::tokens::{build_ast, Token, Operator}, values::Value};
+use crate::table::print_table;
 
-pub fn main() {
-  let tokens = vec![
-    Token::Value(Value::u8(2)),
-    Token::Op(Operator::Mul),
-    Token::Value(Value::u8(3)),
-    Token::Op(Operator::Add),
-    Token::Value(Value::u8(1)),
-  ];
-  let ast = build_ast(tokens);
-  debug!("ast = {ast:?}");
-  let res = eval_ast(ast);
-  debug!("res = {res:?}");
+fn main() {
+  let map = hashmap! {
+    "hello" => 123_u8,
+  };
+  let mut entries: Vec<[&str; 2]> = vec![];
+  print_table(["Key", "Value"], entries.as_slice().into());
   todo!();
   parse_args();
-}
-
-fn eval_ast(ast: Node) -> Value {
-  match ast {
-    Node::Value(value) => value,
-    Node::Op(op, a, b) => {
-      match op {
-        Operator::Add => {
-          let left = eval_ast(*a);
-          let right = eval_ast(*b);
-          match left {
-            Value::u8(a) => {
-              match right {
-                Value::u8(b) => Value::u8(a + b),
-                _ => todo!()
-              }
-            },
-            _ => todo!()
-          }
-        }
-        Operator::Mul => {
-          let left = eval_ast(*a);
-          let right = eval_ast(*b);
-          match left {
-            Value::u8(a) => {
-              match right {
-                Value::u8(b) => Value::u8(a * b),
-                _ => todo!()
-              }
-            },
-            _ => todo!()
-          }
-        },
-        _ => todo!()
-      }
-    }
-  }
 }
