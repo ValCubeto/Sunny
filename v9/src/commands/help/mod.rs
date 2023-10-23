@@ -8,12 +8,12 @@ use crate::{
 pub fn main() {
   println!("{}: {} [flags]* [command]", bold!("Usage"), NAME.to_lowercase());
   print_table(
-    ["Command", "Description"],
-    [
-      ["help", "Prints this message"],
-      ["version", format!("Prints the current {NAME} version").as_str()],
-      ["repl", "Starts a new REPL session"],
-      ["run", "asd"]
+    &["Command", "Description"],
+    &[
+      &["help", "Prints this message"],
+      &["version", format!("Prints the current {NAME} version").as_str()],
+      &["repl", "Starts a new REPL session"],
+      &["run", "asd"]
     ]
   );
   println!();

@@ -18,7 +18,11 @@ const VERTICAL_RIGHT: char = '├';
 const VERTICAL_LEFT: char = '┤';
 
 // TODO: liberar algo de memoria antes de insertar slices para mejorar un poco el rendimiento
-pub fn print_table<const C: usize, const R: usize>(titles: [&str; C], rows: [[&str; C]; R]) {
+pub fn print_table(titles: &[&str], rows: &[&[&str]]) {
+  let C = titles.len();
+  assert!(C > 0);
+  let R = rows[0].len();
+
   let mut table = String::from(LEFT_UP);
 
   let mut max_lens: Vec<usize> = Vec::with_capacity(C);
