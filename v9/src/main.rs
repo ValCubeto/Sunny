@@ -17,11 +17,36 @@ use args::parse_args;
 use crate::table::print_table;
 
 fn main() {
-  let map = hashmap! {
+  let hashmap = hashmap! {
     "hello" => 123_u8,
   };
-  let mut entries: Vec<[&str; 2]> = vec![];
-  print_table(["Key", "Value"], entries.as_slice().into());
+
+    // Convert the HashMap to a Vec<Vec<String>>
+    let mut slices: Vec<Vec<String>> = hashmap
+        .into_iter()
+        .map(|(key, value)| vec![key.to_string(), value.to_string()])
+        .collect();
+
+    // Convert strings to static slices
+    let static_slices: Vec<Vec<&'static str>> = slices
+        .iter_mut()
+        .map(|inner_vec| {
+            inner_vec
+                .iter_mut()
+                .map(|s| {
+                    let static_ref: &'static str = Box::leak(s.into_boxed_str());
+                    static_ref
+                })
+                .collect()
+        })
+        .collect();
+
+    // Convert vector of Vec<&str> into &[&[&str]]
+    let result: Vec<&[&str]> = static_slices.iter().map(|v| v.as_slice()).collect();
+
+
+  debug!("{result:?}");
+  print_table(vec!["Key", "Value"], result);
   todo!();
   parse_args();
 }

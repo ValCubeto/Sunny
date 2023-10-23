@@ -18,7 +18,7 @@ const VERTICAL_RIGHT: char = '├';
 const VERTICAL_LEFT: char = '┤';
 
 // TODO: liberar algo de memoria antes de insertar slices para mejorar un poco el rendimiento
-pub fn print_table(titles: &[&str], rows: &[&[&str]]) {
+pub fn print_table(titles: Vec<&str>, rows: Vec<Vec<&str>>) {
   let C = titles.len();
   assert!(C > 0);
   let R = rows[0].len();

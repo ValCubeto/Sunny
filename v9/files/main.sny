@@ -1,3 +1,25 @@
 fun main() {
-  println('Hello, world!')
+  let name = 'world'
+  println('Hello, $(name)!')
+}
+
+class u8 {
+  struct { }
+  impl Number {
+    pub const [MAX, MIN] = [2_u8 ** 8, 0_u8]
+  }
+  fun to_string(self) from ToString {
+    # internal code
+  }
+}
+
+template Number
+where
+  Self: Add + Sub + Mul + Div    # etc
+{
+  const [MIN, MAX]: Self[]
+}
+
+template Add<T = Self, Output = Self> {
+  fun add(self, other: T) -> Output
 }
