@@ -1,0 +1,11 @@
+namespace = const_statement[]
+const_statement = const_decl | fun_decl | class_decl | struct_decl
+const_decl = 'const' ident ':' type_expr '=' literal
+fun_decl =
+  'fun' ident
+  ( '<' ( ident ( ':' type_expr )? ( '=' literal )? ','? )[] '>' )?
+  '(' ( ( ident ':' type_expr ( '=' literal )? ','? )[] )? ')'
+  '->' type_expr
+  ( 'where' ( ident ( ':' type_expr )? ( '=' literal )? ','? )[] )?
+  '{' block '}'
+// fun abc<T, R: RngTrait = Rng>(a: T, r: R) -> T where T: ToString = String {}
