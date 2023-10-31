@@ -1,3 +1,4 @@
+# Automatically handle unused AsResult values
 fun main() {
   let name = 'world'
   println('Hello, $(name)!')
@@ -6,9 +7,10 @@ fun main() {
 class u8 {
   struct { }
   impl Number {
-    pub const [MAX, MIN] = [2_u8 ** 8, 0_u8]
+    pub const MIN = 0_u8
+    pub const MAX = 2_u8 ** 8
   }
-  fun to_string(self) from ToString {
+  fun ToString::to_string(self) {
     # internal code
   }
 }
@@ -17,9 +19,11 @@ template Number
 where
   Self: Add + Sub + Mul + Div    # etc
 {
-  const [MIN, MAX]: Self[]
+  const MIN: Self
+  const MAX: Self
 }
 
+# Example: Add::DateTime<Duration, Output = Result<DateTime, DateTimeError>>
 template Add<T = Self, Output = Self> {
   fun add(self, other: T) -> Output
 }
