@@ -17,6 +17,9 @@ const INTERSECTION: char = '┼';
 const VERTICAL_RIGHT: char = '├';
 const VERTICAL_LEFT: char = '┤';
 
+pub fn print_map<K, V>(map: HashMap<K, V>) {}
+// print_dict
+
 // TODO: liberar algo de memoria antes de insertar slices para mejorar un poco el rendimiento
 pub fn print_table(titles: &[&str], rows: &[&[&str]]) {
   let C = titles.len();
