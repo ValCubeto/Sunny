@@ -2,7 +2,10 @@ pub mod statements;
 pub mod expressions;
 pub mod tokens;
 
-use std::str::Chars;
+use std::{
+  str::Chars,
+  iter::Peekable
+};
 use crate::{
   aliases::Id,
   syntax_error,
@@ -13,7 +16,7 @@ use crate::{
 pub struct Context<'a> {
   pub src: Id,
   pub code: &'a str,
-  pub chars: Chars<'a>,
+  pub chars: Peekable<Chars<'a>>,
   pub current: char,
   pub idx: usize,
   pub line: usize,
@@ -22,7 +25,7 @@ pub struct Context<'a> {
 
 impl<'a> Context<'a> {
   pub fn new(src: Id, code: &'a str) -> Self {
-    let mut chars = code.chars();
+    let mut chars = code.chars().peekable();
     let current = chars.next().unwrap();
     Context {
       src,
