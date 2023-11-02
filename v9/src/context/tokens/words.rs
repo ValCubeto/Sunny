@@ -1,6 +1,5 @@
 use crate::{context::Context, syntax_error};
 
-#[allow(unused)]
 impl<'a> Context<'a> {
   pub fn parse_word(&mut self) -> String {
     let mut word = String::from(self.current);

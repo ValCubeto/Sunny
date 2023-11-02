@@ -43,6 +43,13 @@ impl<'a> Context<'a> {
     debug!("chars[{}]({}:{}:{}) = {:?}", self.idx, self.src, self.line, self.column, self.current);
   }
 
+  pub fn peek(&mut self) -> char {
+    match self.chars.peek() {
+      Some(&ch) => ch,
+      None => syntax_error!("unexpected end of input"; self)
+    }
+  }
+
   #[allow(unused)]
   pub fn next_char(&mut self) {
     let ch = match self.chars.next() {
@@ -66,16 +73,16 @@ impl<'a> Context<'a> {
     debug!("               called next_char(). Current: {:?}", self.current);
   }
 
-  pub fn parse_block(&mut self) {
+  pub fn parse_block(&mut self) // -> Statement
+  {
     debug!("parsing block: {:?}", self.code);
     if self.current != '{' {
       syntax_error!("expected '{{', got {:?}", self.current; self);
     }
     self.next_char();
-    todo!();
-    // while self.current != '}' {
-    //   // self.parse_statement();
-    //   // self.next_token();
-    // }
+    while self.current != '}' {
+      self.parse_statement();
+      // self.next_token();
+    }
   }
 }

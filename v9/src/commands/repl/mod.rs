@@ -16,17 +16,15 @@ pub fn main(args: ParsedArgs) {
 
     // otherwise the program reads the line
     // and THEN prints the prompt
-    if let Err(error) = stdout().flush() {
-      eprintln!("failed to print the prompt. {error}");
+    if let Err(why) = stdout().flush() {
+      eprintln!("failed to print the prompt. {why}");
     }
 
     let mut buf: String = String::new();
-    if let Err(error) = stdin().read_line(&mut buf) {
-      eprintln!("failed to read the line. {error}");
+    if let Err(why) = stdin().read_line(&mut buf) {
+      eprintln!("failed to read the line. {why}");
     }
 
-    // I use String because I need
-    // to index later
     let line = buf.trim();
 
     if line.is_empty() {

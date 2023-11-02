@@ -65,7 +65,7 @@ macro_rules! debug_expr {
   ($( $value: expr ),*) => {{
     $(
       println!(
-        "{}: {} = {:#?}",
+        "[{}]: {} = {:#?}",
         $crate::bold!($crate::green!("Debug")),
         $crate::bold!(stringify!($value)),
         $value
@@ -78,7 +78,7 @@ macro_rules! debug_expr {
 #[macro_export]
 macro_rules! debug {
   ($( $value: expr ),*) => {{
-    print!("{}: ", $crate::bold!($crate::green!("Debug")));
+    print!("[{}]: ", $crate::bold!($crate::green!("Debug")));
     println!($( $value ),*);
   }};
 }
