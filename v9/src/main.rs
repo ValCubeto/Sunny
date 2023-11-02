@@ -16,5 +16,6 @@ mod util;
 use args::parse_args;
 
 fn main() {
+  assert_ne!(b"hello", "hello".as_bytes());
   parse_args();
 }

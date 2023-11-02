@@ -20,7 +20,7 @@ pub fn main(args: ParsedArgs) {
       eprintln!("failed to print the prompt. {why}");
     }
 
-    let mut buf: String = String::new();
+    let mut buf = String::new();
     if let Err(why) = stdin().read_line(&mut buf) {
       eprintln!("failed to read the line. {why}");
     }

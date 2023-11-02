@@ -3,11 +3,17 @@ use crate::context::Context;
 #[allow(unused)]
 impl<'a> Context<'a> {
   pub fn parse_number(&mut self) -> String {
-    let mut number = String::from(self.current);
+    let mut number = String::new();
     if self.current == '0' {
       let next = self.peek();
-      if next == 'x' {}
-      if next == 'b' {}
+      if next == 'x' {
+        todo!();
+        return number;
+      }
+      if next == 'b' {
+        todo!();
+        return number;
+      }
       self.next_char();
     }
     // while self.current == '0' {    // skip zeros

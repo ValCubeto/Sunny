@@ -8,4 +8,4 @@ fun_decl =
   '->' type_expr
   ( 'where' ( ident ( ':' type_expr )? ( '=' literal )? ','? )[] )?
   '{' block '}'
-// fun abc<T, R: RngTrait = Rng>(a: T, r: R) -> T where T: ToString = String {}
+# fun abc<T, R: RngTrait = Rng>(a: T, r: R) -> T where T: ToString = String {}

@@ -82,7 +82,6 @@ impl<'a> Context<'a> {
     self.next_char();
     while self.current != '}' {
       self.parse_statement();
-      // self.next_token();
     }
   }
 }

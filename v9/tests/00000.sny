@@ -1,4 +1,4 @@
-priors: [u8; _] = [
+priors = [
   [And(x, y), Or(x, y)]
   [Eq(x, y), Neq(x, y)]
   [Lt(x, y), Gt(x, y), LtEq(x, y), GtEq(x, y)]
@@ -11,6 +11,8 @@ priors: [u8; _] = [
 ]
 
 "5 < (1 + 2) * 3"
+"< [5], [* [+ [1], [2]], [3]]"
+"lt(5, mul(sum(1, 2), 3))"
 Lt(
   Value(5),
   Sum(
@@ -30,9 +32,4 @@ Lt(
     ),
     Value(3)
   )
-)
-
-Lt(
-  Value(5),
-  Sum()
 )
