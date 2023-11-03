@@ -23,7 +23,7 @@ where
   const MAX: Self
 }
 
-# Example: Add::DateTime<Duration, Output = Result<DateTime, DateTimeError>>
+# Example: DateTime::Add<Duration, Output = Result<DateTime, DateTimeError>>
 template Add<T = Self, Output = Self> {
   fun add(self, other: T) -> Output
 }
