@@ -5,6 +5,7 @@ use crate::values::Value;
 
 #[allow(unused)]
 #[derive(Debug, Clone)]
+#[repr(u8)]
 pub enum Operator {
   And, Or,
   Eq, Neq,
@@ -28,7 +29,7 @@ pub enum Node {
   Op(Operator, Box<Node>, Box<Node>),
 }
 
-pub fn precedence(op: &Operator) -> i32 {
+pub fn precedence(op: &Operator) -> u8 {
   use Operator as O;
   match op {
     O::Not | O::Pos | O::Neg => 0,
@@ -36,9 +37,9 @@ pub fn precedence(op: &Operator) -> i32 {
     O::Mul | O::Div          => 2,
     O::Pow                   => 3,
     O::Mod                   => 4,
-    O::Lt | O::Gt
-      | O::LtEq | O::GtEq    => 5,
-    O::Eq | O::Neq           => 6,
+    | O::Lt   | O::Gt
+    | O::LtEq | O::GtEq      => 5,
+    O::Eq  | O::Neq          => 6,
     O::And | O::Or           => 7,
   }
 }

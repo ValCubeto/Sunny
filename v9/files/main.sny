@@ -1,8 +1,57 @@
 # Automatically handle unused AsResult values
 fun main() {
-  let name = 'world'
+  var name = 'world'
   println('Hello, $(name)!')
 }
+
+namespace local {
+  name: (mutable: true, type: &String, value: Value::String('world'))
+}
+// nothing can be modified. no `mutable` property needed
+// when you assign a value its stored in `local`
+// and doesnt override that variable in `global`
+const namespace global {
+  println: (type: fun <T: Display>(T) -> ())
+}
+
+fun println<T: Display>(message: T) {
+  stdout()
+    .write(message.display())
+    .write(ENDL)
+    .flush()
+}
+
+scopes = [local, ...uppers, global]
+fun a() {
+  let b = { n => randint() }
+  return // { { n => b.n * 2 } }
+}
+
+# randint -> 4
+let foo = a()
+# foo -> 8
+let bar = foo()
+
+scopes = [a = { b: 5 }, main, global]
+scopes = [<anonymous>.deps = { b: &b }, <anonymous>.runtime = {  }, main, global]
+
+Function {
+  name: String
+  args, returned_type: &Class
+  deps: Namespace
+  runtime: Namespace
+}
+
+class A {
+  struct {
+    b: u8
+  }
+  fun ToString::to_string = path::to::ext::to_string
+}
+
+# ./path/to/ext.sny
+  use mod::A
+  fun to_string(self: A) -> String { ... }
 
 class u8 {
   struct { }
