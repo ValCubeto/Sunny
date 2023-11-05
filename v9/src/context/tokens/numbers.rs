@@ -29,6 +29,10 @@ impl<'a> Context<'a> {
     }
     while self.current.is_ascii_digit() {
       number.push(self.current);
+      self.next_char();
+      if matches!(self.current, '\'' | '_') {
+        self.next_char();
+      }
     }
     // peek() because of 123.to_string()
     // if self.current == '.' {
