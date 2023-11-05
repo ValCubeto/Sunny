@@ -31,11 +31,11 @@ impl<'a> Context<'a> {
       number.push(self.current);
     }
     // peek() because of 123.to_string()
-    if self.current == '.' {
-      self.next_char();
-      
-      return Number::Float(number)
-    }
+    // if self.current == '.' {
+    //   self.next_char();
+    //   // a
+    //   return Number::Float(number)
+    // }
     // if self.current.eq_ignore_ascii_case(&'e') {}
     Number::Int(number)
   }
@@ -46,7 +46,7 @@ impl<'a> Context<'a> {
 pub enum Number {
   Bin(String),
   Hex(String),
-  Int(String),
   Float(String),
+  Int(String),
   // Exponent(String, String) // 2e5 == 200000
 }
