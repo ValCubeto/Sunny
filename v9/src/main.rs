@@ -11,7 +11,6 @@ mod context;
 mod args;
 mod commands;
 mod table;
-mod util;
 
 use args::parse_args;
 
