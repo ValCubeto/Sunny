@@ -65,7 +65,9 @@ fun Vec<T>::set(self, index: Integer, value: T) -> Result<(), MemoryError> {
   if index.abs() < self.len() {
     return Err(MemoryError::InvalidIndex)
   }
-  let index: usize = index.is_negative() ? self.len() + index : index
+  let index: usize = index.is_negative()
+    ? self.len() + index
+    : index.into()
   set_bytes_at(self.ptr + size_of<T>() * index, value)!!
   return Ok(())
 }
@@ -104,6 +106,7 @@ fun eprintln(data: Display[]) {
   stderr.flush()
 }
 
+# just a representation
 const fun throw(value: Error) {
   eprintln(value.display())
   eprintln(sys::TAB)
