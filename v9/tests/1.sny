@@ -1,0 +1,113 @@
+fun main() {
+  let input = '123'
+
+  let regexs = [
+    RegEx::new(r'^\d$')
+    RegEx::new(r'^\w$')
+  ]
+
+  assert(regexs.some(/regex/ regex.matches(input)))
+  assert(regexs.which(/regex/ regex.matches(input)) == 1)
+  assert(regexs.which_ones(/regex/ regex.matches(input)) == [1])
+}
+
+fun Vec<T>::some(self, predicate: fun (T) -> bool) -> bool {
+  for value in self {
+    if predicate(value) {
+      return true
+    }
+  }
+  return false
+}
+
+fun Vec<T>::some_is<O>(self, other: O) -> bool
+where
+  T: Eq<O>
+{
+  for value in self {
+    if value == other {
+      return true
+    }
+  }
+}
+
+fun assert(expr: bool, message := "") {
+  if !expr {
+    let why = message.is_empty()
+      ? "Assertion failed"
+      : message
+    throw AssertionError::new(why)
+  }
+}
+
+const fun debug_assert(expr: bool) {
+  use terminal::{ green, red }
+  let color = expr ? green : red
+  println(color(stringify(expr)))
+}
+
+fun Vec<T>::with_each(self, change: fun (T) -> T) -> Self {
+  let new: T[self.len()] = []
+  for value in self {
+    new.push(change(value))
+  }
+  return new
+}
+
+fun Vec<T>::map(self, change: fun (T) -> T) -> Self {
+  for (i, value) in self.iter().enumerate() {
+    self.set(i, change(value))
+  }
+  return self
+}
+
+fun Vec<T>::set(self, index: Integer, value: T) -> Result<(), MemoryError> {
+  if index.abs() < self.len() {
+    return Err(MemoryError::InvalidIndex)
+  }
+  let index: usize = index.is_negative() ? self.len() + index : index
+  set_bytes_at(self.ptr + size_of<T>() * index, value)!!
+  return Ok(())
+}
+
+@test("Vec::set")
+fun does_it_work() {
+  let vec = [1, 2, 3]
+  vec.set(0, 9)
+  assert(vec == [9, 2, 3])
+  vec.set((-1), 5)
+  assert(vec == [9, 2, 5])
+}
+
+fun println(data: Display) {
+  sys::stdout()
+    .write(data.display())
+    .write(sys::LINE_ENDING)
+    .flush()
+}
+
+fun eprintln(data: Display) {
+  sys::stderr()
+    .write(data.display())
+    .write(sys::LINE_ENDING)
+    .flush()
+}
+
+@consecutive
+fun eprintln(data: Display[]) {
+  let stderr = sys::stderr();
+  for value in data {
+    stderr
+      .write(value.display())
+      .write(sys::LINE_ENDING)
+  }
+  stderr.flush()
+}
+
+const fun throw(value: Error) {
+  eprintln(value.display())
+  eprintln(sys::TAB)
+  eprintln(f"at {src!()}:{line!()}:{column!()}")
+  process::exit(1)
+}
+

@@ -1,6 +1,11 @@
 extern crate rand;
 extern crate num_bigint;
 extern crate bigdecimal;
+// extern crate peekmore;
+// extern crate chrono;
+// extern crate regex;
+// extern crate tokio;
+// extern crate hyper;
 
 mod colors;
 mod about;
