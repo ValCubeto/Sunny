@@ -33,13 +33,12 @@ pub fn main(args: ParsedArgs) {
 
     debug_expr!(line);
 
-    let mut code = String::with_capacity(line.len() + 2);
-    code.push('{');
-    code.push_str(line);
-    code.push('}');
-    let line = code.as_str();
+    let line = format!("{{{line}}}");
 
-    let mut ctx = Context::new("<stdin>".into(), line);
+    // otherwise it will exist during the entire program
+    drop(buf);
+
+    let mut ctx = Context::new("<stdin>".into(), &line);
     ctx.parse_block();
 
     todo!();
