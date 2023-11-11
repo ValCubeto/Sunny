@@ -72,7 +72,7 @@ class Foo {
   priv fun secret() {
     println('Boo!')
   }
-  impl Debug { }
+  impl Debug
   fun ToString::to_string(self) {
     return "I'm a ${Self.name} with bar: ${self.bar}"
   }
@@ -81,5 +81,8 @@ class Foo {
 
 ## Anonymous functions
 ```rust
-let add = /a, b/ { a + b }
+let add = /a, b/ a + b
+let sub = /a, b/ {
+  return a - b
+}
 ```
