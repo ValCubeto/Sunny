@@ -72,6 +72,28 @@ fun Vec<T>::set(self, index: Integer, value: T) -> Result<(), MemoryError> {
   return Ok(())
 }
 
+class Test {
+  pub typedef TestFunction = fun () -> ()
+  fun test(f: TestFunction, { super }: Context, name: ToString = "") -> TestFunction {
+    let name = name.or(f'{super.name}::{f.name}')
+    let passed = f.try().is_ok()
+    println(f'{bold(name)}: {passed ? green('Ok') : red('Failed')}')
+    # add execution time, exit code
+  }
+}
+
+model Display {
+  fun display(self) -> String
+  fun pretty_display(self) -> String
+}
+
+# inspired by the behavior of the '||' operator in JavaScript
+fun String::or(self, other: Display) -> String {
+  return self.is_empty()
+    ? other.display()
+    : self
+}
+
 @test("Vec::set")
 fun does_it_work() {
   let vec = [1, 2, 3]
