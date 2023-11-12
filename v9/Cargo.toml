@@ -17,3 +17,6 @@ hyper = "0.14.27"
 serde = "1.0.192"
 chrono = "0.4.31"
 tokio = "1.33.0"
+# just as a personal challenge
+# this has no documentation. i need to learn how to use serde
+# xml_serde = "1.4.1"

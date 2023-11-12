@@ -72,6 +72,31 @@ fun Vec<T>::set(self, index: Integer, value: T) -> Result<(), MemoryError> {
   return Ok(())
 }
 
+# idk, just keep this private
+class Function<G, A, O> {
+  struct {
+    name: String,
+    generics: Generic[]
+    args: Argument[],
+    output: Struct
+  }
+  struct Generic<T> {
+    type = T,
+    default: T,
+    implements: Model[]
+  }
+  struct Argument<T> {
+    type = T,
+    default: T
+  }
+
+  # this is the `a()` expression
+  internal fun call(generics, args) -> O {}
+
+  # this prevents crashing the program
+  fun try(a, b) -> Result<O, Error> {}
+}
+
 class Test {
   pub typedef TestFunction = fun () -> ()
   fun test(f: TestFunction, { super }: Context, name: ToString = "") -> TestFunction {
