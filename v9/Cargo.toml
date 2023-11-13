@@ -11,12 +11,18 @@ edition = "2021"
 rand = "0.8.5"
 num-bigint = { version = "0.4.4", features = ["rand"] }
 bigdecimal = { version = "0.4.2" }
-peekmore = "1.3.0"
-regex = "1.10.2"
-hyper = "0.14.27"
-serde = "1.0.192"
+
 chrono = "0.4.31"
+
+peekmore = "1.3.0"
+
 tokio = "1.33.0"
-# just as a personal challenge
-# this has no documentation. i need to learn how to use serde
-# xml_serde = "1.4.1"
+hyper = "0.14.27"
+
+regex = "1.10.2"
+serde = "1.0.192"
+
+# (de)serialize Sunny abstract syntax trees
+bincode = "1.3.3"
+# (de)serialize Rust values
+dlopen = "0.1.8"
