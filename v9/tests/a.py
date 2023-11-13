@@ -75,7 +75,7 @@ fun import_all() {
     # do not keep the entire module, unload it after imported the needed values
     for path in imports {
         # change the method if its from std or an external module
-        module = load(path).expect("failed to load {path}")
+        module: Value = load(path).expect("failed to load {path}")
         for (k, v) in module {
             # verificar antes que no haya nombres que colapsen
             global.set(k, v)
