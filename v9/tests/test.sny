@@ -1,0 +1,35 @@
+const A: String = "hola"
+
+fun x(a: String, b: u8) -> Option<String> {
+  return Ok("ok")
+}
+
+struct Point {
+  x: u8,
+  y: u8
+}
+
+class Dog {
+  struct<T> {
+    name: String,
+    other: T
+  }
+  pub inline fun new<T>(name: String, other: T) {
+    Self<_> { name, other }
+  }
+}
+
+enum Operator<T> {
+  Add(T, T),
+  Sub {
+    left: T,
+    right: T
+  },
+  Neg(T)
+}
+
+mod Foo {
+  pub const BAR: u8 = 5
+}
+
+use Foo::{ BAR as BAZ, self }
