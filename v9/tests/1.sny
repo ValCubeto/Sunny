@@ -1,9 +1,10 @@
+# Automatically handle unused AsResult values?
 fun main() {
   let input = '123'
 
   let regexs = [
-    RegEx::new(r'^\d$')
-    RegEx::new(r'^\w$')
+    Regex::new(r'^\d$')
+    Regex::new(r'^\w$')
   ]
 
   assert(regexs.some(/regex/ regex.matches(input)))
@@ -20,9 +21,10 @@ fun Vec<T>::some(self, predicate: fun (T) -> bool) -> bool {
   return false
 }
 
+# [1_u16, 2_u16].some_is(1_u8)
 fun Vec<T>::some_is<O>(self, other: O) -> bool
 where
-  T: Eq<O>
+  T: impl Eq<O>
 {
   for value in self {
     if value == other {
@@ -33,17 +35,14 @@ where
 
 fun assert(expr: bool, message := "") {
   if !expr {
-    let why = message.is_empty()
-      ? "Assertion failed"
-      : message
-    throw AssertionError::new(why)
+    throw AssertionError::new(message.or("Assertion failed"))
   }
 }
 
 const fun debug_assert(expr: bool) {
   use terminal::{ green, red }
   let color = expr ? green : red
-  println(color(stringify(expr)))
+  println(color(stringify!(expr)))
 }
 
 fun Vec<T>::with_each(self, change: fun (T) -> T) -> Self {
@@ -56,6 +55,7 @@ fun Vec<T>::with_each(self, change: fun (T) -> T) -> Self {
 
 fun Vec<T>::map(self, change: fun (T) -> T) -> Self {
   for (i, value) in self.iter().enumerate() {
+    # this can be optimized
     self.set(i, change(value))
   }
   return self
@@ -161,3 +161,76 @@ const fun throw(value: Error) {
   process::exit(1)
 }
 
+
+namespace local {
+  name: (mutable: true, type: &String, value: Value::String('world'))
+}
+# nothing can be modified. no `mutable` property needed
+# when you assign a value its stored in `local`
+# and doesnt override that variable in `global`
+const namespace global {
+  println: (type: fun <T: Display>(T) -> ())
+}
+
+fun println<T: Display>(message: T) {
+  stdout()
+    .write(message.display())
+    .write(ENDL)
+    .flush()
+}
+
+scopes = [local, ...uppers, global]
+fun a() {
+  let b = { n => randint() }
+  return // { { n => b.n * 2 } }
+}
+
+# randint -> 4
+let foo = a()
+# foo -> 8
+let bar = foo()
+
+scopes = [a = { b: 5 }, main, global]
+scopes = [<anonymous>.deps = { b: &b }, <anonymous>.runtime = {  }, main, global]
+
+Function {
+  name: String
+  args, returned_type: &Class
+  deps: Namespace
+  runtime: Namespace
+}
+
+class A {
+  struct {
+    b: u8
+  }
+  fun ToString::to_string = path::to::ext::to_string
+}
+
+# ./path/to/ext.sny
+  use mod::A
+  fun to_string(self: A) -> String { ... }
+
+class u8 {
+  struct { }
+  impl Number {
+    pub const MIN = 0_u8
+    pub const MAX = 2_u8 ** 8
+  }
+  fun ToString::to_string(self) {
+    # internal code
+  }
+}
+
+template Number
+where
+  Self: Add + Sub + Mul + Div    # etc
+{
+  const MIN: Self
+  const MAX: Self
+}
+
+# Example: DateTime::Add<Duration, Output = Result<DateTime, DateTimeError>>
+template Add<T = Self, Output = Self> {
+  fun add(self, other: T) -> Output
+}

@@ -1,6 +1,12 @@
 
 let add = /a, b/ { a + b }
 
-client.on('message', /message: Message/ {
+fun Client::on(self, event: String, handler: fun (Message) -> ()) {
+  self.handlers.set(event, handler)
+  return self
+}
+
+# I can write the signatures but i dont need to
+client.on('message', /message/ {
   message.react('🤔')
 })
