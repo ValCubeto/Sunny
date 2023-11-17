@@ -10,6 +10,7 @@ puedas escribir este comportamiento tú mismo.
 
 ## Getting started
 ### Installing Sunny
+-
 ### Creating your first program
 ```kotlin
 # main.sny
@@ -23,7 +24,7 @@ sunny run main
 ```
 
 ## Features
-- Generics
+- Strong typing
 - Models
 - Typed values
 - Implicit types
@@ -61,6 +62,7 @@ so you can do some operations with them.
 ```
 
 ## Classes and structs
+A class is like the impl block in Rust
 ```rust
 class Foo {
   struct {

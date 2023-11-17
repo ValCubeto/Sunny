@@ -90,12 +90,12 @@ fun import_all() {
 
 
 
-Class::new("u8", hashset! [], hashmap! {
+Class::new("u8", empty_struct, hashset! [], hashmap! {
     "to_string" => Constant {
-            public: true,
-            typeof: FunctionPtr,
-            value: builtin!(|args| { asd })
-        }
+        public: true,
+        typeof: FunctionPtr,
+        value: builtin!(|args| { asd })
+    }
 })
 
 struct Struct {
@@ -137,3 +137,29 @@ struct Constant {
     typeof: Rc<Struct>,
     value: Value
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+struct Mod {
+    name: Id,
+    values: HashMap<Id, Variable>
+}
+
+let mod = Mod::new("main", hashmap! {
+    "NAME" => inmutable! {
+        Rc::clone(&structs["String"]),
+        Value::String("Sunny")
+    }
+})
+
+mod.values.get("NAME")

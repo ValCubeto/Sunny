@@ -17,13 +17,19 @@ chrono = "0.4.31"
 
 peekmore = "1.3.0"
 
+# async stuff
 tokio = "1.33.0"
+
+# make HTTP requests
 hyper = "0.14.27"
 
-regex = "1.10.2"
+# (de)serialize values
 serde = "1.0.192"
-
+regex = "1.10.2"
 # (de)serialize Sunny abstract syntax trees
 bincode = "1.3.3"
 # (de)serialize Rust values
 dlopen = "0.1.8"
+
+# faster and more memory-efficient hashmap/hashset
+hashbrown = "0.14.2"
