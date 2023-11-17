@@ -1,7 +1,7 @@
-use crate::aliases::{ DictPtr, ArrayPtr, Id };
+use crate::aliases::{ DictPtr, ArrayPtr, Id, FunctionPtr };
 
 #[allow(non_camel_case_types, unused)]
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum Value {
   i8(i8),
   u8(u8),
@@ -10,5 +10,5 @@ pub enum Value {
   Dict(DictPtr),
   Array(ArrayPtr),
   String(Id),
-  Function(fn ())
+  Function(FunctionPtr)
 }

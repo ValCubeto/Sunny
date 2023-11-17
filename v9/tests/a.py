@@ -82,3 +82,58 @@ fun import_all() {
         }
     }
 }
+
+
+
+
+
+
+
+
+Class::new("u8", hashset! [], hashmap! {
+    "to_string" => Constant {
+            public: true,
+            typeof: FunctionPtr,
+            value: builtin!(|args| { asd })
+        }
+})
+
+struct Struct {
+    name: Id,
+    props: HashSet<(Id, StructPtr)> # (name, type)
+}
+
+struct Instance {
+    typeof: StructPtr,
+    props: HashSet<Value>
+}
+
+struct Enum<'a> {
+    name: Id,
+    variants: &'a [StructPtr]
+}
+
+struct Class {
+    inner_struct: StructPtr,
+    public: HashMap<Id, Value>
+}
+
+enum Value {
+    String(Id),
+    u8(u8),
+    Function(Function),
+    Mod, Class, Struct
+    ...
+}
+
+struct Variable {
+    public: bool,
+    mutable: bool,
+    typeof: Rc<Struct>,
+    value: Value
+}
+struct Constant {
+    public: bool
+    typeof: Rc<Struct>,
+    value: Value
+}

@@ -17,13 +17,11 @@ pub enum OperatorKind {
   Not, Pos, Neg
 }
 
-#[derive(Debug)]
 pub enum Token {
   Value(Value),
   Op(OperatorKind),
 }
 
-#[derive(Debug, Clone)]
 pub enum Node {
   Value(Value),
   Op(OperatorKind, Box<Node>, Box<Node>),

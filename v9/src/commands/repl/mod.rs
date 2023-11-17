@@ -41,6 +41,8 @@ pub fn main(args: ParsedArgs) {
     let mut ctx = Context::new("<stdin>".into(), &line);
     ctx.parse_block();
 
+    fn a(_b: u8) {}
+    let _a: std::rc::Rc<dyn Fn(u8)> = std::rc::Rc::new(a);
     todo!();
   }
 }
