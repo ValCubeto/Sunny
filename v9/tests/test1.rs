@@ -8,10 +8,12 @@ use std::{
 pub type RefMut<T> = Rc<Mutex<T>>;
 pub type Id = Rc<str>;
 pub type Map<T> = hashbrown::HashMap<Id, T>;
+
 pub type StructRef = Rc<Struct>;
-pub type Properties = BinTreeMap<Id, StructRef>;
-pub type Parameters<'a> = BinTreeMap<Id, Value>;
-pub type InstanceValues<'a> = &'a [Value];
+pub type StructProperties = BinTreeMap<Id, StructRef>;
+// can be invalid and turned into InstanceProperties
+pub type PropertyCandidates = BinTreeMap<Id, Value>;
+pub type InstanceProperties = hashbrown::HashSet<Value>;
 
 pub enum Value {
   String(Id),
@@ -20,43 +22,43 @@ pub enum Value {
 
 pub struct Struct {
   pub name: Id,
-  pub properties: Properties
+  pub properties: StructProperties
 }
 
 impl<'instance> Struct {
-  pub fn match_params(&self, values: Parameters) -> Vec<Value> {
+  pub fn instance_from(&self, values: PropertyCandidates) -> Vec<Value> {
     vec![]
   }
 }
 
-pub struct Instance<'instance> {
+pub struct Instance {
   pub structure: StructRef,
-  pub values: InstanceValues<'instance>
+  pub values: InstanceProperties
 }
 
-impl<'instance> Instance<'instance> {
+impl Instance {
   // checks if the properties are correct
-  pub fn new(structure: StructRef, params: Parameters<'instance>) -> Self {
+  pub fn new(structure: StructRef, properties: PropertyCandidates) -> Self {
     Self {
-      values: structure.match_params(params),
+      values: &structure.instance_from(properties),
       structure,
     }
   }
 }
 
-pub struct Mod<'instance> {
+pub struct Mod<'a> {
   name: Id,
-  values: Map<Instance<'instance>>
+  values: Map<Instance<'a>>
 }
 
 fn main() {
-  let u8_properties = Properties::new();
+  let u8_properties = StructProperties::new();
   let u8_struct = Rc::new(Struct {
     name: "u8".into(),
     properties: u8_properties
   });
 
-  let point_properties = Properties::from([
+  let point_properties = StructProperties::from([
     ("x".into(), Rc::clone(&u8_struct)),
     ("y".into(), Rc::clone(&u8_struct)),
   ]);
@@ -65,7 +67,7 @@ fn main() {
     properties: point_properties
   });
 
-  let values = Parameters::from([
+  let values = PropertyCandidates::from([
     ("x".into(), Value::Uint8(32)),
     ("y".into(), Value::Uint8(5))
   ]);
