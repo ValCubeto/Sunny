@@ -25,8 +25,8 @@ pub struct Struct {
   pub properties: StructProperties
 }
 
-impl<'instance> Struct {
-  pub fn instance_from(&self, values: PropertyCandidates) -> Vec<Value> {
+impl Struct {
+  pub fn new_instance(&self, values: PropertyCandidates) -> Vec<Value> {
     vec![]
   }
 }
@@ -34,16 +34,6 @@ impl<'instance> Struct {
 pub struct Instance {
   pub structure: StructRef,
   pub values: InstanceProperties
-}
-
-impl Instance {
-  // checks if the properties are correct
-  pub fn new(structure: StructRef, properties: PropertyCandidates) -> Self {
-    Self {
-      values: &structure.instance_from(properties),
-      structure,
-    }
-  }
 }
 
 pub struct Mod<'a> {
@@ -71,7 +61,7 @@ fn main() {
     ("x".into(), Value::Uint8(32)),
     ("y".into(), Value::Uint8(5))
   ]);
-  let my_point = Instance::new(
+  let my_point = Struct::new_instance(
     Rc::clone(&point_struct),
     values
   );
