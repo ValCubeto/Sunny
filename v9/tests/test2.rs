@@ -8,6 +8,7 @@ use hashbrown::HashMap;
 enum Value {
   None,
   Struct(StructPtr),
+  Instance(Instance),
   Uint8(u8)
 }
 type Map<T> = HashMap<StringPtr, T>;
@@ -38,7 +39,7 @@ impl CreateInstance for StructPtr {
   fn new_instance(&self, props: Map<Property>) -> Instance {
     let mut props = Vec::with_capacity(self.props.len());
     for (key, value) in self.props.iter() {
-      value.value
+      value.value;
     }
     props.push(Property { structure: StructPtr::clone(self), value: Value::Uint8(8) });
     Instance {
@@ -46,11 +47,6 @@ impl CreateInstance for StructPtr {
       props
     }
   }
-}
-
-enum Variable {
-  Instance(Instance),
-  Value(Value)
 }
 
 fn main() {
@@ -80,10 +76,10 @@ fn main() {
     ])
   });
 
-  let point_instance = point_struct.new_instance(&Map::from([]));
+  let point_instance = point_struct.new_instance(Map::from([]));
 
   let stack = Map::from([
-    ("Point".into(), Variable::Value(Value::Struct(point_struct))),
-    ("point".into(), Variable::Instance(point_instance))
+    ("Point".into(), Value::Struct(point_struct)),
+    ("point".into(), Value::Instance(point_instance))
   ]);
 }
