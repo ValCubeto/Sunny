@@ -52,6 +52,7 @@ impl CreateInstance for StructPtr {
     for (key, prop) in self.props.iter() {
       match candidates.get(key) {
         Some(value) => {
+          todo!("check it is the expected type here");
           props.push(value.clone());
         },
         None => {
