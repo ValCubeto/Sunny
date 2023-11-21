@@ -1,14 +1,14 @@
 use std::{
   rc::Rc,
   collections::BTreeMap as BinTreeMap,
-  any::Any
+  any::type_name
 };
 
 use hashbrown::HashMap;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 enum Value {
-  None,
+  _None,
   Struct(StructPtr),
   Instance(Instance),
   Uint8(u8)
@@ -18,12 +18,14 @@ type StructPtr = Rc<Struct>;
 type StringPtr = Rc<str>;
 type StructPropertyMap = BinTreeMap<StringPtr, StructProperty>;
 
+#[derive(Debug)]
 struct Struct {
   name: StringPtr,
   // sorted map, fast search
   props: StructPropertyMap
 }
 
+#[derive(Debug)]
 struct StructProperty {
   structure: StructPtr,
   default_value: Option<Value>
@@ -35,7 +37,7 @@ struct Property {
   value: Value
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Instance {
   structure: StructPtr,
   props: Vec<Value>
@@ -75,14 +77,6 @@ fn main() {
     props: StructPropertyMap::new()
   });
 
-  // where to store the number??????????? this is not valid
-  let _u8_instance = Instance {
-    structure: StructPtr::clone(&u8_struct),
-    props: Vec::new()
-  };
-
-  let u8_value = Value::Uint8(5);
-
   // struct Point { x: u8, y: u8 }
   let point_struct = StructPtr::new(Struct {
     name: "Point".into(),
@@ -107,5 +101,17 @@ fn main() {
     ("Point".into(), Value::Struct(point_struct)),
     ("point".into(), Value::Instance(point_instance))
   ]);
-  dbg!(stack.type_id());
+  dbg!(type_of(&stack));
+  dbg!(&stack["Point"]);
+  dbg!(&stack["point"]);
+  match &stack["point"] {
+    Value::Instance(point) => {
+      dbg!(&point.structure.name);
+    }
+    _ => unreachable!()
+  }
+}
+
+fn type_of<T>(_value: &T) -> &str {
+  type_name::<T>()
 }
