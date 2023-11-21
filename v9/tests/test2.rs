@@ -92,6 +92,7 @@ fn main() {
     ])
   });
 
+  // let point = Point { y: 5, x: 10 } (order does not matter)
   let point_instance = point_struct.new_instance(Map::from([
     ("y".into(), Value::Uint8(5)),
     ("x".into(), Value::Uint8(10)),
