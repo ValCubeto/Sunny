@@ -69,7 +69,7 @@ impl CreateInstance for StructPtr {
       match candidates.remove(key) {
         Some(instance) => {
           if instance.structure != prop.structure {
-            panic!("Mismatched types. {}.{} has type {:?}, found {:?}.", self.name, key, prop.structure.name, instance.structure.name);
+            panic!("Mismatched types. '{}.{}' has type '{}', found '{}'.", self.name, key, prop.structure.name, instance.structure.name);
           };
           props.push(Value::Instance(instance));
         },
@@ -78,24 +78,22 @@ impl CreateInstance for StructPtr {
             Some(default_value) => {
               props.push(default_value.clone());
             }
-            None => panic!("missing field {key:?}")
+            None => panic!("Missing property '{}' to create a '{}'", key, self.name)
           }
         }
       }
     }
     if !candidates.is_empty() {
-      // "{struct.name} has no property '{prop}'"
       if candidates.len() == 1 {
         let key = candidates.keys().next().unwrap();
-        panic!("{} has no property {:?}", self.name, key);
+        panic!("'{}' has no property '{}'", self.name, key);
       }
       let keys = candidates.keys()
         // .take(3)
         .cloned()
-        .map(|key| format!("'{key}'"))
         .collect::<Vec<_>>()
-        .join(", ");
-      panic!("{} has no properties {}", self.name, keys);
+        .join("', '");
+      panic!("'{}' has no properties '{}'", self.name, keys);
     }
     Instance {
       structure: StructPtr::clone(self),
@@ -135,14 +133,6 @@ fn main() {
     ("x".into(), Instance {
       structure: StructPtr::clone(&u8_struct),
       props: vec![ Value::Uint8(10) ]
-    }),
-    ("z".into(), Instance {
-      structure: StructPtr::clone(&u8_struct),
-      props: vec![ Value::Uint8(15) ]
-    }),
-    ("a".into(), Instance {
-      structure: StructPtr::clone(&u8_struct),
-      props: vec![ Value::Uint8(15) ]
     }),
   ]));
 
