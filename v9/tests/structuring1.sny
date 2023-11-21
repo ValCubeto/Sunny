@@ -9,13 +9,17 @@ struct Point {
   y: u8
 }
 
-class Dog {
-  struct<T> {
+class Dog<T> {
+  struct {
     name: String,
     other: T
   }
-  pub inline fun new<T>(name: String, other: T) {
-    Self<_> { name, other }
+  impl New {}
+}
+
+model New {
+  pub fun new(...) -> Self {
+    return Self { ... }
   }
 }
 
