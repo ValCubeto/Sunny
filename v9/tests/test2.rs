@@ -47,11 +47,12 @@ trait CreateInstance {
   fn new_instance(&self, props: Map<Value>) -> Instance;
 }
 impl CreateInstance for StructPtr {
-  fn new_instance(&self, candidates: Map<Value>) -> Instance {
+  fn new_instance(&self, mut candidates: Map<Value>) -> Instance {
     let mut props = Vec::with_capacity(self.props.len());
     for (key, prop) in self.props.iter() {
-      match candidates.get(key) {
+      match candidates.remove(key) { // this does not deallocate
         Some(value) => {
+          // do not ignore the rest of the candidates
           todo!("check it is the expected type here");
           props.push(value.clone());
         },
