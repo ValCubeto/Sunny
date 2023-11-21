@@ -1,14 +1,13 @@
 use std::{
   rc::Rc,
-  collections::BTreeMap as BinTreeMap,
-  // mem::discriminant
+  collections::BTreeMap as BinTreeMap
 };
 
 use hashbrown::HashMap;
 
 #[derive(Clone, Debug)]
 #[repr(u8)]
-enum Value {
+pub enum Value {
   // None,
   Struct(StructPtr),
   Instance(Instance),
@@ -20,13 +19,14 @@ enum Value {
 //   }
 // }
 
-type Map<T> = HashMap<StringPtr, T>;
-type StructPtr = Rc<Struct>;
-type StringPtr = Rc<str>;
-type StructPropertyMap = BinTreeMap<StringPtr, StructProperty>;
+pub type Pointer<T> = Rc<T>;
+pub type Map<T> = HashMap<StringPtr, T>;
+pub type StructPtr = Pointer<Struct>;
+pub type StringPtr = Pointer<str>;
+pub type StructPropertyMap = BinTreeMap<StringPtr, StructProperty>;
 
 #[derive(Debug)]
-struct Struct {
+pub struct Struct {
   name: StringPtr,
   // sorted map, fast search
   props: StructPropertyMap
@@ -41,24 +41,38 @@ impl PartialEq for Struct {
 }
 
 #[derive(Debug)]
-struct StructProperty {
+pub struct StructProperty {
   structure: StructPtr,
   default_value: Option<Value>
 }
 
-#[derive(Clone)]
-struct Property {
-  structure: StructPtr,
-  value: Value
-}
-
 #[derive(Clone, Debug)]
-struct Instance {
+pub struct Instance {
   structure: StructPtr,
   props: Vec<Value>
 }
 
-trait CreateInstance {
+impl Instance {
+  // TODO: i should cache
+  pub fn get_property(&self, key: StringPtr) -> Value {
+    let search = self.structure.props.iter().position(|(curr_key, _)| *curr_key == key);
+    let index = match search {
+      Some(index) => index,
+      None => panic!("'{}' has no property '{}'", self.structure.name, key),
+    };
+    self.props[index].clone()
+  }
+  pub fn try_get_property(&self, key: StringPtr) -> Option<Value> {
+    let search = self.structure.props.iter().position(|(curr_key, _)| *curr_key == key);
+    let index = match search {
+      Some(index) => index,
+      None => return None
+    };
+    Some(self.props[index].clone())
+  }
+}
+
+pub trait CreateInstance {
   fn new_instance(&self, props: Map<Instance>) -> Instance;
 }
 impl CreateInstance for StructPtr {
@@ -146,7 +160,8 @@ fn main() {
   match &stack["point"] {
     Value::Instance(point) => {
       dbg!(&point.structure.name);
+      dbg!(point.get_property("x".into()));
     }
     _ => unreachable!()
-  }
+  };
 }
