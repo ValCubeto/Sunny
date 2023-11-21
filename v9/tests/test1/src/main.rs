@@ -1,18 +1,25 @@
 use std::{
   rc::Rc,
   collections::BTreeMap as BinTreeMap,
-  any::type_name
+  mem::discriminant
 };
 
 use hashbrown::HashMap;
 
 #[derive(Clone, Debug)]
+#[repr(u8)]
 enum Value {
-  _None,
+  None,
   Struct(StructPtr),
   Instance(Instance),
   Uint8(u8)
 }
+impl Value {
+  pub fn is_same_variant(&self, other: &Self) -> bool {
+    discriminant(self) == discriminant(other)
+  }
+}
+
 type Map<T> = HashMap<StringPtr, T>;
 type StructPtr = Rc<Struct>;
 type StringPtr = Rc<str>;
@@ -23,6 +30,22 @@ struct Struct {
   name: StringPtr,
   // sorted map, fast search
   props: StructPropertyMap
+}
+impl Struct {
+  pub fn empty() -> Self {
+    Self {
+      name: "".into(),
+      props: StructPropertyMap::new()
+    }
+  }
+}
+
+impl PartialEq for Struct {
+  #[inline]
+  fn eq(&self, other: &Self) -> bool {
+    // each struct has its own name, even if they have the same name
+    StringPtr::ptr_eq(&self.name, &other.name)
+  }
 }
 
 #[derive(Debug)]
@@ -44,17 +67,19 @@ struct Instance {
 }
 
 trait CreateInstance {
-  fn new_instance(&self, props: Map<Value>) -> Instance;
+  fn new_instance(&self, props: Map<Instance>) -> Instance;
 }
 impl CreateInstance for StructPtr {
-  fn new_instance(&self, mut candidates: Map<Value>) -> Instance {
+  fn new_instance(&self, mut candidates: Map<Instance>) -> Instance {
     let mut props = Vec::with_capacity(self.props.len());
     for (key, prop) in self.props.iter() {
       match candidates.remove(key) { // this does not deallocate
-        Some(value) => {
+        Some(instance) => {
           // do not ignore the rest of the candidates
-          todo!("check it is the expected type here");
-          props.push(value.clone());
+          if instance.structure != prop.structure {
+            panic!("Mismatched types. {}.{} has type {:?}, found {:?}.", self.name, key, prop.structure.name, instance.structure.name);
+          };
+          props.push(Value::Instance(instance));
         },
         None => {
           match &(prop.default_value) {
@@ -74,6 +99,7 @@ impl CreateInstance for StructPtr {
 }
 
 fn main() {
+  // class u8 { struct { val: _ } }
   let u8_struct = StructPtr::new(Struct {
     name: "u8".into(),
     props: StructPropertyMap::new()
@@ -96,15 +122,21 @@ fn main() {
 
   // let point = Point { y: 5, x: 10 } (order does not matter)
   let point_instance = point_struct.new_instance(Map::from([
-    ("y".into(), Value::Uint8(5)),
-    ("x".into(), Value::Uint8(10)),
+    ("y".into(), Instance {
+      structure: StructPtr::clone(&u8_struct),
+      props: vec![ Value::Uint8(5) ]
+    }),
+    ("x".into(), Instance {
+      structure: StructPtr::clone(&u8_struct),
+      props: vec![ Value::Uint8(10) ]
+    }),
   ]));
 
   let stack = Map::from([
     ("Point".into(), Value::Struct(point_struct)),
     ("point".into(), Value::Instance(point_instance))
   ]);
-  dbg!(type_of(&stack));
+
   dbg!(&stack["Point"]);
   dbg!(&stack["point"]);
   match &stack["point"] {
@@ -113,8 +145,4 @@ fn main() {
     }
     _ => unreachable!()
   }
-}
-
-fn type_of<T>(_value: &T) -> &str {
-  type_name::<T>()
 }

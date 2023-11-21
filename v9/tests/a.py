@@ -1,4 +1,9 @@
 # this is not python, just syntax highlighting without errors everywhere
+# comment
+
+##
+ # comment
+##
 
 ("{fun main() {\n  println('hello world')\n}}")
 fun parse_mod(name, (ctx)) {
