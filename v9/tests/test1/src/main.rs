@@ -19,6 +19,7 @@ pub enum Value {
 //   }
 // }
 
+pub type Slice<T> = Box<[T]>;
 pub type Pointer<T> = Rc<T>;
 pub type Map<T> = HashMap<StringPtr, T>;
 pub type StructPtr = Pointer<Struct>;
@@ -49,7 +50,7 @@ pub struct StructProperty {
 #[derive(Clone, Debug)]
 pub struct Instance {
   structure: StructPtr,
-  props: Vec<Value>
+  props: Slice<Value>
 }
 
 impl Instance {
@@ -111,7 +112,7 @@ impl CreateInstance for StructPtr {
     }
     Instance {
       structure: StructPtr::clone(self),
-      props
+      props: props.into()
     }
   }
 }
@@ -142,11 +143,11 @@ fn main() {
   let point_instance = point_struct.new_instance(Map::from([
     ("y".into(), Instance {
       structure: StructPtr::clone(&u8_struct),
-      props: vec![ Value::Uint8(5) ]
+      props: Box::new([ Value::Uint8(5) ])
     }),
     ("x".into(), Instance {
       structure: StructPtr::clone(&u8_struct),
-      props: vec![ Value::Uint8(10) ]
+      props: Box::new([ Value::Uint8(10) ])
     }),
   ]));
 
