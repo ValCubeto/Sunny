@@ -55,22 +55,25 @@ pub struct Instance {
 
 impl Instance {
   // TODO: i should cache
-  pub fn get_property(&self, key: StringPtr) -> Value {
+  pub fn get_property(&mut self, key: StringPtr) -> &mut Value {
     let search = self.structure.props.iter().position(|(curr_key, _)| *curr_key == key);
     let index = match search {
       Some(index) => index,
       None => panic!("'{}' has no property '{}'", self.structure.name, key),
     };
-    self.props[index].clone()
+    &mut self.props[index]
   }
-  pub fn try_get_property(&self, key: StringPtr) -> Option<Value> {
-    let search = self.structure.props.iter().position(|(curr_key, _)| *curr_key == key);
-    let index = match search {
-      Some(index) => index,
-      None => return None
-    };
-    Some(self.props[index].clone())
+  pub fn set_property(&mut self, key: StringPtr,new_value: Value) {
+    *self.get_property(key) = new_value;
   }
+  // pub fn try_get_property(&self, key: StringPtr) -> Option<Value> {
+  //   let search = self.structure.props.iter().position(|(curr_key, _)| *curr_key == key);
+  //   let index = match search {
+  //     Some(index) => index,
+  //     None => return None
+  //   };
+  //   Some(self.props[index].clone())
+  // }
 }
 
 pub trait CreateInstance {
@@ -156,16 +159,17 @@ fn main() {
     ("point".into(), Value::Instance(point_instance))
   ]);
 
+  dbg!(point_struct == u8_struct);
   // dbg!(&stack["Point"]);
   // dbg!(&stack["point"]);
   match stack.get_mut("point").unwrap() {
     Value::Instance(point) => {
       dbg!(&point.structure.name);
       dbg!(point.get_property("x".into()));
-      point.props[0] = Value::Instance(Instance {
+      point.set_property("x".into(), Value::Instance(Instance {
         structure: StructPtr::clone(&u8_struct),
         props: Box::new([ Value::Uint8(20) ])
-      });
+      }));
       dbg!(point.get_property("x".into()));
     }
     _ => unreachable!()
