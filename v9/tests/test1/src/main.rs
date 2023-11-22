@@ -112,7 +112,7 @@ impl CreateInstance for StructPtr {
     }
     Instance {
       structure: StructPtr::clone(self),
-      props: props.into()
+      props: props.into_boxed_slice()
     }
   }
 }
@@ -151,16 +151,21 @@ fn main() {
     }),
   ]));
 
-  let stack = Map::from([
-    ("Point".into(), Value::Struct(point_struct)),
+  let mut stack = Map::from([
+    ("Point".into(), Value::Struct(StructPtr::clone(&point_struct))),
     ("point".into(), Value::Instance(point_instance))
   ]);
 
-  dbg!(&stack["Point"]);
-  dbg!(&stack["point"]);
-  match &stack["point"] {
+  // dbg!(&stack["Point"]);
+  // dbg!(&stack["point"]);
+  match stack.get_mut("point").unwrap() {
     Value::Instance(point) => {
       dbg!(&point.structure.name);
+      dbg!(point.get_property("x".into()));
+      point.props[0] = Value::Instance(Instance {
+        structure: StructPtr::clone(&u8_struct),
+        props: Box::new([ Value::Uint8(20) ])
+      });
       dbg!(point.get_property("x".into()));
     }
     _ => unreachable!()
