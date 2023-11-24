@@ -1,17 +1,19 @@
 use crate::{
-  types::{Pointer, VariantMap, StringPtr },
+  types::{ Pointer, VariantMap, StringPtr },
   instances::Instance
 };
 
-struct Enum {
-  name: StringPtr,
-  variants: VariantMap
+#[derive(Debug)]
+pub struct Enum {
+  pub name: StringPtr,
+  pub variants: VariantMap
 }
 
-type EnumPtr = Pointer<Enum>;
+pub type EnumPtr = Pointer<Enum>;
 
-struct Variant {
-  prototype: EnumPtr,
-  variant_id: usize,
-  value: Instance
+#[derive(Debug)]
+pub struct Variant {
+  pub prototype: EnumPtr,
+  pub variant_id: usize,
+  pub value: Instance
 }
