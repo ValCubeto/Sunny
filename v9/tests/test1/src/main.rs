@@ -19,7 +19,7 @@ pub enum Value {
 //   }
 // }
 
-pub type Slice<T> = Box<[T]>;
+pub type SlicePtr<T> = Box<[T]>;
 pub type Pointer<T> = Rc<T>;
 pub type Map<T> = HashMap<StringPtr, T>;
 pub type StructPtr = Pointer<Struct>;
@@ -43,23 +43,23 @@ impl PartialEq for Struct {
 
 #[derive(Debug)]
 pub struct StructProperty {
-  structure: StructPtr,
+  prototype: StructPtr,
   default_value: Option<Value>
 }
 
 #[derive(Clone, Debug)]
 pub struct Instance {
-  structure: StructPtr,
-  props: Slice<Value>
+  prototype: StructPtr,
+  props: SlicePtr<Value>
 }
 
 impl Instance {
   // TODO: i should cache
   pub fn get_property(&mut self, key: StringPtr) -> &mut Value {
-    let search = self.structure.props.iter().position(|(curr_key, _)| *curr_key == key);
+    let search = self.prototype.props.iter().position(|(curr_key, _)| *curr_key == key);
     let index = match search {
       Some(index) => index,
-      None => panic!("'{}' has no property '{}'", self.structure.name, key),
+      None => panic!("'{}' has no property '{}'", self.prototype.name, key),
     };
     &mut self.props[index]
   }
@@ -67,7 +67,7 @@ impl Instance {
     *self.get_property(key) = new_value;
   }
   // pub fn try_get_property(&self, key: StringPtr) -> Option<Value> {
-  //   let search = self.structure.props.iter().position(|(curr_key, _)| *curr_key == key);
+  //   let search = self.prototype.props.iter().position(|(curr_key, _)| *curr_key == key);
   //   let index = match search {
   //     Some(index) => index,
   //     None => return None
@@ -86,8 +86,11 @@ impl CreateInstance for StructPtr {
       // this does not deallocate
       match candidates.remove(key) {
         Some(instance) => {
-          if instance.structure != prop.structure {
-            panic!("Mismatched types. '{}.{}' has type '{}', found '{}'.", self.name, key, prop.structure.name, instance.structure.name);
+          if instance.prototype != prop.prototype {
+            panic!(
+              "Mismatched types. '{}.{}' has type '{}', found '{}'.",
+              self.name, key, prop.prototype.name, instance.prototype.name
+            );
           };
           props.push(Value::Instance(instance));
         },
@@ -114,14 +117,14 @@ impl CreateInstance for StructPtr {
       panic!("'{}' has no properties '{}'", self.name, keys);
     }
     Instance {
-      structure: StructPtr::clone(self),
+      prototype: StructPtr::clone(self),
       props: props.into_boxed_slice()
     }
   }
 }
 
 fn main() {
-  // class u8 { struct { val: _ } }
+  // class u8 { struct { value } }
   let u8_struct = StructPtr::new(Struct {
     name: "u8".into(),
     props: StructPropertyMap::new()
@@ -132,11 +135,11 @@ fn main() {
     name: "Point".into(),
     props: StructPropertyMap::from([
       ("x".into(), StructProperty {
-        structure: StructPtr::clone(&u8_struct),
+        prototype: StructPtr::clone(&u8_struct),
         default_value: None
       }),
       ("y".into(), StructProperty {
-        structure: StructPtr::clone(&u8_struct),
+        prototype: StructPtr::clone(&u8_struct),
         default_value: None
       }),
     ])
@@ -145,11 +148,11 @@ fn main() {
   // let point = Point { y: 5, x: 10 } (order does not matter)
   let point_instance = point_struct.new_instance(Map::from([
     ("y".into(), Instance {
-      structure: StructPtr::clone(&u8_struct),
+      prototype: StructPtr::clone(&u8_struct),
       props: Box::new([ Value::Uint8(5) ])
     }),
     ("x".into(), Instance {
-      structure: StructPtr::clone(&u8_struct),
+      prototype: StructPtr::clone(&u8_struct),
       props: Box::new([ Value::Uint8(10) ])
     }),
   ]));
@@ -160,14 +163,13 @@ fn main() {
   ]);
 
   dbg!(point_struct == u8_struct);
-  // dbg!(&stack["Point"]);
-  // dbg!(&stack["point"]);
   match stack.get_mut("point").unwrap() {
     Value::Instance(point) => {
-      dbg!(&point.structure.name);
+      dbg!(&point.prototype.name);
       dbg!(point.get_property("x".into()));
+      // point.x = 20
       point.set_property("x".into(), Value::Instance(Instance {
-        structure: StructPtr::clone(&u8_struct),
+        prototype: StructPtr::clone(&u8_struct),
         props: Box::new([ Value::Uint8(20) ])
       }));
       dbg!(point.get_property("x".into()));
