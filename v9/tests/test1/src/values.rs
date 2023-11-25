@@ -1,16 +1,33 @@
 use crate::{
-  types::{StructPtr, StringPtr},
+  types::{ ClassPtr, StringPtr, SlicePtr, Map },
   instances::Instance
 };
 
+#[allow(unused)]
 #[derive(Clone, Debug)]
 #[repr(u8)]
 pub enum Value {
-  // None,
+  None,
+  Uint8(u8),
+  Uint16(u16),
+  Uint32(u32),
+  Uint64(u64),
+  Uint128(u128),
+  Usize(usize),
+  Int8(i8),
+  Int16(i16),
+  Int32(i32),
+  Int64(i64),
+  Int128(i128),
+  Isize(isize),
+  Float32(f32),
+  Float64(f64),
+  Vec(SlicePtr<Value>), // Rc<Mutex<?>> | Vec<Value>
   String(StringPtr),
-  Struct(StructPtr),
+  Dict(Map<Value>),
+  Class(ClassPtr),
   Instance(Instance),
-  Uint8(u8)
+  // Function(FunctionPtr)
 }
 
 impl Value {
@@ -21,7 +38,7 @@ impl Value {
     let mut string = String::new();
     match self {
       Self::Instance(instance) => string.push_str(&instance.debug(depth + 1)),
-      Self::Struct(structure) => string.push_str(&structure.debug(depth + 1)),
+      Self::Class(class) => string.push_str(&class.debug(depth + 1)),
       Self::Uint8(n) => string.push_str(&format!("{n}_u8")),
       _ => unimplemented!()
     }

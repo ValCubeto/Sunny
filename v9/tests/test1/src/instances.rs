@@ -1,11 +1,11 @@
 use crate::{
-  types::{ StructPtr, SlicePtr, StringPtr, Map },
+  types::{ ClassPtr, SlicePtr, StringPtr, Map },
   values::Value
 };
 
 #[derive(Clone, Debug)]
 pub struct Instance {
-  pub prototype: StructPtr,
+  pub prototype: ClassPtr,
   pub props: SlicePtr<Value>
 }
 
@@ -21,6 +21,7 @@ impl Instance {
         string.push_str("(\n");
       }
       let mut props = self.props.iter();
+      todo!();
       if are_params_named {
         string.push('}');
       } else {
@@ -55,7 +56,7 @@ impl Instance {
 pub trait CreateInstance {
   fn new_instance(&self, props: Map<Instance>) -> Instance;
 }
-impl CreateInstance for StructPtr {
+impl CreateInstance for ClassPtr {
   fn new_instance(&self, mut candidates: Map<Instance>) -> Instance {
     let mut props = Vec::with_capacity(self.props.len());
     for (key, prop) in self.props.iter() {
@@ -93,7 +94,7 @@ impl CreateInstance for StructPtr {
       panic!("'{}' has no properties '{}'", self.name, keys);
     }
     Instance {
-      prototype: StructPtr::clone(self),
+      prototype: ClassPtr::clone(self),
       props: props.into_boxed_slice()
     }
   }

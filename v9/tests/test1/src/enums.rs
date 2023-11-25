@@ -1,7 +1,4 @@
-use crate::{
-  types::{ Pointer, VariantMap, StringPtr },
-  instances::Instance
-};
+use crate::types::{ VariantMap, StringPtr };
 
 #[derive(Debug)]
 pub struct Enum {

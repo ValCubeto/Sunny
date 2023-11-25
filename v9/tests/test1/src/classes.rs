@@ -1,22 +1,22 @@
 use crate::{
-  types::{ StringPtr, StructPropertyMap, StructPtr },
+  types::{ StringPtr, ClassPropertyMap, ClassPtr },
   values::Value
 };
 
 #[derive(Debug)]
-pub struct Struct {
+pub struct Class {
   pub name: StringPtr,
   // sorted map, fast search
-  pub props: StructPropertyMap
+  pub props: ClassPropertyMap
 }
 
-impl Struct {
+impl Class {
   pub fn has_named_keys(&self) -> bool {
     let first_key = self.props.keys().next().unwrap();
     !first_key.chars().next().unwrap().is_ascii_digit()
   }
   pub fn debug(&self, depth: usize) -> String {
-    let mut string = String::from("struct ");
+    let mut string = String::from("Class ");
     string.push_str(&self.name);
     if !self.props.is_empty() {
 
@@ -54,16 +54,16 @@ impl Struct {
   }
 }
 
-impl PartialEq for Struct {
+impl PartialEq for Class {
   #[inline]
   fn eq(&self, other: &Self) -> bool {
-    // each struct has its own name, even if they have the same name
+    // each Class has its own name, even if they have the same name
     StringPtr::ptr_eq(&self.name, &other.name)
   }
 }
 
 #[derive(Debug)]
-pub struct StructProperty {
-  pub prototype: StructPtr,
+pub struct ClassProperty {
+  pub prototype: ClassPtr,
   pub default_value: Option<Value>
 }

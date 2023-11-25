@@ -1,59 +1,59 @@
 use crate::{
   types::*,
   values::*,
-  structs::*,
+  classes::*,
   instances::*,
   enums::*,
   variants::*,
 };
 
-pub fn test_structs() {
-  println!("[test::structs]");
-  let u8_struct = StructPtr::new(Struct {
+pub fn test_classes() {
+  println!("[test::Classs]");
+  let u8_class = ClassPtr::new(Class {
     name: "u8".into(),
-    props: StructPropertyMap::new()
+    props: ClassPropertyMap::new()
   });
 
-  // struct Point { x: u8, y: u8 }
-  let point_struct = StructPtr::new(Struct {
+  // Class Point { x: u8, y: u8 }
+  let point_class = ClassPtr::new(Class {
     name: "Point".into(),
-    props: StructPropertyMap::from([
-      ("x".into(), StructProperty {
-        prototype: StructPtr::clone(&u8_struct),
+    props: ClassPropertyMap::from([
+      ("x".into(), ClassProperty {
+        prototype: ClassPtr::clone(&u8_class),
         default_value: None
       }),
-      ("y".into(), StructProperty {
-        prototype: StructPtr::clone(&u8_struct),
+      ("y".into(), ClassProperty {
+        prototype: ClassPtr::clone(&u8_class),
         default_value: None
       }),
     ])
   });
 
   // let point = Point { y: 5, x: 10 } (order does not matter)
-  let point_instance = point_struct.new_instance(Map::from([
+  let point_instance = point_class.new_instance(Map::from([
     ("y".into(), Instance {
-      prototype: StructPtr::clone(&u8_struct),
+      prototype: ClassPtr::clone(&u8_class),
       props: Box::new([ Value::Uint8(5) ])
     }),
     ("x".into(), Instance {
-      prototype: StructPtr::clone(&u8_struct),
+      prototype: ClassPtr::clone(&u8_class),
       props: Box::new([ Value::Uint8(10) ])
     }),
   ]));
 
   let mut stack = Map::from([
-    ("Point".into(), Value::Struct(StructPtr::clone(&point_struct))),
+    ("Point".into(), Value::Class(ClassPtr::clone(&point_class))),
     ("point".into(), Value::Instance(point_instance))
   ]);
 
-  dbg!(point_struct == u8_struct);
+  dbg!(point_class == u8_class);
   match stack.get_mut("point").unwrap() {
     Value::Instance(point) => {
       dbg!(&point.prototype.name);
       println!("{}", point.get_property("x".into()).debug(1));
       // point.x = 20
       point.set_property("x".into(), Value::Instance(Instance {
-        prototype: StructPtr::clone(&u8_struct),
+        prototype: ClassPtr::clone(&u8_class),
         props: Box::new([ Value::Uint8(20) ])
       }));
       println!("{}", point.get_property("x".into()).debug(1));
@@ -70,57 +70,57 @@ pub fn test_structs() {
 
 pub fn test_enums() {
   println!("[test::enums]");
-  let u8_struct = StructPtr::new(Struct {
+  let u8_class = ClassPtr::new(Class {
     name: "u8".into(),
-    props: StructPropertyMap::new()
+    props: ClassPropertyMap::new()
   });
-  let string_struct = StructPtr::new(Struct {
+  let string_class = ClassPtr::new(Class {
     name: "String".into(),
-    props: StructPropertyMap::new()
+    props: ClassPropertyMap::new()
   });
 
   let action_enum = EnumPtr::new(Enum {
     name: "Action".into(),
     variants: VariantMap::from([
-      (0, StructPtr::new(Struct {
+      (0, ClassPtr::new(Class {
         name: "Quit".into(),
-        props: StructPropertyMap::new()
+        props: ClassPropertyMap::new()
       })),
-      (1, StructPtr::new(Struct {
+      (1, ClassPtr::new(Class {
         name: "Move".into(),
-        props: StructPropertyMap::from([
-          ("x".into(), StructProperty {
-            prototype: StructPtr::clone(&u8_struct),
+        props: ClassPropertyMap::from([
+          ("x".into(), ClassProperty {
+            prototype: ClassPtr::clone(&u8_class),
             default_value: None
           }),
-          ("y".into(), StructProperty {
-            prototype: StructPtr::clone(&u8_struct),
+          ("y".into(), ClassProperty {
+            prototype: ClassPtr::clone(&u8_class),
             default_value: None
           })
         ])
       })),
-      (2, StructPtr::new(Struct {
+      (2, ClassPtr::new(Class {
         name: "Write".into(),
-        props: StructPropertyMap::from([
-          ("0".into(), StructProperty {
-            prototype: StructPtr::clone(&string_struct),
+        props: ClassPropertyMap::from([
+          ("0".into(), ClassProperty {
+            prototype: ClassPtr::clone(&string_class),
             default_value: None
           })
         ])
       })),
-      (3, StructPtr::new(Struct {
+      (3, ClassPtr::new(Class {
         name: "ChangeColor".into(),
-        props: StructPropertyMap::from([
-          ("0".into(), StructProperty {
-            prototype: StructPtr::clone(&u8_struct),
+        props: ClassPropertyMap::from([
+          ("0".into(), ClassProperty {
+            prototype: ClassPtr::clone(&u8_class),
             default_value: None
           }),
-          ("1".into(), StructProperty {
-            prototype: StructPtr::clone(&u8_struct),
+          ("1".into(), ClassProperty {
+            prototype: ClassPtr::clone(&u8_class),
             default_value: None
           }),
-          ("2".into(), StructProperty {
-            prototype: StructPtr::clone(&u8_struct),
+          ("2".into(), ClassProperty {
+            prototype: ClassPtr::clone(&u8_class),
             default_value: None
           }),
         ])
@@ -133,11 +133,11 @@ pub fn test_enums() {
     variant_id: 1,
     value: action_enum.variants[&1].new_instance(Map::from([
       ("x".into(), Instance {
-        prototype: StructPtr::clone(&u8_struct),
+        prototype: ClassPtr::clone(&u8_class),
         props: vec![ Value::Uint8(50) ].into_boxed_slice()
       }),
       ("y".into(), Instance {
-        prototype: StructPtr::clone(&u8_struct),
+        prototype: ClassPtr::clone(&u8_class),
         props: vec![ Value::Uint8(10) ].into_boxed_slice()
       }),
     ]))

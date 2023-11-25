@@ -8,7 +8,7 @@ use hashbrown::HashMap;
 use crate::{
   enums::*,
   instances::*,
-  structs::*,
+  classes::*,
   tests::*,
   values::*,
   variants::*,
@@ -17,8 +17,8 @@ use crate::{
 pub type SlicePtr<T> = Box<[T]>;
 pub type Pointer<T> = Rc<T>;
 pub type Map<T> = HashMap<StringPtr, T>;
-pub type StructPtr = Pointer<Struct>;
+pub type ClassPtr = Pointer<Class>;
 pub type StringPtr = Pointer<str>;
-pub type StructPropertyMap = BinTreeMap<StringPtr, StructProperty>;
-pub type VariantMap = HashMap<usize, StructPtr>;
+pub type ClassPropertyMap = BinTreeMap<StringPtr, ClassProperty>;
+pub type VariantMap = HashMap<usize, ClassPtr>;
 pub type EnumPtr = Pointer<Enum>;
