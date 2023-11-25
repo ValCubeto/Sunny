@@ -1,21 +1,36 @@
-pub enum FunctionPtr {
-  Builtin(BuiltinFunctionPtr),
-  Declared(DeclaredFunctionPtr)
-}
-
 pub type Arguments = SlicePtr<Type>;
 pub type BuiltinFunctionPtr = Rc<dyn Fn(Arguments) -> Value>;
-pub type DeclaredFunctionPtr = Rc<Function>;
 
 pub struct Function {
   pub name: StringPtr,
   pub generics: Map<Type>,
   pub params: SlicePtr<Type>,
   pub output: Type,
-  pub body: SlicePtr<Statement>,
+  pub body: FunctionBody,
 }
+
+pub type FunctionPtr = Rc<Function>;
+
+pub enum FunctionBody {
+  Builtin(BuiltinFunctionPtr),
+  Declared(SlicePtr<Statement>)
+}
+
 pub enum Type {
   Variant(EnumPtr),
   Instance(ClassPtr),
-  Implements(Trait)
+  Implements(SlicePtr<TraitPtr>)
+}
+
+pub type TraitPtr = Rc<Trait>;
+
+pub struct Trait {
+  name: StringPtr,
+  requeriments: SlicePtr<TraitPtr>,
+  values: Map<Constant> // require const & fun
+}
+
+pub struct Constant {
+  name: StringPtr,
+  type_of: Type,
 }
