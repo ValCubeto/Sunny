@@ -3,10 +3,12 @@ use crate::{
   values::*,
   structs::*,
   instances::*,
-  enums::*
+  enums::*,
+  variants::*,
 };
 
 pub fn test_structs() {
+  println!("[test::structs]");
   let u8_struct = StructPtr::new(Struct {
     name: "u8".into(),
     props: StructPropertyMap::new()
@@ -48,19 +50,26 @@ pub fn test_structs() {
   match stack.get_mut("point").unwrap() {
     Value::Instance(point) => {
       dbg!(&point.prototype.name);
-      dbg!(point.get_property("x".into()));
+      println!("{}", point.get_property("x".into()).debug(1));
       // point.x = 20
       point.set_property("x".into(), Value::Instance(Instance {
         prototype: StructPtr::clone(&u8_struct),
         props: Box::new([ Value::Uint8(20) ])
       }));
-      dbg!(point.get_property("x".into()));
+      println!("{}", point.get_property("x".into()).debug(1));
     }
     _ => unreachable!()
   };
+
+  println!();
 }
 
+
+
+
+
 pub fn test_enums() {
+  println!("[test::enums]");
   let u8_struct = StructPtr::new(Struct {
     name: "u8".into(),
     props: StructPropertyMap::new()
@@ -121,9 +130,22 @@ pub fn test_enums() {
 
   let action = Variant {
     prototype: EnumPtr::clone(&action_enum),
-    variant_id: 0,
-    value: action_enum.variants[&0].new_instance(Map::new())
+    variant_id: 1,
+    value: action_enum.variants[&1].new_instance(Map::from([
+      ("x".into(), Instance {
+        prototype: StructPtr::clone(&u8_struct),
+        props: vec![ Value::Uint8(50) ].into_boxed_slice()
+      }),
+      ("y".into(), Instance {
+        prototype: StructPtr::clone(&u8_struct),
+        props: vec![ Value::Uint8(10) ].into_boxed_slice()
+      }),
+    ]))
   };
 
-  dbg!(&action);
+  println!("{}", action_enum.debug(1));
+  println!("{}", action.debug(1));
+
+  println!();
 }
+

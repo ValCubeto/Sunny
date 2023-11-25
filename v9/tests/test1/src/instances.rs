@@ -10,6 +10,26 @@ pub struct Instance {
 }
 
 impl Instance {
+  pub fn debug(&self, depth: usize) -> String {
+    let mut string = String::new();
+    string.push_str(&self.prototype.name);
+    if !self.prototype.props.is_empty() {
+      let are_params_named = self.prototype.has_named_keys();
+      if are_params_named {
+        string.push_str(" {\n");
+      } else {
+        string.push_str("(\n");
+      }
+      let mut props = self.props.iter();
+      if are_params_named {
+        string.push('}');
+      } else {
+        string.push(')');
+      }
+    }
+    string
+  }
+
   // TODO: i should cache
   pub fn get_property(&mut self, key: StringPtr) -> &mut Value {
     let search = self.prototype.props.iter().position(|(curr_key, _)| *curr_key == key);

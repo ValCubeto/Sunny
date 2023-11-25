@@ -9,11 +9,22 @@ pub struct Enum {
   pub variants: VariantMap
 }
 
-pub type EnumPtr = Pointer<Enum>;
-
-#[derive(Debug)]
-pub struct Variant {
-  pub prototype: EnumPtr,
-  pub variant_id: usize,
-  pub value: Instance
+impl Enum {
+  pub fn debug(&self, depth: usize) -> String {
+    let mut string = String::from("enum ");
+    string.push_str(&self.name);
+    if !self.variants.is_empty() {
+      string.push_str(" {\n");
+      for (discriminator, prototype) in self.variants.iter() {
+        string.push_str(&"  ".repeat(depth));
+        string.push_str(&discriminator.to_string());
+        string.push_str(": ");
+        string.push_str(&prototype.debug(depth + 1));
+        string.push('\n');
+      }
+      string.push_str(&"  ".repeat(depth - 1));
+      string.push('}');
+    }
+    string
+  }
 }
