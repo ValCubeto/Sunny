@@ -5,6 +5,7 @@ mod instances;
 mod enums;
 mod tests;
 mod variants;
+mod functions;
 
 use crate::tests::*;
 

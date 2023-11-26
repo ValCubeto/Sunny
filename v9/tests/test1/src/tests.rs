@@ -11,7 +11,8 @@ pub fn test_classes() {
   println!("[test::Classs]");
   let u8_class = ClassPtr::new(Class {
     name: "u8".into(),
-    props: ClassPropertyMap::new()
+    props: ClassPropertyMap::new(),
+    values: vec![].into_boxed_slice()
   });
 
   // Class Point { x: u8, y: u8 }
@@ -26,7 +27,8 @@ pub fn test_classes() {
         prototype: ClassPtr::clone(&u8_class),
         default_value: None
       }),
-    ])
+    ]),
+    values: vec![].into_boxed_slice()
   });
 
   // let point = Point { y: 5, x: 10 } (order does not matter)
@@ -72,11 +74,13 @@ pub fn test_enums() {
   println!("[test::enums]");
   let u8_class = ClassPtr::new(Class {
     name: "u8".into(),
-    props: ClassPropertyMap::new()
+    props: ClassPropertyMap::new(),
+    values: vec![].into_boxed_slice()
   });
   let string_class = ClassPtr::new(Class {
     name: "String".into(),
-    props: ClassPropertyMap::new()
+    props: ClassPropertyMap::new(),
+    values: vec![].into_boxed_slice()
   });
 
   let action_enum = EnumPtr::new(Enum {
@@ -84,7 +88,8 @@ pub fn test_enums() {
     variants: VariantMap::from([
       (0, ClassPtr::new(Class {
         name: "Quit".into(),
-        props: ClassPropertyMap::new()
+        props: ClassPropertyMap::new(),
+        values: vec![].into_boxed_slice()
       })),
       (1, ClassPtr::new(Class {
         name: "Move".into(),
@@ -97,7 +102,8 @@ pub fn test_enums() {
             prototype: ClassPtr::clone(&u8_class),
             default_value: None
           })
-        ])
+        ]),
+        values: vec![].into_boxed_slice()
       })),
       (2, ClassPtr::new(Class {
         name: "Write".into(),
@@ -106,7 +112,8 @@ pub fn test_enums() {
             prototype: ClassPtr::clone(&string_class),
             default_value: None
           })
-        ])
+        ]),
+        values: vec![].into_boxed_slice()
       })),
       (3, ClassPtr::new(Class {
         name: "ChangeColor".into(),
@@ -123,7 +130,8 @@ pub fn test_enums() {
             prototype: ClassPtr::clone(&u8_class),
             default_value: None
           }),
-        ])
+        ]),
+        values: vec![].into_boxed_slice()
       }))
     ])
   });

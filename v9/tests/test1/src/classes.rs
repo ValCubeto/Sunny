@@ -1,25 +1,27 @@
 use crate::{
-  types::{ StringPtr, ClassPropertyMap, ClassPtr },
-  values::Value
+  types::{ StringPtr, ClassPropertyMap, ClassPtr, SlicePtr },
+  values::Value, functions::Constant
 };
 
 #[derive(Debug)]
 pub struct Class {
   pub name: StringPtr,
-  // sorted map, fast search
-  pub props: ClassPropertyMap
+  pub props: ClassPropertyMap,
+  pub values: SlicePtr<Constant>
 }
 
 impl Class {
+  #[inline]
   pub fn has_named_keys(&self) -> bool {
-    let first_key = self.props.keys().next().unwrap();
-    !first_key.chars().next().unwrap().is_ascii_digit()
+    self.props
+      .keys().next().unwrap()
+      .chars().next().unwrap()
+      .is_ascii_digit()
   }
   pub fn debug(&self, depth: usize) -> String {
     let mut string = String::from("Class ");
     string.push_str(&self.name);
     if !self.props.is_empty() {
-
       let are_keys_named = self.has_named_keys();
       if are_keys_named {
         string.push_str(" {\n");
