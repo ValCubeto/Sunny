@@ -10,25 +10,30 @@ pub struct Instance {
 }
 
 impl Instance {
+  #[allow(clippy::needless_return)]
   pub fn debug(&self, depth: usize) -> String {
     let mut string = String::new();
     string.push_str(&self.prototype.name);
-    if !self.prototype.props.is_empty() {
-      let are_params_named = self.prototype.has_named_keys();
-      if are_params_named {
-        string.push_str(" {\n");
-      } else {
-        string.push_str("(\n");
-      }
-      let mut props = self.props.iter();
-      todo!();
-      if are_params_named {
-        string.push('}');
-      } else {
-        string.push(')');
-      }
+    if self.prototype.props.is_empty() {
+      return string;
     }
-    string
+    if self.prototype.has_numeric_keys() {
+      string.push('(');
+      // string.push_str("(\n");
+      string.push(')');
+      todo!();
+      return string;
+    }
+    string.push_str(" {\n");
+    for (key, value) in self.prototype.props.keys().zip(self.props.iter()) {
+      string.push_str(&"  ".repeat(depth));
+      string.push_str(key);
+      string.push_str(" = ");
+      string.push_str(&value.debug(depth + 1));
+    }
+    string.push_str(&"  ".repeat(depth - 1));
+    string.push('}');
+    return string;
   }
 
   // TODO: i should cache

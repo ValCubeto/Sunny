@@ -1,6 +1,6 @@
 use crate::{
   types::{ ClassPtr, StringPtr, SlicePtr, Map },
-  instances::Instance
+  instances::Instance, functions::FunctionPtr
 };
 
 #[allow(unused)]
@@ -27,7 +27,7 @@ pub enum Value {
   Dict(Map<Value>),
   Class(ClassPtr),
   Instance(Instance),
-  // Function(FunctionPtr)
+  Function(FunctionPtr)
 }
 
 impl Value {
