@@ -1,13 +1,15 @@
 use crate::{
   types::{ StringPtr, ClassPropertyMap, ClassPtr, SlicePtr },
-  values::Value, functions::Constant
+  values::Value,
+  functions::{ Constant, TraitPtr }
 };
 
 #[derive(Debug)]
 pub struct Class {
   pub name: StringPtr,
   pub props: ClassPropertyMap,
-  pub values: SlicePtr<Constant>
+  pub values: SlicePtr<Constant>,
+  pub implements: SlicePtr<TraitPtr>
 }
 
 impl Class {

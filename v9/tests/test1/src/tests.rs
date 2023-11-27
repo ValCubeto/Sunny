@@ -4,7 +4,7 @@ use crate::{
   classes::*,
   instances::*,
   enums::*,
-  variants::*,
+  variants::*, functions::{Trait, TraitPtr, Generics},
 };
 
 pub fn test_classes() {
@@ -12,7 +12,7 @@ pub fn test_classes() {
   let u8_class = ClassPtr::new(Class {
     name: "u8".into(),
     props: ClassPropertyMap::new(),
-    values: vec![].into_boxed_slice()
+    values: Box::new([])
   });
 
   // Class Point { x: u8, y: u8 }
@@ -28,7 +28,7 @@ pub fn test_classes() {
         default_value: None
       }),
     ]),
-    values: vec![].into_boxed_slice()
+    values: Box::new([])
   });
 
   // let point = Point { y: 5, x: 10 } (order does not matter)
@@ -75,12 +75,21 @@ pub fn test_enums() {
   let u8_class = ClassPtr::new(Class {
     name: "u8".into(),
     props: ClassPropertyMap::new(),
-    values: vec![].into_boxed_slice()
+    values: Box::new([])
   });
   let string_class = ClassPtr::new(Class {
     name: "String".into(),
     props: ClassPropertyMap::new(),
-    values: vec![].into_boxed_slice()
+    values: Box::new([])
+  });
+
+  let display_trait = TraitPtr::new(Trait {
+    name: "Display".into(),
+    generics: Generics::new(),
+    requeriments: Box::new([]),
+    values: Map::from([
+      
+    ])
   });
 
   let action_enum = EnumPtr::new(Enum {
@@ -89,7 +98,7 @@ pub fn test_enums() {
       (0, ClassPtr::new(Class {
         name: "Quit".into(),
         props: ClassPropertyMap::new(),
-        values: vec![].into_boxed_slice()
+        values: Box::new([])
       })),
       (1, ClassPtr::new(Class {
         name: "Move".into(),
@@ -103,7 +112,7 @@ pub fn test_enums() {
             default_value: None
           })
         ]),
-        values: vec![].into_boxed_slice()
+        values: Box::new([])
       })),
       (2, ClassPtr::new(Class {
         name: "Write".into(),
@@ -113,7 +122,7 @@ pub fn test_enums() {
             default_value: None
           })
         ]),
-        values: vec![].into_boxed_slice()
+        values: Box::new([])
       })),
       (3, ClassPtr::new(Class {
         name: "ChangeColor".into(),
@@ -131,7 +140,7 @@ pub fn test_enums() {
             default_value: None
           }),
         ]),
-        values: vec![].into_boxed_slice()
+        values: Box::new([])
       }))
     ])
   });
@@ -142,11 +151,11 @@ pub fn test_enums() {
     value: action_enum.variants[&1].new_instance(Map::from([
       ("x".into(), Instance {
         prototype: ClassPtr::clone(&u8_class),
-        props: vec![ Value::Uint8(50) ].into_boxed_slice()
+        props: Box::new([ Value::Uint8(50) ])
       }),
       ("y".into(), Instance {
         prototype: ClassPtr::clone(&u8_class),
-        props: vec![ Value::Uint8(10) ].into_boxed_slice()
+        props: Box::new([ Value::Uint8(10) ])
       }),
     ]))
   };

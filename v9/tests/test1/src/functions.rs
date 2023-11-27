@@ -1,6 +1,8 @@
 use std::rc::Rc;
-
-use crate::{types::{SlicePtr, StringPtr, Map, EnumPtr, ClassPtr}, values::Value};
+use crate::{
+  types::{ SlicePtr, StringPtr, Map, EnumPtr, ClassPtr },
+  values::Value, instances::Instance
+};
 
 pub type Arguments = SlicePtr<Type>;
 pub type BuiltinFunctionPtr = Rc<dyn Fn(Arguments) -> Value>;
@@ -17,7 +19,13 @@ pub struct Function {
 impl std::fmt::Debug for Function {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let generics = self.generics.keys().cloned().collect::<Vec<_>>().join(", ");
-    let params = self.params.join(", ");
+    let mut params = String::new();
+    let mut params_iter = self.params.iter();
+    let p = params_iter.next().unwrap();
+    params.push_str(&format!("{p:?}"));
+    for p in params_iter {
+      params.push_str(&format!(", {p:?}"));
+    }
     write!(f, "fun {}{}({}) -> {:?}", self.name, generics, params, self.output)
   }
 }
@@ -47,9 +55,14 @@ impl std::fmt::Debug for Type {
       Self::Variant(variant) => write!(f, "{}", variant.name),
       Self::Instance(instance) => write!(f, "{}", instance.name),
       Self::Implements(traits) => {
-        write!(f, "{}", traits.iter().map(|t| {
-          format!("{}{}", t.name, t.generics.iter())
-        }).collect::<Vec<_>>().join(" + "))
+        let mut traits_iter = traits.iter();
+        let mut traits = String::new();
+        let t = traits_iter.next().unwrap();
+        traits.push_str(&format!("{t:?}"));
+        for t in traits_iter {
+          traits.push_str(&format!(" + {t:?}"));
+        }
+        write!(f, "impl {traits:?}")
       }
     }
   }
@@ -61,12 +74,28 @@ pub type Generics = Map<Option<Type>>;
 pub type TraitPtr = Rc<Trait>;
 
 /// example: trait Number: Sum<Self> + ... { const MIN: Self, const MAX: Self }
-#[derive(Debug)]
+
 pub struct Trait {
-  name: StringPtr,
-  generics: Generics,
-  requeriments: SlicePtr<TraitPtr>,
-  values: Map<Constant> // require const & fun
+  pub name: StringPtr,
+  pub generics: Generics,
+  // TODO: this only applies to Self. change it to a HashMap
+  pub requeriments: SlicePtr<TraitPtr>,
+  // TODO: change this to Map<HashMap<Constant>>
+  pub constants: Map<Instance>, // require const & fun
+  pub methods: Map<Function>
+}
+
+impl std::fmt::Debug for Trait {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut generics = String::new();
+    let mut generics_iter = self.generics.values();
+    let g = generics_iter.next().unwrap();
+    generics.push_str(&format!("{g:?}"));
+    for g in generics_iter {
+      generics.push_str(&format!(", {g:?}"));
+    }
+    write!(f, "{}<{}>", self.name, generics)
+  }
 }
 
 #[derive(Debug)]
