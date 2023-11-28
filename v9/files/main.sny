@@ -1,4 +1,4 @@
 fun main() {
   var name = 'world'
-  println('Hello, $(name)!')
+  println(f'Hello, {name}!')
 }
