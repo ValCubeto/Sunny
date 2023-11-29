@@ -8,21 +8,12 @@ use crate::{
 #[repr(u8)]
 pub enum Value {
   None,
-  Uint8(u8),
-  Uint16(u16),
-  Uint32(u32),
-  Uint64(u64),
-  Uint128(u128),
-  Usize(usize),
-  Int8(i8),
-  Int16(i16),
-  Int32(i32),
-  Int64(i64),
-  Int128(i128),
-  Isize(isize),
-  Float32(f32),
-  Float64(f64),
-  Vec(SlicePtr<Value>), // Rc<Mutex<?>> | Vec<Value>
+  UnsignedInt(u64), // uint
+  Int(i64), // int
+  Float(f64), // float
+  Usize(usize), // usize
+  Isize(isize), // isize
+  Vec(SlicePtr<Value>), /// Rc<Mutex<?>> | Vec<Value>
   String(StringPtr),
   Dict(Map<Value>),
   Class(ClassPtr),
@@ -39,7 +30,7 @@ impl Value {
     match self {
       Self::Instance(instance) => string.push_str(&instance.debug(depth + 1)),
       Self::Class(class) => string.push_str(&class.debug(depth + 1)),
-      Self::Uint8(n) => string.push_str(&format!("{n}_u8")),
+      Self::UnsignedInt(n) => string.push_str(&format!("{n}u")),
       _ => unimplemented!()
     }
     string
