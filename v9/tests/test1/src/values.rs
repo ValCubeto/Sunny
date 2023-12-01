@@ -6,13 +6,14 @@ use crate::{
 #[allow(unused)]
 #[derive(Clone, Debug)]
 #[repr(u8)]
+
+// TODO: algun dia voy a optimizar el manejo de memoria añadiendo u8 u16 u32 etc
 pub enum Value {
   None,
   UnsignedInt(u64), // uint
   Int(i64), // int
   Float(f64), // float
-  Usize(usize), // usize
-  Isize(isize), // isize
+  Usize(usize), // usize,
   Vec(SlicePtr<Value>), /// Rc<Mutex<?>> | Vec<Value>
   String(StringPtr),
   Dict(Map<Value>),
