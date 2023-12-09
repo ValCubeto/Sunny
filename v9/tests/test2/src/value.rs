@@ -1,12 +1,14 @@
 pub struct Value {
+  id: usize,
   ptr: usize,
   len: usize,
-  id: usize,
 }
+
+// values = Vec<usize> -> elem as *const u8
 
 impl Value {
   #[inline]
-  pub fn new(ptr: usize, len: usize, id: usize) -> Self {
-    Value { ptr, len, id }
+  pub fn new(id: usize, ptr: usize, len: usize) -> Self {
+    Value { id, ptr, len }
   }
 }
