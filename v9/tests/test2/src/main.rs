@@ -10,7 +10,9 @@ use std::{
 
 #[allow(clippy::size_of_ref)]
 fn main() {
+  // size of str is not known at compile time... but size of slice
   let input = b"Hello";
+
   // let len = size_by_val(&input);
   let len = input.len();
   let ptr = ptr_to_first_byte(input);
