@@ -11,11 +11,11 @@ use std::{
 #[allow(clippy::size_of_ref)]
 fn main() {
   // size of str is not known at compile time... but size of slice
-  let input = b"Hello";
+  let input = "Hello \u{FF}";
 
   // let len = size_by_val(&input);
   let len = input.len();
-  let ptr = ptr_to_first_byte(input);
+  let ptr = input as *const str as *const u8 as usize;
   let ptr_len = size_by_val(&ptr);
 
   println!("Pointer value  : 0x{:X}", ptr);
