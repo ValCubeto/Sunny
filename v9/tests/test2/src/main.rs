@@ -4,7 +4,7 @@ use std::{
     size_of_val as size_by_val,
     // size_of
   },
-  slice,
+  slice::from_raw_parts as read_bytes,
   any::type_name
 };
 
@@ -13,7 +13,7 @@ fn main() {
   let input = b"Hello";
   // let len = size_by_val(&input);
   let len = input.len();
-  let ptr = input.as_ptr() as usize;
+  let ptr = ptr_to_first_byte(input);
   let ptr_len = size_by_val(&ptr);
 
   println!("Pointer value  : 0x{:X}", ptr);
@@ -24,7 +24,7 @@ fn main() {
   println!("Size of input  : {} bytes | {} bits", len, len * 8);
   println!();
   unsafe {
-    let bytes = slice::from_raw_parts(ptr as *const u8, len);
+    let bytes = read_bytes(ptr as *const u8, len);
     let max_index_len = bytes.len().to_string().len();
     // Bytes reversed because of little-endian!
     for (i, &byte) in bytes.iter().enumerate() {

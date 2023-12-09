@@ -18,7 +18,6 @@ let only_pairs: Vec<int> = Range::new(0, numbers.len() - 1)
   .map(/n/ n % 2 == 0 ? n : n * 2)
   .collect()
 
-(x) to (y)
 Range::new(x, y)
 
 
