@@ -13,7 +13,7 @@ fun Vec::with_each<O>(self, modify: (T) -> O) -> Self<O> {
   return new
 }
 
-let only_pairs: Vec<int> = ((0) to (numbers.len() - 1))
+let only_pairs: Vec<int> = Range::new(0, numbers.len() - 1)
   .iter()
   .map(/n/ n % 2 == 0 ? n : n * 2)
   .collect()
