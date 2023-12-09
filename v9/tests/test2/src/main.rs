@@ -17,7 +17,6 @@ fn main() {
 
   let len = size_by_val(&input);
   // let len = input.len();
-  // when working with &str, you need to convert it to *const str first
   let ptr = ptr_to_first_byte(&input);
   let ptr_len = size_by_val(&ptr);
 
@@ -38,7 +37,7 @@ fn main() {
     }
     println!();
 
-    println!("Back to UTF-8 &str: {:?}", std::str::from_utf8(bytes).expect("invalid utf8"))
+    // println!("Back to UTF-8 &str: {:?}", std::str::from_utf8(bytes).expect("invalid utf8"))
   };
 }
 
