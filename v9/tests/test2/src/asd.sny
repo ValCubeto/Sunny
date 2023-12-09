@@ -1,0 +1,41 @@
+
+let numbers = [1, 2, 3]
+let squares = numbers.with_each(/n/ n.sqrt())
+
+# if its odd, double it
+let only_pairs = numbers.with_each(/n/ n % 2 == 0 ? n : n * 2)
+
+fun Vec::with_each<O>(self, modify: (T) -> O) -> Self<O> {
+  var new = Vec<O>::with_capacity(self.len())
+  for element in self {
+    new.push(modify(element))
+  }
+  return new
+}
+
+let only_pairs: Vec<int> = ((0) to (numbers.len() - 1))
+  .iter()
+  .map(/n/ n % 2 == 0 ? n : n * 2)
+  .collect()
+
+(x) to (y)
+Range::new(x, y)
+
+
+let text = "IReallyReallyLoveApples"
+  .split_left_by_and_keep(/char/ char.is_upper())    # ['I', 'Really', ...]
+  .join(' ')
+
+fun String::split_left_by_and_keep(self, func: fun (Char) -> bool) -> String[] {
+  var result = []
+  var acc = String::new()
+  for char in self.chars() {
+    if func(char) {
+      if !acc.is_empty() {
+        result.push(acc)
+        acc.clean()    # only sets len to zero
+      }
+    }
+  }
+  return result
+}
