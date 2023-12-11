@@ -37,6 +37,7 @@ fn main() {
   };
 
   let runtime_ctx = RuntimeContext::default();
+  dbg!(&runtime_ctx);
 }
 
 #[inline(always)]
@@ -54,6 +55,12 @@ struct RuntimeContext {
   temporal_types: Vec<fn(Pointer)>
 }
 
+impl std::fmt::Debug for RuntimeContext {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "[RuntimeContext: {} types registered]", self.types.len())
+  }
+}
+
 macro_rules! def_type {
   ($( $type_name: ident ),* $(,)?) => {
     $( static mut $type_name: usize = 0; )*
@@ -61,6 +68,7 @@ macro_rules! def_type {
 }
 
 def_type! {
+  PTR,
   BOOL,
 
   UINT8,
