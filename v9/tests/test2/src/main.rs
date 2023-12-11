@@ -1,9 +1,6 @@
 mod value;
 use std::{
-  mem::{
-    size_of_val as size_by_val,
-    // size_of
-  },
+  mem::size_of_val as size_by_val,
   slice::from_raw_parts as read_bytes,
   any::type_name
 };
@@ -13,7 +10,7 @@ pub type Byte = u8;
 #[allow(clippy::size_of_ref)]
 fn main() {
   // size of str is not known at compile time... but size of slice
-  let input = 124;
+  let input = 255;
 
   let len = size_by_val(&input);
   // let len = input.len();
@@ -33,12 +30,13 @@ fn main() {
     // With numbers, the bytes are reversed because of little-endian!
     for (i, &byte) in bytes.iter().enumerate() {
       println!("Byte #{:<0len$}: {:08b}", i + 1, byte, len = max_index_len);
-      println!("{:?}", byte as char);
+      // println!("{:?}", byte as char);
     }
     println!();
-
     // println!("Back to UTF-8 &str: {:?}", std::str::from_utf8(bytes).expect("invalid utf8"))
   };
+
+  let runtime_ctx = RuntimeContext::default();
 }
 
 #[inline(always)]
@@ -49,4 +47,94 @@ pub fn ptr_to_first_byte<T: ?Sized>(ptr: &T) -> usize {
 #[inline(always)]
 pub fn type_name_of<T>(_value: &T) -> &str {
   type_name::<T>()
+}
+
+struct RuntimeContext {
+  types: Box<[fn(Pointer)]>,
+  temporal_types: Vec<fn(Pointer)>
+}
+
+impl RuntimeContext {
+  // SAFETY: as_raw_ptr checks for null pointers
+  pub fn default() -> Self {
+    let types: Box<[fn(Pointer)]> = Box::new([
+      // BOOLEAN TYPE
+      |ptr| {
+        println!("Reading {ptr}");
+
+        unsafe {
+          let boolean = read_byte(ptr.as_raw_ptr());
+          println!("Got a boolean: {}", boolean != 0);
+        };
+      },
+
+      // U8 TYPE
+      |ptr| {
+        println!("Reading {ptr}");
+        unsafe {
+          let n = read_byte(ptr.as_raw_ptr());
+          println!("Got an u8: {n}")
+        }
+      },
+
+      // I8 TYPE
+      |ptr| {
+        println!("Reading {ptr}");
+        unsafe {
+          let n = read_byte(ptr.as_raw_ptr()) as i8;
+          println!("Got an u8: {n}")
+        }
+      },
+
+      // STRING TYPE:
+      // 
+    ]);
+    RuntimeContext {
+      types,
+      temporal_types: Vec::new()
+    }
+  }
+}
+
+/// # Safety
+/// This just calls an unsafe function.
+/// The indexing shouldn't fail because
+/// the len of the byte slice must be 1.
+#[inline(always)]
+pub unsafe fn read_byte(ptr: *const Byte) -> Byte {
+  read_bytes(ptr, 1)[0]
+}
+
+struct Pointer(usize);
+impl Pointer {
+  #[inline(always)]
+  pub fn new<T>(ptr: T) -> Self
+  where
+    usize: From<T>
+  {
+    Pointer(usize::from(ptr))
+  }
+
+  pub fn as_raw_ptr(&self) -> *const Byte {
+    let ptr = self.0 as *const Byte;
+    assert!(!ptr.is_null());
+    ptr
+  }
+
+  #[inline(always)]
+  pub fn as_raw_ptr_unchecked(&self) -> *const Byte {
+    self.0 as *const Byte
+  }
+
+  #[inline(always)]
+  pub fn as_usize(&self) -> usize {
+    self.0
+  }
+}
+
+impl std::fmt::Display for Pointer {
+  #[inline(always)]
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "0x{:x}", self.0)
+  }
 }
