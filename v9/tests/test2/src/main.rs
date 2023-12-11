@@ -54,6 +54,35 @@ struct RuntimeContext {
   temporal_types: Vec<fn(Pointer)>
 }
 
+#[repr(usize)]
+#[allow(non_camel_case_types,
+        clippy::upper_case_acronyms)]
+enum Type {
+  PTR,
+  BOOL,
+
+  UINT8,
+  UINT16,
+  UINT32,
+  UINT64,
+  
+  INT8,
+  INT16,
+  INT32,
+  INT64,
+
+  FLOAT32,
+  FLOAT64,
+
+  VEC,
+  SLICE,
+
+  STRING,    // includes capacity
+  STR_SLICE,
+
+  MAP,    // HashMap<K, V> = Map<Hash<K>, V>
+}
+
 impl RuntimeContext {
   // SAFETY: as_raw_ptr checks for null pointers
   pub fn default() -> Self {
