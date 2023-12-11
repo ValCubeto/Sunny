@@ -86,40 +86,35 @@ enum Type {
 impl RuntimeContext {
   // SAFETY: as_raw_ptr checks for null pointers
   pub fn default() -> Self {
-    let types: Box<[fn(Pointer)]> = Box::new([
-      // BOOLEAN TYPE
-      |ptr| {
-        println!("Reading {ptr}");
+    let mut types: Vec<fn(Pointer)> = vec![];
 
-        unsafe {
-          let boolean = read_byte(ptr.as_raw_ptr());
-          println!("Got a boolean: {}", boolean != 0);
-        };
-      },
+    types[Type::BOOL as usize] = |ptr: Pointer| {
+      println!("Reading {ptr}");
 
-      // U8 TYPE
-      |ptr| {
-        println!("Reading {ptr}");
-        unsafe {
-          let n = read_byte(ptr.as_raw_ptr());
-          println!("Got an u8: {n}")
-        }
-      },
+      unsafe {
+        let boolean = read_byte(ptr.as_raw_ptr());
+        println!("Got a boolean: {}", boolean != 0);
+      };
+    };
 
-      // I8 TYPE
-      |ptr| {
-        println!("Reading {ptr}");
-        unsafe {
-          let n = read_byte(ptr.as_raw_ptr()) as i8;
-          println!("Got an u8: {n}")
-        }
-      },
+    types[Type::UINT8 as usize] = |ptr: Pointer| {
+      println!("Reading {ptr}");
+      unsafe {
+        let n = read_byte(ptr.as_raw_ptr());
+        println!("Got an u8: {n}")
+      }
+    };
 
-      // STRING TYPE:
-      // 
-    ]);
+    types[Type::INT8 as usize] = |ptr: Pointer| {
+      println!("Reading {ptr}");
+      unsafe {
+        let n = read_byte(ptr.as_raw_ptr()) as i8;
+        println!("Got an u8: {n}")
+      }
+    };
+
     RuntimeContext {
-      types,
+      types: types.into_boxed_slice(),
       temporal_types: Vec::new()
     }
   }
