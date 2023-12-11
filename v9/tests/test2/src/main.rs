@@ -101,7 +101,7 @@ impl RuntimeContext {
     macro_rules! add_type {
       ($type_name: ident, $func: expr) => {{
         types.push($func);
-        // So later on I can check for some specific type
+        // Later on I can check for some specific type
         unsafe {
           $type_name = types.len();
         }
@@ -161,7 +161,7 @@ impl Pointer {
 
   pub fn as_raw_ptr(&self) -> *const Byte {
     let ptr = self.0 as *const Byte;
-    assert!(!ptr.is_null());
+    assert!(!ptr.is_null(), "null pointer");
     ptr
   }
 
@@ -181,4 +181,18 @@ impl std::fmt::Display for Pointer {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     write!(f, "0x{:x}", self.0)
   }
+}
+
+fn align_n(n: usize) -> usize {
+  if n == 0 {
+    return 1;
+  }
+  if n & (n - 1) == 0 {
+    return n;
+  }
+  let mut power = 1;
+  while power < n {
+    power <<= 1;
+  }
+  power
 }
