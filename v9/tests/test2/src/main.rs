@@ -54,11 +54,13 @@ struct RuntimeContext {
   temporal_types: Vec<fn(Pointer)>
 }
 
-#[repr(usize)]
-#[allow(non_camel_case_types,
-        clippy::upper_case_acronyms)]
-enum Type {
-  PTR,
+macro_rules! def_type {
+  ($( $type_name: ident ),* $(,)?) => {
+    $( static mut $type_name: usize = 0; )*
+  };
+}
+
+def_type! {
   BOOL,
 
   UINT8,
@@ -88,30 +90,40 @@ impl RuntimeContext {
   pub fn default() -> Self {
     let mut types: Vec<fn(Pointer)> = vec![];
 
-    types[Type::BOOL as usize] = |ptr: Pointer| {
+    macro_rules! add_type {
+      ($type_name: ident, $func: expr) => {{
+        types.push($func);
+        // So later on I can check for some specific type
+        unsafe {
+          $type_name = types.len();
+        }
+      }};
+    }
+
+    add_type!(BOOL, |ptr: Pointer| {
       println!("Reading {ptr}");
 
       unsafe {
         let boolean = read_byte(ptr.as_raw_ptr());
         println!("Got a boolean: {}", boolean != 0);
       };
-    };
+    });
 
-    types[Type::UINT8 as usize] = |ptr: Pointer| {
+    add_type!(UINT8, |ptr: Pointer| {
       println!("Reading {ptr}");
       unsafe {
         let n = read_byte(ptr.as_raw_ptr());
         println!("Got an u8: {n}")
       }
-    };
+    });
 
-    types[Type::INT8 as usize] = |ptr: Pointer| {
+    add_type!(INT8, |ptr: Pointer| {
       println!("Reading {ptr}");
       unsafe {
         let n = read_byte(ptr.as_raw_ptr()) as i8;
-        println!("Got an u8: {n}")
+        println!("Got an i8: {n}");
       }
-    };
+    });
 
     RuntimeContext {
       types: types.into_boxed_slice(),
