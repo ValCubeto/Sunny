@@ -4,19 +4,25 @@ fun main() {
 }
 
 # Value::Function(
-#   Function::DefinedFunction(
-#     "main",
-#     [
-#       Statement::Define(["name"], Expression::LiteralString("world")),
-#       Statement::Call(
-#         ["println"],
-#         [
-#           Expression::FormatString([
-#             FormatStringComponent::Literal("Hello, "),
-#             FormatStringComponent::Expression(Expression::Identifier(["name"]))
-#           ])
-#         ]
-#       )
-#     ]
+#   Function {
+#     name: "main",
+#     generics: [],
+#     takes_self: false,
+#     args: [],
+#     output: &none_class,
+#     body: FunctionBody::Defined(
+#       [
+#         Statement::Let(["name"], &string_struct, Expression::LiteralString("world")),
+#         Statement::Call(
+#           ["println"],
+#           [
+#             Expression::FormatString([
+#               FormatStringComponent::Literal("Hello, "),
+#               FormatStringComponent::Expression(Expression::Identifier(["name"]))
+#             ])
+#           ]
+#         )
+#       ]
+#     }
 #   )
 # )
