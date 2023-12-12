@@ -12,16 +12,23 @@ fun main() {
 #     output: &none_class,
 #     body: FunctionBody::Defined(
 #       [
-#         Statement::Let(["name"], &string_struct, Expression::LiteralString("world")),
-#         Statement::Call(
-#           ["println"],
-#           [
+#         Statement::Define {
+#           path: ["name"],
+#           value: Variable {
+#             mutable: false
+#             class: &string_struct,
+#             value: Expression::LiteralString("world"))
+#           }
+#         },
+#         Statement::Call {
+#           path: ["println"],
+#           args: [
 #             Expression::FormatString([
 #               FormatStringComponent::Literal("Hello, "),
 #               FormatStringComponent::Expression(Expression::Identifier(["name"]))
 #             ])
 #           ]
-#         )
+#         }
 #       ]
 #     }
 #   )
