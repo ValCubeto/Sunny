@@ -2,3 +2,21 @@ fun main() {
   let name = 'world'
   println(f'Hello, {name}!')
 }
+
+# Value::Function(
+#   Function::DefinedFunction(
+#     "main",
+#     [
+#       Statement::Define(["name"], Expression::LiteralString("world")),
+#       Statement::Call(
+#         ["println"],
+#         [
+#           Expression::FormatString([
+#             FormatStringComponent::Literal("Hello, "),
+#             FormatStringComponent::Expression(Expression::Identifier(["name"]))
+#           ])
+#         ]
+#       )
+#     ]
+#   )
+# )
