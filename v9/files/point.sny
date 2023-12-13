@@ -2,10 +2,10 @@ class Point {
   impl std::formatting::Display {}
 
   struct {
-    x: int
-    y: int
-    priv jump_highness: uint = 10
-    priv jumping: bool = false
+    pub x: int
+    pub y: int
+    jump_highness: uint = 10
+    jumping: bool = false
   }
 
   fun new(x: int, y: int, custom_jhn: uint) {
