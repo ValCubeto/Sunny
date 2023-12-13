@@ -2,34 +2,3 @@ fun main() {
   let name = 'world'
   println(f'Hello, {name}!')
 }
-
-# Value::Function(
-#   Function {
-#     name: "main",
-#     generics: [],
-#     takes_self: false,
-#     args: [],
-#     output: &none_class,
-#     body: FunctionBody::Defined(
-#       [
-#         Statement::Define {
-#           path: ["name"],
-#           value: Variable {
-#             mutable: false
-#             class: &string_struct,
-#             value: Expression::LiteralString("world"))
-#           }
-#         },
-#         Statement::Call {
-#           path: ["println"],
-#           args: [
-#             Expression::FormatString([
-#               FormatStringComponent::Literal("Hello, "),
-#               FormatStringComponent::Expression(Expression::Identifier(["name"]))
-#             ])
-#           ]
-#         }
-#       ]
-#     }
-#   )
-# )

@@ -1,0 +1,52 @@
+class Point {
+  impl std::formatting::Display {}
+
+  struct {
+    x: int
+    y: int
+    priv jump_highness: uint = 10
+    priv jumping: bool = false
+  }
+
+  fun new(x: int, y: int, custom_jhn: uint) {
+    return Self {
+      x, y
+      jump_highness: custom_jhn
+    }
+  }
+
+  fun move_to(self, x: int, y: int) {
+    with self {
+      .x = x
+      .y = y
+    }
+  }
+
+  fun jump(self) {
+    use std::{
+      thread::sleep
+      time::NoMeAcuerdo
+    }
+    println(f"Jumping at position ({self.x}, {self.y})")
+    with self {
+      let prev = .y
+      .jumping = true
+      .y = .jump_capacity
+      sleep(1.seconds())
+      .y = prev_highness
+      .jumping = false
+    }
+  }
+
+}
+
+@test
+fun create_point() {
+  let point = Point::new(33, 0)
+  println(f"hello {name}\n")
+  with point {
+    .jump()
+    .move_to(-52, 0)
+    .jump()
+  }
+}
