@@ -1,10 +1,5 @@
 # Sunny
 fun main() {
   let name = ask("What's your name?")
-  println(f$"Hello, "{name}"!"$)
-  r"
-    This is an
-    inline
-    string
-  "
+  # println(f"Hello, {name}!")
 }
