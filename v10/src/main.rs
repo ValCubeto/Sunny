@@ -11,11 +11,45 @@ fn main() {
 }
 
 // What's a type?
-// A 16-bit unsigned integer being an index of the types table.
+// An index in the types table.
 
-// What's a string?
-// Represented as type + pointer.
-// At its location, there is the length, the capacity, and the bytes.
+// What's the types table?
+// A vec of functions describing how to read a value.
 
 // What's an int?
-// Represented as type + a 32-bit integer.
+// A 32-bit integer.
+
+// What's a string?
+// A pointer to a length, a capacity, and the actual chars.
+
+// What's a vec?
+// A pointer to a length, capacity, item size, and actual items.
+
+// Each value has its own length, but to store them in global
+// they need some padding to be all the same size.
+// The max size is the size of a pointer.
+// If any value is larger, use a pointer instead.
+pub struct Value {
+  type_index: usize,
+  value: usize
+}
+
+use once_cell::unsync::Lazy;
+use std::sync::Mutex;
+use hashbrown::HashMap;
+use std::rc::Rc;
+
+thread_local! {
+  #[allow(non_upper_case_globals)]
+  pub static global: Lazy<Mutex<HashMap<Rc<str>, Value>>> = Lazy::new(|| {
+    Mutex::new(HashMap::new())
+  });
+}
+
+fn test() {
+  global.with(|g| {
+    let mut g_lock = g.lock().expect("global was borrowed elsewhere");
+    g_lock.insert("hola".into(), Value { type_index: 0, value: 0 });
+  });
+}
+// static types: Lazy<Mutex<Vec<fn(usize)>>> = Lazy::new
