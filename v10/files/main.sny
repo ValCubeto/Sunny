@@ -1,5 +1,5 @@
 # Sunny
 fun main() {
-  let name = ask("What's your name?")
-  # println(f"Hello, {name}!")
+  let text = "Hello"
+  # println(text)
 }

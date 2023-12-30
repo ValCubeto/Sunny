@@ -6,10 +6,7 @@
 
 // call "main"
 
-fn main() {
-  println!("Hello, world!");
-}
-
+// # DEFINITIONS
 // What's a type?
 // An index in the types table.
 
@@ -29,27 +26,55 @@ fn main() {
 // they need some padding to be all the same size.
 // The max size is the size of a pointer.
 // If any value is larger, use a pointer instead.
-pub struct Value {
-  type_index: usize,
-  value: usize
+
+// Global
+// {
+//     class bool
+//     class i32    // std::number::i32
+//     typedef int = i32
+//     class String
+//     fun println(data: String)    // data: Display
+//     fun eprintln(data: String)
+//     fun assert(condition: bool) {  if !condition { quit("Assertion failed") }  }
+//     fun quit(reason: String) {  eprintln(reason); exit(1)  }
+// }
+
+pub struct Class<'a> {
+  name: &'a str,
+  inner: ClassInner
+}
+pub enum ClassInner {
+  BuiltIn {
+    byte_size: u8
+  },
+  Defined {}
 }
 
-use once_cell::unsync::Lazy;
-use std::sync::Mutex;
 use hashbrown::HashMap;
 use std::rc::Rc;
 
-thread_local! {
-  #[allow(non_upper_case_globals)]
-  pub static global: Lazy<Mutex<HashMap<Rc<str>, Value>>> = Lazy::new(|| {
-    Mutex::new(HashMap::new())
-  });
+fn main() {
+  println!("Hello, world!");
+  let mut ctx = GlobalContext::new();
 }
 
-fn test() {
-  global.with(|g| {
-    let mut g_lock = g.lock().expect("global was borrowed elsewhere");
-    g_lock.insert("hola".into(), Value { type_index: 0, value: 0 });
-  });
+// Wrapper to be used in maps.
+pub struct Value {
+  pub type_index: usize,
+  pub ptr: usize
 }
-// static types: Lazy<Mutex<Vec<fn(usize)>>> = Lazy::new
+
+pub struct GlobalContext {
+  pub types: Vec<fn(usize)>,
+  pub global: HashMap<Rc<str>, Value>,
+}
+
+#[allow(clippy::new_without_default)]
+impl GlobalContext {
+  pub fn new() -> Self {
+    GlobalContext {
+      types: Vec::new(),
+      global: HashMap::new(),
+    }
+  }
+}
