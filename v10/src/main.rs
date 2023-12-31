@@ -39,6 +39,8 @@
 //     fun quit(reason: String) {  eprintln(reason); exit(1)  }
 // }
 
+// an option to save function/class names
+
 pub struct Class<'a> {
   name: &'a str,
   inner: ClassInner
