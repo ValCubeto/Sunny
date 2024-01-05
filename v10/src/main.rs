@@ -74,37 +74,40 @@
 // vectors (ptr -> (size, capacity, ?elem_size, ...data))
 // booleans
 
+use std::collections::LinkedList;
+
 fn main() {
-  let ast = Ast::new();
-  let mut item = ast.first as *const AstItem;
-  while let Some(item) = unsafe {*item}.next {
-    item = item
-  }
+  let mut ast: LinkedList<Instruction> = LinkedList::new();
+  ast.push_back(Instruction {
+    kind: InstructionType::GetProp,
+    data: Box::new(["console", "log"])
+  })
 }
 
-struct Ast {
-  first: usize,
-  last: usize
-}
-impl Ast {
-  pub fn new() -> Self {
-    let ptr = &AstItem { next: None } as *const _ as usize;
-    Ast {
-      first: ptr,
-      last: ptr
-    }
-  }
-  pub fn push(&mut self, ptr: &AstItem) {
-    self.last = ptr as *const _ as usize
-  }
-  pub fn consume(&mut self) -> AstItem {
-    let item = unsafe { *(self.first as *const AstItem) };
-    self.first = item.next.expect("");
-    item
-  }
+pub enum InstructionType {
+  /// # The `use` keyword
+  /// `{ path: Path, alias: String }`
+  /// # Example
+  /// `use std::debuggin::debug as dbg`
+  Import,
+  /// # The `::` operator.
+  /// `{ path: String[] }`
+  /// # Example
+  /// `std::terminal::Colorize`
+  GetItem,
+  /// # The `.` operator.
+  /// `{ path: String[] }`
+  GetProp,
+  /// # The `(...)` syntax.
+  /// `{ func: Function, generics: G[], args: A[] }`
+  Call,
 }
 
-#[derive(Clone, Copy)]
-struct AstItem {
-  next: Option<usize>
+pub struct Instruction {
+  kind: InstructionType,
+  data: Box<dyn std::any::Any>
+}
+
+pub mod instructions {
+  pub struct A;
 }
