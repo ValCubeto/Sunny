@@ -1,0 +1,27 @@
+class Error {
+  struct {
+    name: String,
+    message: String
+  }
+  fun new(name: String, message: String) {
+    return Error { name, message }
+  }
+  fun Display::display() -> String {
+    use std::terminal::Colorize as _
+    return f"{self.name.red().bold()}: {self.message}"
+  }
+}
+
+class Result<T = (), E> {
+  enum {
+    Ok(T),
+    Err(E)
+  }
+  fun unwrap() -> T! {
+    match self {
+      Self::Ok(value) => value,
+      Self::Err(err) => quit(Err(f"Unwrapping an Err value: {err}"))
+    }
+  }
+  # ...
+}

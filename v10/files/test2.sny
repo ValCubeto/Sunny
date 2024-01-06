@@ -1,0 +1,19 @@
+use std::time::sleep
+use std::terminal::{ print, Colorize }
+
+fun main() {
+  let max = 35
+  for progress in Range::new(0, max) {
+    sleep(Duration::from_millis(100))
+    print(f"{progresss_bar(progress, max, 10)}\r")
+  }
+}
+
+fun progresss_bar(progress: uint, total: uint, length: uint) -> String {
+	let frac = progress / total
+	let completed = (frac * length).floor()
+	let missing = length - completed
+  let percentage = frac.with_digits(2).pad_start(6)
+	let bar = f"[{"*".repeat(completed).green()}{" ".repeat(missing)}] {percentage.cyan()}%"
+	return bar
+}
