@@ -3,7 +3,7 @@ use std::terminal::{ print, Colorize }
 
 fun main() {
   let max = 35
-  for progress in Range::new(0, max) {
+  for progress in 0.to(max) {
     sleep(Duration::from_millis(100))
     print(f"{progresss_bar(progress, max, 10)}\r")
   }

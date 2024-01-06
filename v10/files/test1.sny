@@ -17,7 +17,7 @@ class Result<T = (), E> {
     Ok(T),
     Err(E)
   }
-  fun unwrap() -> T! {
+  fun unwrap() -> T {
     match self {
       Self::Ok(value) => value,
       Self::Err(err) => quit(Err(f"Unwrapping an Err value: {err}"))
