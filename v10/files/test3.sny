@@ -4,14 +4,23 @@ mod pretty {
     fun red() => f"{RED_START}{self}{COLOR_END}"
     fun bold() => f"{BOLD_START}{self}{BOLD_END}"
   }
+  []
 }
 
 mixin Number where Self: Add + Sub + Mul + Div {
-  fun to(end: Self) => Range::new(self, end)
+  fun to(end: Self) => Range::inclusive(self, end)
+  fun until(end: Self) => Range::exclusive(self, end)
+}
+impl_number! {
+  u8, u16, u32, u64,
+  i8, i16, i32, i64,
+  usize, isize,
+  f32, f64,
+  BigInt, BigUint, BigFloat
 }
 
 fun main() {
-  for i in 0.to(10) {
+  for i in 1.to(10) {
     println(i)
   }
 }
