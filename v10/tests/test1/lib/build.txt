@@ -1,1 +1,1 @@
-rustc --crate-type cdylib src/{name}.rs -o bin/{name}
+rustc --crate-type cdylib src/{name}.rs -o bin/{name}.lib
