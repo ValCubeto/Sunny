@@ -16,6 +16,10 @@ fn main() {
           Op::Number(3).ptr()
       ).ptr()
   );
+
+  let ast = parse_tokens(&tokens);
+
+  assert_eq!(ast, expected);
 }
 
 pub enum Token {
@@ -24,6 +28,7 @@ pub enum Token {
   Mul
 }
 
+#[derive(PartialEq, Eq, Debug)]
 pub enum Op {
   Number(i32),
   Add(Box<Op>, Box<Op>),
@@ -36,3 +41,74 @@ impl Op {
     Box::new(self)
   }
 }
+
+pub fn parse_tokens(tokens: &[Token]) -> Op {
+  assert!(!tokens.is_empty());
+  let mut iter = tokens.iter();
+
+  let mut result = Op::Number(0);
+  
+  if let &Token::Number(left) = iter.next().unwrap() {
+    if tokens.len() == 1 {
+      return Op::Number(left);
+    }
+    match *iter.next().unwrap() {
+      Token::Number(_) => panic!("expected op"),
+      Token::Add => {
+        if let &Token::Number(right) = iter.next().expect("unexpected end of input") {
+          result = Op::Add(Op::Number(left).ptr(), Op::Number(right).ptr());
+        } else {
+          panic!("expected num")
+        }
+      }
+      Token::Mul => {
+        if let &Token::Number(right) = iter.next().expect("unexpected end of input") {
+          result = Op::Mul(Op::Number(left).ptr(), Op::Number(right).ptr());
+        } else {
+          panic!("expected num")
+        }
+      }
+      _ => unimplemented!()
+    }
+  }
+  result
+}
+
+
+
+
+
+
+
+
+
+
+pub enum Operator {
+  Number,
+  Add,
+  Mul,
+}
+
+pub struct Operation(Operator, Box<Operation>, Box<Operation>);
+
+fn t() {
+  let _ = Operation(
+    Box::new(Operator::Add),
+    Operation(Operator::Number, )
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
