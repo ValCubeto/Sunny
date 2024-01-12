@@ -7,7 +7,7 @@ class Error {
     return Error { name, message }
   }
   fun Display::display() -> String {
-    use std::terminal::Colorize as _
+    use std::terminal::Colorize
     return f"{self.name.red().bold()}: {self.message}"
   }
 }

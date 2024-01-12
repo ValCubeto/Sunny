@@ -12,9 +12,9 @@ mixin Number where Self: Add + Sub + Mul + Div {
   fun until(end: Self) => Range::exclusive(self, end)
 }
 impl_number! {
-  u8, u16, u32, u64,
   i8, i16, i32, i64,
-  usize, isize,
+  u8, u16, u32, u64,
+  isize, usize,
   f32, f64,
   BigInt, BigUint, BigFloat
 }
