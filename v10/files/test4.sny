@@ -1,15 +1,11 @@
 fun main() {
-  async await
   defer {
     println("Bye")
   }
   println("Hello")
 
   with File::open("hello.txt") as file {
-    println(f"{file.content}")
-  }
-  {
-    let file = File::open()
+    println(f"{file.name}: {file.content}")
   }
 }
 
@@ -28,18 +24,7 @@ fun main() {
   [1, 2, 3].map(/n/ println(n))
 
   let map = #{
-    "hello" => 1
-    "world" => 2
-  }
-
-  let map = Map {
-    hello: 1
+    "hello": 1
+    "world": 2
   }
 }
-f"{a}hello"
-
-let username = "(?i)[a-z.-]"
-let domain = rf"(?:[::Alpha::%-_]\.)+\p\{}"
-Regex::new(rf"^{username}@{domain}$")
-
-{ ("([::hola::])") }
