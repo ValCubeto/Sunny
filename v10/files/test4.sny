@@ -1,0 +1,45 @@
+fun main() {
+  async await
+  defer {
+    println("Bye")
+  }
+  println("Hello")
+
+  with File::open("hello.txt") as file {
+    println(f"{file.content}")
+  }
+  {
+    let file = File::open()
+  }
+}
+
+impl Drop for File {
+  fun drop() {
+    self.close()
+  }
+}
+
+
+fun main() {
+  let data = get("abc.com").await
+    .json().await
+    .nothing()
+
+  [1, 2, 3].map(/n/ println(n))
+
+  let map = #{
+    "hello" => 1
+    "world" => 2
+  }
+
+  let map = Map {
+    hello: 1
+  }
+}
+f"{a}hello"
+
+let username = "(?i)[a-z.-]"
+let domain = rf"(?:[::Alpha::%-_]\.)+\p\{}"
+Regex::new(rf"^{username}@{domain}$")
+
+{ ("([::hola::])") }
