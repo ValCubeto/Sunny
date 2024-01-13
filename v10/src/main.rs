@@ -80,7 +80,7 @@ fn main() {
   let mut ast: LinkedList<Instruction> = LinkedList::new();
   ast.push_back(Instruction {
     kind: InstructionType::GetProp,
-    data: Box::new(["console", "log"])
+    data: Box::new(["a", "b"])
   })
 }
 
@@ -90,14 +90,17 @@ pub enum InstructionType {
   /// # Example
   /// `use std::debuggin::debug as dbg`
   Import,
+
   /// # The `::` operator.
   /// `{ path: String[] }`
   /// # Example
   /// `std::terminal::Colorize`
   GetItem,
+
   /// # The `.` operator.
   /// `{ path: String[] }`
   GetProp,
+
   /// # The `(...)` syntax.
   /// `{ func: Function, generics: G[], args: A[] }`
   Call,
@@ -106,8 +109,4 @@ pub enum InstructionType {
 pub struct Instruction {
   kind: InstructionType,
   data: Box<dyn std::any::Any>
-}
-
-pub mod instructions {
-  pub struct A;
 }
