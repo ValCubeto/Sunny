@@ -1,0 +1,4 @@
+struct FlagSet {
+  fun new([a, b, c, d, e, f, g]: [bool; 8]) {}
+  fun set(index: u8, value: bool) {}
+}

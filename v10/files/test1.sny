@@ -23,5 +23,16 @@ class Result<T = (), E> {
       Self::Err(err) => quit(Err(f"Unwrapping an Err value: {err}"))
     }
   }
-  # ...
+}
+
+flagset DiscordIntents {
+  guilds          = true
+  message_create  = true
+  message_content = false
+}
+
+fun main() {
+  let intents = DiscordIntents {
+    message_content = true
+  }
 }
