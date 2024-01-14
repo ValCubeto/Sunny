@@ -87,7 +87,7 @@ fn main() {
   }";
   let mut ctx = Context::new(code);
   let main_mod = parse_module_with_name(&mut ctx, "".into());
-  if let Some(Value::Function(main_func)) = main_mod.get() {}
+  // if let Some(Value::Function(main_func)) = main_mod.get("main".into()) {}
 }
 // let mut ast: LinkedList<Instruction> = LinkedList::new();
 // ast.push_back(Instruction {
