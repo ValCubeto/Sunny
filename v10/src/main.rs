@@ -74,39 +74,50 @@
 // vectors (ptr -> (size, capacity, ?elem_size, ...data))
 // booleans
 
-use std::collections::LinkedList;
+mod context;
+mod modules;
+
+use context::Context;
+use modules::parse_module_with_name;
+// use std::collections::LinkedList;
 
 fn main() {
-  let mut ast: LinkedList<Instruction> = LinkedList::new();
-  ast.push_back(Instruction {
-    kind: InstructionType::GetProp,
-    data: Box::new(["a", "b"])
-  })
+  let code = "
+    mod test {}
+  }";
+  let mut ctx = Context::new(code);
+  let main_mod = parse_module_with_name(&mut ctx, "".into());
+  if let Some(Value::Function(main_func)) = main_mod.get() {}
 }
+// let mut ast: LinkedList<Instruction> = LinkedList::new();
+// ast.push_back(Instruction {
+//   kind: InstructionType::GetProp,
+//   data: Box::new(["a", "b"])
+// })
 
-pub enum InstructionType {
-  /// # The `use` keyword
-  /// `{ path: Path, alias: String }`
-  /// # Example
-  /// `use std::debuggin::debug as dbg`
-  Import,
+// pub enum InstructionType {
+//   /// # The `use` keyword
+//   /// `{ path: Path, alias: String }`
+//   /// # Example
+//   /// `use std::debuggin::debug as dbg`
+//   Import,
 
-  /// # The `::` operator.
-  /// `{ path: String[] }`
-  /// # Example
-  /// `std::terminal::Colorize`
-  GetItem,
+//   /// # The `::` operator.
+//   /// `{ path: String[] }`
+//   /// # Example
+//   /// `std::terminal::Colorize`
+//   GetItem,
 
-  /// # The `.` operator.
-  /// `{ path: String[] }`
-  GetProp,
+//   /// # The `.` operator.
+//   /// `{ path: String[] }`
+//   GetProp,
 
-  /// # The `(...)` syntax.
-  /// `{ func: Function, generics: G[], args: A[] }`
-  Call,
-}
+//   /// # The `(...)` syntax.
+//   /// `{ func: Function, generics: G[], args: A[] }`
+//   Call,
+// }
 
-pub struct Instruction {
-  kind: InstructionType,
-  data: Box<dyn std::any::Any>
-}
+// pub struct Instruction {
+//   kind: InstructionType,
+//   data: Box<dyn std::any::Any>
+// }

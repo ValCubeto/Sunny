@@ -4,7 +4,6 @@ mod pretty {
     fun red() => f"{RED_START}{self}{COLOR_END}"
     fun bold() => f"{BOLD_START}{self}{BOLD_END}"
   }
-  []
 }
 
 mixin Number where Self: Add + Sub + Mul + Div {
