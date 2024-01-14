@@ -11,6 +11,7 @@ pub fn parse_module_with_name(ctx: &mut Context, name: Rc<str>) -> (Rc<str>, Val
     dbg!(&word);
     let (name, value) = match word.as_str() {
       "mod" => parse_module(ctx),
+      | "fun"
       | "class"
       | "struct"
       | "enum"
@@ -20,7 +21,7 @@ pub fn parse_module_with_name(ctx: &mut Context, name: Rc<str>) -> (Rc<str>, Val
       | "impl"
       | "const"
       | "test"
-        => todo!("{word:?} not implemented yet"),
+        => syn_error!("{word:?} not implemented yet"),
       _ => syn_error!("unexpected word {word:?} here")
     };
     module.set(name, value);

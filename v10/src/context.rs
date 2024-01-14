@@ -7,20 +7,29 @@ impl Context {
   pub fn new(string: &str) -> Self {
     Context {
       chars: string.chars().collect(),
-      current: '\0',
+      current: string.chars().next().unwrap(),
       cursor: 0
     }
   }
   pub fn debug(&self) {
-    println!("[{}/{}] {:?}", self.cursor, self.chars.len(), self.current);
+    println!("[{}/{}] {:?}", self.cursor, self.chars.len() - 1, self.current);
   }
-  pub fn next_char(&mut self) {
+  fn advance_cursor(&mut self) {
     self.cursor += 1;
-    self.debug();
-    if self.cursor == self.chars.len() - 1 {
+    if self.cursor == self.chars.len() {
       syn_error!("unexpected end of input")
     }
     self.current = self.chars[self.cursor];
+  }
+  pub fn next_char(&mut self) {
+    self.advance_cursor();
+    // ignore comments
+    if self.current == '/' && self.chars[self.cursor + 1] == '/' {
+      while self.current != '\n' {
+        self.advance_cursor();
+      }
+    }
+    self.debug();
   }
   /// Skips whitespaces, including new lines.
   pub fn skip_spaces(&mut self) {

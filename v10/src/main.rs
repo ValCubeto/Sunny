@@ -9,8 +9,8 @@ use context::Context;
 use modules::parse_module_with_name;
 
 fn main() {
-  let code = "
-   
+  let code = "fun
+    // comment
   }";
   let mut ctx = Context::new(code);
   let main_mod = parse_module_with_name(&mut ctx, "main".into());
