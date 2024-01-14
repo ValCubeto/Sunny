@@ -1,3 +1,23 @@
+#[macro_use]
+mod errors;
+#[allow(unused)]
+mod terminal;
+mod context;
+mod modules;
+
+use context::Context;
+use modules::parse_module_with_name;
+
+fn main() {
+  let code = "
+   
+  }";
+  let mut ctx = Context::new(code);
+  let main_mod = parse_module_with_name(&mut ctx, "main".into());
+  // if let Some(Value::Function(main_func)) = main_mod.get("main".into()) {}
+}
+
+// use std::collections::LinkedList;
 // parse tokens
 // ["fun", "main", "(", ")", "{", "let", "text", "=", "'hello'", "}"]
 
@@ -74,21 +94,6 @@
 // vectors (ptr -> (size, capacity, ?elem_size, ...data))
 // booleans
 
-mod context;
-mod modules;
-
-use context::Context;
-use modules::parse_module_with_name;
-// use std::collections::LinkedList;
-
-fn main() {
-  let code = "
-    mod test {}
-  }";
-  let mut ctx = Context::new(code);
-  let main_mod = parse_module_with_name(&mut ctx, "".into());
-  // if let Some(Value::Function(main_func)) = main_mod.get("main".into()) {}
-}
 // let mut ast: LinkedList<Instruction> = LinkedList::new();
 // ast.push_back(Instruction {
 //   kind: InstructionType::GetProp,

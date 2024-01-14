@@ -1,0 +1,58 @@
+// This is not so expensive because libraries are only loaded if used.
+// Of course will slow down item searches because you are adding more
+// names to the search list. This is a bad practice anyway.
+use std::*
+
+fun main() {
+  // Optional semicolons!
+  let mutable: uint = 5952
+  mutable += 1
+
+  // There are right-side statements!
+  return if mutable % 2 == 0
+
+  let inmutable: String = "value"
+
+  // Use the "map" keyword to insert a map.
+  // By default, it uses secure hashing.
+  // You can create a map using the HashMap builder.
+  // Key types must implement Hash (a lot of builtin types do).
+  let my_map = map {
+    "hello" => "bye"
+  }
+}
+
+// Types of constants are not optional, but using ":=" you're inferring the type.
+// Type inferrence is not allowed for function calls, only literal values.
+const CONSTANT := "Constant values are compile-time evaluated"
+
+flagset MyFlags {
+  stores_multiple_bools_in_a_byte = true
+  bitflag_ops_are_comp_time_evaluated = true
+  default_values_are_optional
+}
+
+struct MyStruct {
+  idk: String = "default value"
+}
+
+enum MyOption<T> {
+  Some(T)
+  None
+}
+
+class MyDataHandler {
+  // the external visibility (here "pub") sets the visibility of all
+  // the fields but you can manually set the visibility
+  // (here "priv some")
+  // By default all properties are private
+  pub flagset {
+    a_set_of_functions_to_handle_your_data = true
+    the_internal_data_can_be_a_struct_an_enum_or_a_flagset = true
+    priv some
+  }
+  fun get_some() -> bool {
+    // no need to get self via parameters
+    self.some
+  }
+}
