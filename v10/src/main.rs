@@ -9,11 +9,11 @@ use context::Context;
 use modules::parse_module_with_name;
 
 fn main() {
-  let code = "fun
+  let code = "
     // comment
-  }";
+  ";
   let mut ctx = Context::new(code);
-  let main_mod = parse_module_with_name(&mut ctx, "main".into());
+  let _main_mod = parse_module_with_name("main".into(), code);
   // if let Some(Value::Function(main_func)) = main_mod.get("main".into()) {}
 }
 

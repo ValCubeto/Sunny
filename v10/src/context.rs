@@ -1,4 +1,8 @@
+use std::rc::Rc;
+use hashbrown::HashMap;
+
 pub struct Context {
+  data: HashMap<Rc<str>, Value>,
   pub chars: Vec<char>,
   pub current: char,
   pub cursor: usize
@@ -17,7 +21,7 @@ impl Context {
   fn advance_cursor(&mut self) {
     self.cursor += 1;
     if self.cursor == self.chars.len() {
-      syn_error!("unexpected end of input")
+      syn_error!("unexpected end of input");
     }
     self.current = self.chars[self.cursor];
   }
@@ -28,6 +32,10 @@ impl Context {
       while self.current != '\n' {
         self.advance_cursor();
       }
+      self.advance_cursor();
+    }
+    if self.cursor == self.chars.len() - 1 {
+      syn_error!("unexpected end of input");
     }
     self.debug();
   }
