@@ -1,4 +1,7 @@
+use std::rc::Rc;
+
 pub enum Value {
   String(Rc<str>),
-  u8(u8)
+  Uint(u8),
+  Int(i8),
 }

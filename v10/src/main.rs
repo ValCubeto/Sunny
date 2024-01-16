@@ -1,9 +1,12 @@
 #[macro_use]
 mod errors;
+#[macro_use]
+mod macros;
 #[allow(unused)]
 mod terminal;
 mod context;
 mod modules;
+mod values;
 
 use context::Context;
 use modules::parse_module_with_name;

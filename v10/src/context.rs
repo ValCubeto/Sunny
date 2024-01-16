@@ -1,16 +1,21 @@
 use std::rc::Rc;
 use hashbrown::HashMap;
+use crate::values::Value;
 
 pub struct Context {
   data: HashMap<Rc<str>, Value>,
   pub chars: Vec<char>,
+  pub char_count: usize,
   pub current: char,
   pub cursor: usize
 }
 impl Context {
   pub fn new(string: &str) -> Self {
+    let chars: Vec<char> = string.chars().collect();
     Context {
-      chars: string.chars().collect(),
+      data: HashMap::new(),
+      char_count: chars.len(),
+      chars,
       current: string.chars().next().unwrap(),
       cursor: 0
     }
@@ -42,14 +47,27 @@ impl Context {
   /// Skips whitespaces, including new lines.
   pub fn skip_spaces(&mut self) {
     while self.current.is_whitespace() {
-      self.next_char();
+      self.advance_cursor();
+      // ignore comments
+      if self.current == '/' && self.chars[self.cursor + 1] == '/' {
+        while self.current != '\n' && self.cursor < self.char_count {
+          self.advance_cursor();
+        }
+        self.advance_cursor();
+      }
     }
   }
   /// Skips whitespaces, excluding new lines.
   /// Remember in this language semicolons are optional.
   pub fn skip_spacing(&mut self) {
     while self.current != '\n' && self.current.is_whitespace() {
-      self.next_char();
+      self.advance_cursor();
+      // ignore comments
+      if self.current == '/' && self.chars[self.cursor + 1] == '/' {
+        while self.current != '\n' {
+          self.advance_cursor();
+        }
+      }
     }
   }
   pub fn expect_current(&mut self, ch: char) {
@@ -67,7 +85,7 @@ impl Context {
     self.expect_current(ch);
   }
   pub fn expect_word(&mut self) -> String {
-    // self.skip_spaces();
+    self.skip_spaces();
 
     // Standard size of a small word, prevents reallocating multiple times.
     // If the word is more than 8 characters long, the capacity will grow
