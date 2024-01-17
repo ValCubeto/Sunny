@@ -1,4 +1,3 @@
-use std::rc::Rc;
 use crate::context::Context;
 
 pub fn parse_module(code: &str) -> Context {
