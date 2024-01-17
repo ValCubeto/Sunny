@@ -8,15 +8,14 @@ mod context;
 mod modules;
 mod values;
 
-use context::Context;
-use modules::parse_module_with_name;
+use modules::parse_module;
 
 fn main() {
   let code = "
     // comment
   ";
-  let mut ctx = Context::new(code);
-  let _main_mod = parse_module_with_name("main".into(), code);
+  if code.is_empty() { return; }
+  let _main_mod = parse_module(code);
   // if let Some(Value::Function(main_func)) = main_mod.get("main".into()) {}
 }
 

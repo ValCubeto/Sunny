@@ -7,18 +7,22 @@ pub struct Context {
   pub chars: Vec<char>,
   pub char_count: usize,
   pub current: char,
-  pub cursor: usize
+  cursor: usize
 }
+
 impl Context {
   pub fn new(string: &str) -> Self {
     let chars: Vec<char> = string.chars().collect();
     Context {
       data: HashMap::new(),
       char_count: chars.len(),
+      current: chars[0],
       chars,
-      current: string.chars().next().unwrap(),
       cursor: 0
     }
+  }
+  pub fn cursor(&self) -> usize {
+    self.cursor
   }
   pub fn debug(&self) {
     println!("[{}/{}] {:?}", self.cursor, self.chars.len() - 1, self.current);
