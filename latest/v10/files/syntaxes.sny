@@ -29,7 +29,7 @@ const CONSTANT := "Constant values are compile-time evaluated"
 flagset MyFlags {
   stores_multiple_bools_in_a_byte = true
   bitflag_ops_are_comp_time_evaluated = true
-  default_values_are_optional
+  bitflag_values_default_to_false
 }
 
 struct MyStruct {
