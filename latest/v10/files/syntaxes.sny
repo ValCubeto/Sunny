@@ -5,7 +5,7 @@ use std::*
 
 fun main() {
   // Optional semicolons!
-  let mutable: uint = 5952
+  var mutable: uint = 5952
   mutable += 1
 
   // There are right-side statements!
