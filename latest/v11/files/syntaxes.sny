@@ -5,7 +5,7 @@ use example from "example.sny"
 // If the value is a literal, the type can be inferred
 const NAME: String = "Sunny"
 
-fun main() {
+fun main() -> () {
   var n = 2
   n *= 10
   assert(n == 200)
