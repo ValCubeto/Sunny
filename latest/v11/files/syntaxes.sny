@@ -2,8 +2,9 @@ use std::{ foo, bar as baz }
 use "hello.sny" as hello
 use example from "example.sny"
 
-// If the value is a literal, the type can be inferred
 const NAME: String = "Sunny"
+// If the value is a literal, the type can be inferred
+const EOL := cfg!("windows") then "\r\n" else "\n"
 
 fun main() -> () {
   var n = 2

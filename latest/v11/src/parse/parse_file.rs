@@ -1,5 +1,6 @@
 use super::Parser;
 
+/// Parses the items in the provided file content
 pub fn parse_file(file_name: &str, data: &str) {
   let mut parser = Parser::new(file_name, data);
 

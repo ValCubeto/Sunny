@@ -2,8 +2,8 @@ use std::str::Chars;
 
 pub struct Parser<'a> {
   pub file_name: &'a str,
-  pub data_len: usize,
-  pub data: Chars<'a>,
+  data_len: usize,
+  data: Chars<'a>,
   pub idx: usize,
   pub current: char,
 
@@ -27,7 +27,25 @@ impl<'a> Parser<'a> {
   }
 
   /// Goes to the next character and returns it. Panics if the input ends
-  pub fn next_char(&mut self) {}
+  pub fn next_char(&mut self) {
+    self.idx += 1;
+    if self.idx >= self.data_len {
+      syn_err!("unexpected end of input");
+    }
+    self.current = self.data.next().expect("unexpected end of input");
+    match self.current {
+      '\n' => {
+        self.column = 1;
+        self.line += 1;
+      }
+      '\t' => {
+        self.column += 4;
+      }
+      _ch => {
+        self.column += 1;
+      }
+    }
+  }
 
   /// Skips spaces, excluding the end of line. Panics if the input ends
   pub fn skip_spaces(&mut self) {}
@@ -48,5 +66,14 @@ impl<'a> Parser<'a> {
   pub fn next_token(&mut self) {}
 
   /// Used when an alphabetic character is found. Returns it + the next alphanumeric characters, if any
-  pub fn parse_word(&mut self) {}
+  #[must_use]
+  pub fn parse_word(&mut self) -> String {
+    let mut word = String::from(self.current);
+    self.next_char();
+    while self.current.is_alphanumeric() {
+      word.push(self.current);
+      self.next_char();
+    }
+    word
+  }
 }

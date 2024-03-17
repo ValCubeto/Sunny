@@ -2,7 +2,7 @@
 /// Generic macro to print errors. Used by the specific-error macros
 macro_rules! err {
   ($err_name: expr, $($err_msg: expr),* $(, $parser: expr)?) => {{
-    eprintln!("{}: {}", $crate::colors::red($err_name), format!($($err_msg),*));
+    eprintln!("{}: {}", $crate::colors::bold($crate::colors::red($err_name)), format!($($err_msg),*));
     // Sometimes is not possible to access the parser
     $(
       eprintln!("    at {}:{}:{}", $parser.file_name, $parser.line, $parser.column);
