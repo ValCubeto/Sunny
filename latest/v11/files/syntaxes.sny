@@ -43,8 +43,8 @@ fun main() {
     struct {
       name: String
     }
-    fun new(name: String) {
-      Self { name }
+    fun new(name: String) -> Self {
+      User { name }
     }
   }
 
