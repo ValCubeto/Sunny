@@ -1,0 +1,106 @@
+use std::{ foo, bar as baz }
+use "hello.sny" as hello
+use example from "example.sny"
+
+// If the value is a literal, the type can be inferred
+const NAME: String = "Sunny"
+
+fun main() {
+  var n = 2
+  n *= 10
+  assert(n == 200)
+
+  let bin = 0b1111_1111
+  let hex = 0xff_3f_1d
+  let sci = 10e-30
+  // u32 by default, u64 if needed, i32 if there's a sign, f32 if there are decimals. Intelligently decided
+  // Global number types: int (i32), uint (u32), float (f32)
+  let eight_bit_int: i8 = 255
+
+  let string = "Hello"
+  let raw_str = r"\tHello\n\r"
+  let strong = $"Hello "world""$
+
+  let sum = (a, b): a + b
+  let res = sum(5, 5)
+
+  println(f"res = {res}")
+
+  let intents = bitflags {
+    guilds = true
+    guild_members = 1
+    message_content = TRUE
+    guild_invites = false
+  }
+
+  fun random_id() -> String {
+    use std::random::GenRandom
+
+    String::with_capacity(8).fill((_i): Char::gen_random())
+  }
+
+  class User {
+    struct {
+      name: String
+    }
+    fun new(name: String) {
+      Self { name }
+    }
+  }
+
+  // Equivalent to Rust's HashMap
+  let users = hashmap! {
+    random_id() => User::new(name: "John")
+    random_id() => User::new(name: "Sarah")
+  }
+
+  // Keys will be sorted. Equivalent to Rust's BTreeMap
+  let dict: Dictionary = dict! {
+    "z" => "zeta"
+    "x" => "equis"
+    "y" => "ye"
+  }
+}
+
+class A {
+  struct {
+    some_prop: int
+  }
+  fun print_prop() {
+    println(self.some_prop)
+  }
+}
+
+macro my_macro {
+  ($case1: @type) {
+    println(f"Case 1 - type: {type_name_of!($case1)}")
+  }
+  ($case2: @expr) {
+    println(f"Case 2 - expr: {stringify!($case2)}")
+  }
+}
+
+class Result<T, E> {
+  enum {
+    Ok(T)
+    Err(E)
+  }
+  fun ok() -> Option<T> {
+    match self {
+      Self::Ok(value): Some(value)
+      Self::Err(_err): None
+    }
+  }
+  fun is_err() -> bool {
+    matches!(self, Self::Err(_err))
+  }
+}
+
+macro matches! {
+  ($value: @expr, ",", $patt: @pattern) {
+    match $value {
+      $patt: true
+      _: false
+    }
+  }
+}
