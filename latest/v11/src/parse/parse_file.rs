@@ -1,4 +1,4 @@
-use super::Parser;
+use super::{ Parser, parse_function };
 
 /// Parses the items in the provided file content
 pub fn parse_file(file_name: &str, data: &str) {
@@ -9,14 +9,19 @@ pub fn parse_file(file_name: &str, data: &str) {
   println!("curr = {:?}", parser.current);
   match parser.current {
     ch if ch.is_ascii_alphabetic() => {
-      // TODO: match only specific identifiers, not any word
-      let word = parser.parse_word();
+      let word = parser.parse_ascii_word();
       match word.as_str() {
         "const" => {
-          parser.skip_whitespaces();
-          // let ident = parser.expect_word();
+          parser.next_token();
+          // TODO: maybe we should match `{` or `[` to implement destructuring,
+          // and if any alphabetic character is found, then call `parser.parse_word()`
+          let ident = parser.expect_word();
           todo!()
         },
+        "fun" => {
+          parser.skip_whitespaces();
+          parse_function(&mut parser);
+        }
         _ident => syn_err!("unexpected identifier {word:?} here")
       }
     },

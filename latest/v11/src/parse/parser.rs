@@ -1,5 +1,6 @@
 use std::str::Chars;
 
+/// I think the name is enough descriptive
 pub struct Parser<'a> {
   pub file_name: &'a str,
   data_len: usize,
@@ -11,7 +12,7 @@ pub struct Parser<'a> {
   pub column: usize,
 }
 
-/// Where the 'ignore comments' section should be?
+// FIXME: where the 'ignore comments' section should be?
 impl<'a> Parser<'a> {
   pub fn new(file_name: &'a str, data: &'a str) -> Self {
     let mut chars = data.chars();
@@ -21,8 +22,26 @@ impl<'a> Parser<'a> {
       data_len: data.len(),
       data: chars,
       idx: 1,
-      line: 0,
-      column: 0
+      line: 1,
+      column: 1
+    }
+  }
+
+  /// This function MUST be called instead of directly updating `self.current`
+  /// Updates the file pos (`self.line` and `self.column`)
+  pub fn update_file_pos(&mut self) {
+    match self.current {
+      '\n' => {
+        self.column = 1;
+        self.line += 1;
+      }
+      '\t' => {
+        // HINT: let the user decide how many spaces a tab uses
+        self.column += 4;
+      }
+      _ch => {
+        self.column += 1;
+      }
     }
   }
 
@@ -33,47 +52,69 @@ impl<'a> Parser<'a> {
       syn_err!("unexpected end of input");
     }
     self.current = self.data.next().expect("unexpected end of input");
-    match self.current {
-      '\n' => {
-        self.column = 1;
-        self.line += 1;
-      }
-      '\t' => {
-        self.column += 4;
-      }
-      _ch => {
-        self.column += 1;
-      }
-    }
+    self.update_file_pos();
   }
 
   /// Skips spaces, excluding the end of line. Panics if the input ends
-  pub fn skip_spaces(&mut self) {}
+  pub fn skip_spaces(&mut self) {
+    while matches!(self.current, ' ' | '\t') {
+      self.next_char();
+    }
+  }
 
-  /// Goes to the next character until there is a non-whitespace character, or exits at the end of the input
+  /// Goes to the next character until there is a non-whitespace character,
+  /// or finishes the program when reaching the end of the input
   pub fn skip_whitespaces(&mut self) {
-    // Other types of whitespace will be considered invalid
+    // NOTE: other types of whitespace will be considered invalid
     while matches!(self.current, ' ' | '\n' | '\t' | '\r') {
       self.idx += 1;
       if self.idx >= self.data_len {
         std::process::exit(0);
       }
       self.current = self.data.next().unwrap();
+      self.update_file_pos();
     }
   }
 
-  /// Similar to `skip_whitespaces`, but panics if the input ends
-  pub fn next_token(&mut self) {}
+  /// Similar to `self.skip_spaces`, but matches new lines
+  pub fn next_token(&mut self) {
+    while matches!(self.current, ' ' | '\n' | '\t' | '\r') {
+      self.next_char();
+    }
+  }
 
   /// Used when an alphabetic character is found. Returns it + the next alphanumeric characters, if any
   #[must_use]
   pub fn parse_word(&mut self) -> String {
     let mut word = String::from(self.current);
     self.next_char();
-    while self.current.is_alphanumeric() {
+    // HINT: should we add more characters? This accepts 
+    while self.current.is_alphanumeric() || self.current == '_' {
       word.push(self.current);
       self.next_char();
     }
     word
+  }
+
+  /// Used when a keyword is expected. Similar to `Parser::parse_word`
+  #[must_use]
+  pub fn parse_ascii_word(&mut self) -> String {
+    let mut word = String::from(self.current);
+    self.next_char();
+    while self.current.is_ascii_alphabetic() {
+      word.push(self.current);
+      self.next_char();
+    }
+    word
+  }
+
+  /// Expects the current character to be a valid identifier character, and then calls `Self::parse_word`
+  #[must_use]
+  pub fn expect_word(&mut self) -> String {
+    // NOTE: `is_alphanumeric` includes ascii digits
+    if self.current.is_ascii_digit() || !self.current.is_alphanumeric() {
+      syn_err!("expected an identifier"; self)
+    }
+    self.parse_word()
   }
 }

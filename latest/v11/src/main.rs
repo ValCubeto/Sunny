@@ -4,10 +4,11 @@ pub mod parse;
 pub mod colors;
 
 fn main() {
-  let file_name = "main";
+  let file_name = "main.sny";
   let code = "\t\n
-    const A = 1
+    const1 A = 1
   ";
+  println!("{code:?}");
   parse::parse_file(file_name, code);
 }
 
