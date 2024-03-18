@@ -13,6 +13,8 @@ pub mod colors;
 // ```
 // Example:
 // if an ItemType::Const is found, search the value in const_container
+//
+// This allows faster searches, but obviously uses more memory
 
 fn main() {
   let file_name = "main.sny";
