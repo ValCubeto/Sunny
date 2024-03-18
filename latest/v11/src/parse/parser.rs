@@ -16,7 +16,7 @@ pub struct Parser<'a> {
 impl<'a> Parser<'a> {
   pub fn new(file_name: &'a str, data: &'a str) -> Self {
     let mut chars = data.chars();
-    Parser {
+    let mut this = Parser {
       file_name,
       current: chars.next().unwrap(),
       data_len: data.len(),
@@ -24,7 +24,9 @@ impl<'a> Parser<'a> {
       idx: 1,
       line: 1,
       column: 1
-    }
+    };
+    this.update_file_pos();
+    this
   }
 
   /// This function MUST be called instead of directly updating `self.current`
@@ -49,7 +51,7 @@ impl<'a> Parser<'a> {
   pub fn next_char(&mut self) {
     self.idx += 1;
     if self.idx >= self.data_len {
-      syn_err!("unexpected end of input");
+      syn_err!("unexpected end of input"; self);
     }
     self.current = self.data.next().expect("unexpected end of input");
     self.update_file_pos();
@@ -113,8 +115,14 @@ impl<'a> Parser<'a> {
   pub fn expect_word(&mut self) -> String {
     // NOTE: `is_alphanumeric` includes ascii digits
     if self.current.is_ascii_digit() || !self.current.is_alphanumeric() {
-      syn_err!("expected an identifier"; self)
+      syn_err!("expected an identifier, found {:?}", self.current; self)
     }
     self.parse_word()
   }
+
+  pub fn expect(&self, expected: char) {
+    if self.current != '=' {
+      syn_err!("expected '=', but got {:?}", self.current; self);
+    }
+  } 
 }

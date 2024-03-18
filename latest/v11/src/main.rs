@@ -3,10 +3,21 @@
 pub mod parse;
 pub mod colors;
 
+// HINT: structure of the scopes
+// ```rs
+// typedef Scopes = Vec<hashbrown::HashMap<
+//   Rc<str>, /* shared identifier */
+//   ItemType /* indicating where to search the actual value */
+// >
+// let const_container: hashbrown::HashMap<Rc<str>, Constant> = HashMap::new();
+// ```
+// Example:
+// if an ItemType::Const is found, search the value in const_container
+
 fn main() {
   let file_name = "main.sny";
-  let code = "\t\n
-    const1 A = 1
+  let code = "
+    const TEST = 1
   ";
   println!("{code:?}");
   parse::parse_file(file_name, code);
