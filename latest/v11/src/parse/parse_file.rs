@@ -13,9 +13,11 @@ pub fn parse_file(file_name: &str, data: &str) {
       match word.as_str() {
         "const" => {
           parser.next_token();
-          // TODO: maybe we should match `{` or `[` to implement destructuring,
+          // HINT: maybe we should match `{` or `[` to implement destructuring,
           // and if any alphabetic character is found, then call `parser.parse_word()`
           let ident = parser.expect_word();
+          // TODO: expect ':' and a type
+          // TODO: expect '=' and an expression
           todo!()
         },
         "fun" => {
