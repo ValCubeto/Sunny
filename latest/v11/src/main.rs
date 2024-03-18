@@ -6,7 +6,7 @@ pub mod colors;
 fn main() {
   let file_name = "main";
   let code = "\t\n
-    const1 A = 1
+    const A = 1
   ";
   parse::parse_file(file_name, code);
 }
