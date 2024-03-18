@@ -1,5 +1,4 @@
-//!
-//! 
+//! Anonymous functions are parsed by `parse_value`
 
 use super::Parser;
 
