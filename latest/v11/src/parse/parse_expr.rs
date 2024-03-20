@@ -1,5 +1,7 @@
 use super::Parser;
 
-pub fn parse_expr(expr: &mut Parser) {
-  todo!("parse_expr")
+pub fn parse_expr(parser: &mut Parser) {
+  loop {
+    parse_value()
+  }
 }

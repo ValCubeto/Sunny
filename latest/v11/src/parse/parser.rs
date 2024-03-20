@@ -120,9 +120,10 @@ impl<'a> Parser<'a> {
     self.parse_word()
   }
 
-  pub fn expect(&self, expected: char) {
-    if self.current != '=' {
-      syn_err!("expected '=', but got {:?}", self.current; self);
+  pub fn expect(&mut self, expected: char) {
+    if self.current != expected {
+      syn_err!("expected {expected:?}, but got {:?}", self.current; self);
     }
+    self.next_char();
   } 
 }

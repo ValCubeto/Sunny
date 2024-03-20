@@ -22,6 +22,9 @@ fn main() {
   let code = "
     const TEST = 1
   ";
+  // {
+  //   "TEST": Constant { ty: search_type("u8"), val: Value::u8(1) }
+  // }
   parse::parse_file(file_name, code);
 }
 
