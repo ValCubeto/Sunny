@@ -2,6 +2,7 @@
   pub mod errors;
 pub mod parse;
 pub mod colors;
+pub mod types;
 
 // HINT: structure of the scopes
 // ```rs
@@ -9,19 +10,18 @@ pub mod colors;
 //   Rc<str>, /* shared identifier */
 //   ItemType /* indicating where to search the actual value */
 // >
-// let const_container: hashbrown::HashMap<Rc<str>, Constant> = HashMap::new();
+// let constants: hashbrown::HashMap<Rc<str>, Constant> = HashMap::new();
 // ```
 // Example:
-// if an ItemType::Const is found, search the value in const_container
+// if an `ItemType::Const` is found, search the value in `constants`
 //
 // This allows faster searches, but obviously uses more memory
 
 fn main() {
-  let file_name = "main.sny";
+  let file_name = "files/main.sny";
   let code = "
     const TEST = 1
   ";
-  println!("{code:?}");
   parse::parse_file(file_name, code);
 }
 
