@@ -11,7 +11,9 @@ pub fn parse_expr(parser: &mut Parser) {
         // Example:
         // 1 expression: `let x = 1\n    .to_string()`
         // 2 expressions: `let x = 1\nlet y = 2`
+        todo!()
       },
+      _ => syn_err!("unexpected token {:?}", parser.current; parser)
     }
   }
 }

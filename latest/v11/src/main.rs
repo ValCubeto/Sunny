@@ -4,6 +4,11 @@ pub mod parse;
 pub mod colors;
 pub mod types;
 
+// TODO: custom `unexpected` function that tries to print the type of the value
+// Examples:
+// `unexpected('1')` -> `Syntax error: unexpected number`
+// `unexpected('i')` -> `Syntax error: unexpected \`if\` keyword here`
+
 // HINT: structure of the scopes
 // ```rs
 // typedef Scopes = Vec<hashbrown::HashMap<
