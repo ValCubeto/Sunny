@@ -78,9 +78,9 @@ impl<'a> Parser<'a> {
     }
   }
 
-  /// Similar to `self.skip_spaces`, but matches new lines
+  /// Similar to `self.skip_whitespaces`, but matches new lines
   pub fn next_token(&mut self) {
-    while matches!(self.current, ' ' | '\n' | '\t' | '\r') {
+    while matches!(self.current, ' ' | '\t' | '\n' | '\r') {
       self.next_char();
     }
   }
