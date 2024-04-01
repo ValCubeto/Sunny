@@ -1,8 +1,10 @@
 pub enum Value {
+  Variable(String),
+
   Boolean(bool),
 
-  Uint8(u8),
-  Uint16(u16),
+  UInt8(u8),
+  UInt16(u16),
   UInt32(u32),
   UInt64(u64),
   Usize(usize),
@@ -19,11 +21,11 @@ pub enum Value {
   // Tuple(???),
   // Array(*const ()),
   // Vec(*mut ()),
-  StringMut(String),
-  // StringConst(*const str),
+  // Str(*const str),
+  String(String),
   // Char(char),
 
   // Function(Function),
 
-  // HashMap(HashMap<Rc<str>, ()>)
+  // HashMap(HashMap<Rc<str>, Value>)
 }

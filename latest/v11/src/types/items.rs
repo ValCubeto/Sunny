@@ -12,6 +12,8 @@ pub enum Item {
 }
 
 pub enum Type {
+  Unknown,
+
   ClassInstance(*const ()),
   StructInstance(*const ()),
   EnumVariant(*const (), u8),

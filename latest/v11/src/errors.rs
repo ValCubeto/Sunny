@@ -12,14 +12,16 @@ macro_rules! err {
 }
 
 /// Macro for printing syntax errors
-macro_rules! syn_err {
+macro_rules! syntax_err {
   ($($arg: expr),* $(; $parser: expr)?) => {
     err!("Syntax error", $($arg),* $(; $parser)?)
   };
 }
 
 /// Macro for printing range errors
-macro_rules! ran_err {
+/// Example of input: `let a: u8 = 256`
+/// Expected output: `Range error: unsigned 8-bit integer literals must be between 0 and 256`
+macro_rules! range_err {
   ($($arg: expr),* $(; $parser: expr)?) => {
     err!("Range error", $($arg),* $(; $parser)?)
   };

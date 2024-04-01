@@ -1,10 +1,10 @@
-use std::str::Chars;
+use std::{ iter::Peekable, str::Chars };
 
 /// I think the name is enough descriptive
 pub struct Parser<'a> {
   pub file_name: &'a str,
   data_len: usize,
-  data: Chars<'a>,
+  data: Peekable<Chars<'a>>,
   pub idx: usize,
   pub current: char,
 
@@ -15,7 +15,7 @@ pub struct Parser<'a> {
 // FIXME: where the 'ignore comments' section should be?
 impl<'a> Parser<'a> {
   pub fn new(file_name: &'a str, data: &'a str) -> Self {
-    let mut chars = data.chars();
+    let mut chars = data.chars().peekable();
     let mut this = Parser {
       file_name,
       current: chars.next().unwrap(),
@@ -47,13 +47,18 @@ impl<'a> Parser<'a> {
     }
   }
 
+  pub fn peek(&mut self) -> char {
+    *(self.data.peek().expect("unexpected end of input"))
+  }
+
   /// Goes to the next character and returns it. Panics if the input ends
   pub fn next_char(&mut self) {
     self.idx += 1;
     if self.idx >= self.data_len {
-      syn_err!("unexpected end of input"; self);
+      syntax_err!("unexpected end of input"; self);
     }
-    self.current = self.data.next().expect("unexpected end of input");
+    self.current = self.data.next()
+      .expect("unexpected end of input");
     self.update_file_pos();
   }
 
@@ -115,14 +120,14 @@ impl<'a> Parser<'a> {
   pub fn expect_word(&mut self) -> String {
     // NOTE: `is_alphanumeric` includes ascii digits
     if self.current.is_ascii_digit() || !self.current.is_alphanumeric() {
-      syn_err!("expected an identifier, found {:?}", self.current; self)
+      syntax_err!("expected an identifier, found {:?}", self.current; self)
     }
     self.parse_word()
   }
 
   pub fn expect(&mut self, expected: char) {
     if self.current != expected {
-      syn_err!("expected {expected:?}, but got {:?}", self.current; self);
+      syntax_err!("expected {expected:?}, but got {:?}", self.current; self);
     }
     self.next_char();
   } 

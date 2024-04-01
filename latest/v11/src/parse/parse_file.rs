@@ -32,9 +32,9 @@ pub fn parse_file(file_name: &str, data: &str) {
           parser.skip_whitespaces();
           parse_function(&mut parser);
         }
-        _ident => syn_err!("unexpected identifier {word:?} here"; parser)
+        _ident => syntax_err!("unexpected identifier {word:?} here"; parser)
       }
     },
-    _ch => syn_err!("invalid or unexpected token {:?}", parser.current; parser)
+    _ch => syntax_err!("invalid or unexpected token {:?}", parser.current; parser)
   }
 }
