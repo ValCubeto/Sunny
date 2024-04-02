@@ -26,7 +26,8 @@ fn main() -> io::Result<()> {
   println!("Welcome to REPL v0.1!");
   println!("Call {BOLD}help(){BOLD_END} for more information");
   println!();
-  printf!("{prompt}");
+  println!("{prompt}");
+  println!();
 
   terminal::enable_raw_mode()?;
   let mut stdout = io::stdout();
