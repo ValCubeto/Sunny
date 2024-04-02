@@ -11,7 +11,7 @@ class SimpleShell {
     this.rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
-      prompt: '> '
+      // prompt: '> '
     });
 
     this.history = [];
@@ -21,32 +21,34 @@ class SimpleShell {
   }
 
   public run(): void {
-    this.rl.prompt();
-
-    this.rl.on('line', (line: string) => {
-      if (line === '') {
-        this.printPrompt();
-        return;
-      }
-
-      this.currentLine = line;
-      this.executeCommand();
-    });
-
     this.rl.on('keypress', (char: string, key: Key) => {
-      if (key.ctrl && key.name === 'c') {
-        console.log('Goodbye!');
+      if (key && key.ctrl && key.name === 'c') {
+        console.log('\nGoodbye!');
         process.exit();
       }
 
-      if (key && key.name === 'return') {
+      if (char === '\n') {
         this.executeCommand();
-      } else if (key && key.name === 'tab') {
+        return;
+      }
+
+      console.log({ name: key.name });
+      if (key && key.name === 'tab') {
         this.autocompleteCommand();
+      } else if (key && key.name === 'left') {
+        this.moveCursorLeft();
+      } else if (key && key.name === 'right') {
+        this.moveCursorRight();
+      } else if (key && key.name === 'home') {
+        this.moveCursorToStart();
+      } else if (key && key.name === 'end') {
+        this.moveCursorToEnd();
       } else {
         this.insertCharacter(key?.name ?? char);
       }
     });
+
+    // this.rl.prompt();
   }
 
   private executeCommand(): void {
@@ -58,11 +60,35 @@ class SimpleShell {
     this.printPrompt();
   }
 
+  private moveCursorLeft(): void {
+    if (this.cursorPosition > 0) {
+      this.cursorPosition--;
+      this.printPrompt();
+    }
+  }
+
+  private moveCursorRight(): void {
+    if (this.cursorPosition < this.currentLine.length) {
+      this.cursorPosition++;
+      this.printPrompt();
+    }
+  }
+
+  private moveCursorToStart(): void {
+    this.cursorPosition = 0;
+    this.printPrompt();
+  }
+
+  private moveCursorToEnd(): void {
+    this.cursorPosition = this.currentLine.length;
+    this.printPrompt();
+  }
+
   private printPrompt(): void {
     process.stdout.clearLine(0);
     process.stdout.cursorTo(0);
     process.stdout.write('> ' + this.currentLine);
-    this.rl.prompt();
+    // this.rl.prompt();
   }
 
   private autocompleteCommand(): void {

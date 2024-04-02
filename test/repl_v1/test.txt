@@ -1,0 +1,6 @@
+PS etc> bun run index.ts
+Welcome to REPL v0.1!
+Write .help for more information
+
+> conso|(le)
+[Console object]
