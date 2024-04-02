@@ -4,3 +4,9 @@ Write .help for more information
 
 > conso|(le)
 [Console object]
+
+> help()
+> exit()
+> info()
+> save()
+> clear()
