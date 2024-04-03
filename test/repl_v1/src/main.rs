@@ -21,6 +21,14 @@ use crossterm::{
 };
 use std::io;
 
+macro_rules! printf {
+  ($($arg: expr),*) => {{
+    use ::std::io::Write;
+    print!($($arg),*);
+    ::std::io::stdout().flush().unwrap();
+  }}
+}
+
 fn main() -> io::Result<()> {
   let prompt = "> ";
   let mut stdout = io::stdout();
@@ -67,27 +75,54 @@ fn main() -> io::Result<()> {
             }
             continue;
           }
+          input.insert(cursor, ch);
           cursor += 1;
-          stdout.execute(MoveRight(1))?;
-          input.insert(cursor - 1, ch);
+          // stdout.execute(MoveRight(1))?;
+          // terminal::disable_raw_mode()?;
+          printf!("{ch}");
+          // terminal::enable_raw_mode()?;
         }
         KeyCode::Enter => {
           terminal::disable_raw_mode()?;
           println!();
-          println!("input: {input:?}");
+          if !input.is_empty() {
+            println!("input: {input:?}");
+            cursor = 0;
+            input = String::new();
+          }
           println!("{prompt}");
-          cursor = 0;
-          input = String::new();
           stdout.execute(MoveUp(1))?;
           stdout.execute(MoveRight(prompt.len() as u16))?;
           terminal::enable_raw_mode()?;
         }
         KeyCode::Backspace => {
-          if !input.is_empty() {
-            let _removed = input.remove(cursor - 1);
-            cursor -= 1;
-            stdout.execute(MoveLeft(1))?;
+          if input.is_empty() {
+            continue;
           }
+          // I blow my mind because this was not working.
+          // The problem was that VS Code never sent the event
+          // to the console because it was taking it as a command
+          if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+            let mut count = 1;
+            for ch in input.chars().rev().skip(cursor) {
+              if !ch.is_alphanumeric() {
+                break;
+              }
+              count += 1;
+            }
+            if count == 0 {
+              continue;
+            }
+
+            // let slice = input.get((input.len() - count + 1)..input.len());
+            input.drain((cursor - count)..cursor);
+            cursor -= count;
+
+            continue;
+          }
+          let _removed = input.remove(cursor - 1);
+          cursor -= 1;
+          stdout.execute(MoveLeft(1))?;
         }
         KeyCode::Delete => {
           if !input.is_empty() && cursor < input.len() {
