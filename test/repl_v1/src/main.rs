@@ -40,9 +40,17 @@ fn main() -> io::Result<()> {
     match event::read()? {
       Event::Key(key_event) => match key_event.code {
         KeyCode::Char(ch) => {
-          if ch == 'c' && key_event.modifiers.contains(KeyModifiers::CONTROL) {
-            stdout.execute(DisableMouseCapture)?;
-            break;
+          if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+            match ch {
+              'c' => {
+                stdout.execute(DisableMouseCapture)?;
+                break;
+              },
+              'm' => {
+                in_multiline_mode = !in_multiline_mode;
+              }
+              _ => {}
+            }
           }
           input.push(ch);
         }

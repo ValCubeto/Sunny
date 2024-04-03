@@ -1,9 +1,22 @@
-PS etc> bun run index.ts
+PS etc> cargo run
 Welcome to REPL v0.1!
-Write .help for more information
+Call *help()* for more information
 
-> conso|(le)
-[Console object]
+> termi|nal
+[module]
+
+*Ctrl+M*
+1 | fun greet() {
+2 |   println("Hello world")
+3 | }
+4 | 
+5 | 
+
+*Ctrl+M*
+> greet()
+Hello world
+>
+
 
 > help()
 > exit()
