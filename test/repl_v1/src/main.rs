@@ -99,30 +99,26 @@ fn main() -> io::Result<()> {
           if input.is_empty() {
             continue;
           }
+          let mut count = 1;
           // I blow my mind because this was not working.
           // The problem was that VS Code never sent the event
           // to the console because it was taking it as a command
           if key_event.modifiers.contains(KeyModifiers::CONTROL) {
-            let mut count = 1;
             for ch in input.chars().rev().skip(cursor) {
               if !ch.is_alphanumeric() {
                 break;
               }
               count += 1;
             }
-            if count == 0 {
-              continue;
-            }
 
             // let slice = input.get((input.len() - count + 1)..input.len());
-            input.drain((cursor - count)..cursor);
+            let _removed = input.drain((cursor - count)..cursor);
             cursor -= count;
-
-            continue;
+          } else {
+            let _removed = input.remove(cursor - 1);
+            cursor -= 1;
+            stdout.execute(MoveLeft(1))?;
           }
-          let _removed = input.remove(cursor - 1);
-          cursor -= 1;
-          stdout.execute(MoveLeft(1))?;
         }
         KeyCode::Delete => {
           if !input.is_empty() && cursor < input.len() {
