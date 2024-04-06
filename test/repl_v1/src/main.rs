@@ -86,7 +86,7 @@ fn main() -> io::Result<()> {
           terminal::disable_raw_mode()?;
           println!();
           if !input.is_empty() {
-            println!("input: {input:?}");
+            println!("input = {input:?}");
             cursor = 0;
             input = String::new();
           }
@@ -99,8 +99,9 @@ fn main() -> io::Result<()> {
           if input.is_empty() {
             continue;
           }
-          let mut count = 1;
-          // I blow my mind because this was not working.
+          let mut count: usize = 1;
+
+          // I blew my mind because this was not working.
           // The problem was that VS Code never sent the event
           // to the console because it was taking it as a command
           if key_event.modifiers.contains(KeyModifiers::CONTROL) {
@@ -110,15 +111,14 @@ fn main() -> io::Result<()> {
               }
               count += 1;
             }
-
-            // let slice = input.get((input.len() - count + 1)..input.len());
-            let _removed = input.drain((cursor - count)..cursor);
-            cursor -= count;
-          } else {
-            let _removed = input.remove(cursor - 1);
-            cursor -= 1;
-            stdout.execute(MoveLeft(1))?;
+            println!("{}", count);
           }
+          input.drain((cursor - count)..cursor);
+          let slice = input.get((input.len() + 1 - count)..input.len()).unwrap();
+          stdout.execute(MoveLeft(count as u16))?;
+          printf!("{RED}{}{COLOR_END}{}", slice, " ".repeat(count));
+          stdout.execute(MoveLeft(slice.len() as u16 + count as u16))?;
+          cursor -= count;
         }
         KeyCode::Delete => {
           if !input.is_empty() && cursor < input.len() {
