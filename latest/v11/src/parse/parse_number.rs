@@ -10,7 +10,7 @@ use crate::types::Value;
 use super::Parser;
 
 #[must_use]
-pub fn parse_unsigned_number(parser: &mut Parser) -> Value {
+pub fn parse_unsigned_number(parser: &mut Parser) -> Number {
   let mut n = String::with_capacity(1);
 
   if parser.current == '0' {
@@ -22,9 +22,7 @@ pub fn parse_unsigned_number(parser: &mut Parser) -> Value {
         n.push(parser.current);
         parser.next_char();
       }
-      let result = u32::from_str_radix(&n, 16)
-        .expect("Failed to parse the hex number");
-      return Value::UInt32(result)
+      return Number::Hex(n)
     }
     
     if parser.current == 'b' {
@@ -33,9 +31,7 @@ pub fn parse_unsigned_number(parser: &mut Parser) -> Value {
         n.push(parser.current);
         parser.next_char();
       }
-      let result = u32::from_str_radix(&n, 2)
-        .expect("Failed to parse the binary number");
-      return Value::UInt32(result);
+      return Number::Bin(n);
     }
 
     // Nothing happens, continue parsing
@@ -50,13 +46,39 @@ pub fn parse_unsigned_number(parser: &mut Parser) -> Value {
   // How to handle this? The next token can be both a digit and a property name
   // Example: `1.2` or `1.to_string()`
   if parser.current == '.' {
+    // Peeked because the next char can be a property name
+    // For example, `1.to_string`
+    // So if it is not a float, we let the current char be the dot
     let peeked = parser.peek();
-    if peeked.is_ascii_digit() {
-      //
+    if !peeked.is_ascii_digit() {
+      return Number::Uint(n);
     }
+    n.push('.');
+    n.push(peeked);
+    // Skip the dot and the peeked
+    parser.next_char();
+    parser.next_char();
+    while parser.current.is_ascii_digit() {
+      n.push(parser.current);
+      parser.next_char();
+    }
+    return Number::Float(n);
   }
 
-  let result = n.parse::<u32>()
-    .expect("Failed to parse the number");
-  Value::UInt32(result)
+  Number::Uint(n)
+}
+
+pub enum Number {
+  /// 0000_0001 -> 1
+  Bin(String),
+  // ff -> 255
+  Hex(String),
+  // -230
+  Int(String),
+  // 5
+  Uint(String),
+  // 3.1415
+  Float(String),
+  /// 2e10 -> 20_000_000_000
+  Exp(String, String)
 }

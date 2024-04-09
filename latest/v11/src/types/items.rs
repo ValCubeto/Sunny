@@ -1,8 +1,8 @@
 use super::Value;
 
 pub enum Item {
-  // Alias(Alias),
   Constant(Constant),
+  // Alias(Alias),
   // Macro(Macro),
   // Trait(Trait),
   // Class(Class),
@@ -11,7 +11,8 @@ pub enum Item {
   // Bitset(Bitset),
 }
 
-pub enum Type {
+pub enum BuiltInType {
+  Reference(*const str),
   Unknown,
 
   ClassInstance(*const ()),
@@ -36,6 +37,6 @@ pub enum Type {
 }
 
 pub struct Constant {
-  pub ty: Type,
+  pub ty: BuiltInType,
   pub val: Value
 }

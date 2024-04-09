@@ -17,12 +17,13 @@ pub fn parse_file(file_name: &str, data: &str) {
           // and if any alphabetic character is found, then call `parser.parse_word()`
           let ident = parser.expect_word();
           println!("const {ident:?}");
-          // TODO: expect ':' and a type
-          // TODO: expect '=' and an expression
+
           parser.next_token();
           if parser.current == ':' {
-            todo!("const typing")
+            parser.next_token();
+            
           }
+
           parser.expect('=');
           parser.next_token();
           parse_expr(&mut parser);

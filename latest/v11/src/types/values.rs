@@ -1,5 +1,8 @@
+use super::items::BuiltInType;
+use crate::parse::Number;
+
 pub enum Value {
-  Variable(String),
+  BuiltInType(BuiltInType),
 
   Boolean(bool),
 
@@ -28,4 +31,9 @@ pub enum Value {
   // Function(Function),
 
   // HashMap(HashMap<Rc<str>, Value>)
+}
+
+pub enum IntermediateValue {
+  Number(Number),
+  Identifier(String)
 }

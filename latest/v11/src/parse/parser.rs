@@ -95,7 +95,8 @@ impl<'a> Parser<'a> {
   pub fn parse_word(&mut self) -> String {
     let mut word = String::from(self.current);
     self.next_char();
-    // HINT: should we add more characters? This accepts 
+    // TODO: I should look for ascii characters, then the underscore,
+    // and finally other alphanumeric characters
     while self.current.is_alphanumeric() || self.current == '_' {
       word.push(self.current);
       self.next_char();

@@ -14,4 +14,4 @@ mod parse_value;
 pub use parse_value::parse_value;
 
 mod parse_number;
-pub use parse_number::parse_unsigned_number;
+pub use parse_number::{ parse_unsigned_number, Number };
