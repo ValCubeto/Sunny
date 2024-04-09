@@ -1,0 +1,41 @@
+
+class Point {
+  // *default has no effect, is just syntactic sugar
+  impl Debug { *default }
+
+  struct {
+    x: int
+    y: int
+  }
+
+  fun create(x: int, y: int) -> Self {
+    new Point { x, y }
+  }
+}
+
+class Point3d extends Point {
+  struct {
+    *Super
+    z: int
+  }
+  fun create(x: int, y: int, z: int) -> Self {
+    new Point3d { x, y, z }
+  }
+}
+
+bitset Intents {
+  GUILDS = 1 << 0
+  MESSAGE_CONTENT = 1 << 1
+}
+
+fun main() {
+  // 0000_0001
+  let intents = Intents::GUILDS
+  // self & query == query
+  // 0000_0001 & 0000_0010 == 0100_0010 -> false
+  assert!(!intents.contains(Intents::MESSAGE_CONTENT))
+
+  let point3d = Point3d::create(10, 20, -15)
+  // Format: debug using only 1 space
+  assert!(f"{point3d@?1}" == "Point3d { x: 10, y: 20, z: -15 }")
+}
