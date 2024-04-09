@@ -24,20 +24,18 @@ class Point3d extends Point {
 }
 
 bitset Intents {
+  // Shifting zero has no effect but I added it because of consistency
   GUILDS = 1 << 0
   MESSAGE_CONTENT = 1 << 1
 }
 
-fun main() {
-  // 0000_0001
-  let intents = Intents::GUILDS
-  // self & query == query
-  // 0000_0001 & 0000_0010 == 0100_0010 -> false
-  assert!(!intents.contains(Intents::MESSAGE_CONTENT))
-
-  let point3d = Point3d::create(10, 20, -15)
-  // Format: debug using only 1 space
-  assert!(f"{point3d@?1}" == "Point3d { x: 10, y: 20, z: -15 }")
+macro matches! {
+  ($val: @expr, $patt: @pattern) {
+    match $val {
+      $patt: true
+      else: false
+    }
+  }
 }
 
 class Result<T, E> {
@@ -60,4 +58,16 @@ class Result<T, E> {
       else: panic("calling `unwrap` on an Err value")
     }
   }
+}
+
+fun main() {
+  // 0000_0001
+  let intents = Intents::GUILDS
+  // self & query == query
+  // 0000_0001 & 0000_0010 == 0100_0010 -> false
+  assert!(!intents.contains(Intents::MESSAGE_CONTENT))
+
+  let point3d = Point3d::create(10, 20, -15)
+  // Format: debug using only 1 space
+  assert!(f"{point3d@?1}" == "Point3d { x: 10, y: 20, z: -15 }")
 }
