@@ -39,3 +39,25 @@ fun main() {
   // Format: debug using only 1 space
   assert!(f"{point3d@?1}" == "Point3d { x: 10, y: 20, z: -15 }")
 }
+
+class Result<T, E> {
+  enum {
+    Ok(T)
+    Err(E)
+  }
+  fun ok() -> Option<T> {
+    match self {
+      Self::Ok(value): Some(value)
+      else: None
+    }
+  }
+  fun is_err() -> bool {
+    matches!(self, Self::Err(_))
+  }
+  fun unwrap() -> T {
+    match self {
+      Self::Ok(value): value
+      else: panic("calling `unwrap` on an Err value")
+    }
+  }
+}
