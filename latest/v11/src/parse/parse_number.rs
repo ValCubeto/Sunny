@@ -5,31 +5,43 @@
 // - Syntax error: unexpected number. Note: Property names cannot be numbers. Maybe you missed a character before it?
 // - 255.5
 
-use crate::types::Value;
-
 use super::Parser;
 
 #[must_use]
 pub fn parse_unsigned_number(parser: &mut Parser) -> Number {
   let mut n = String::with_capacity(1);
 
-  if parser.current == '0' {
+  if parser.current() == '0' {
     parser.next_char();
 
-    if parser.current == 'x' {
+    if parser.current() == 'x' {
       parser.next_char();
-      while parser.current.is_ascii_hexdigit() {
-        n.push(parser.current);
-        parser.next_char();
+      loop {
+        if parser.current().is_ascii_hexdigit() {
+          n.push(parser.current());
+          parser.next_char();
+          continue;
+        }
+        if parser.current() == '_' {
+          continue;
+        }
+        break;
       }
       return Number::Hex(n)
     }
     
-    if parser.current == 'b' {
+    if parser.current() == 'b' {
       parser.next_char();
-      while matches!(parser.current, '0' | '1') {
-        n.push(parser.current);
-        parser.next_char();
+      loop {
+        if matches!(parser.current(), '0' | '1') {
+          n.push(parser.current());
+          parser.next_char();
+          continue;
+        }
+        if parser.current() == '_' {
+          continue;
+        }
+        break;
       }
       return Number::Bin(n);
     }
@@ -37,15 +49,29 @@ pub fn parse_unsigned_number(parser: &mut Parser) -> Number {
     // Nothing happens, continue parsing
   }
 
-  n.push(parser.current);
-  while parser.current.is_ascii_digit() {
-    n.push(parser.current);
-    parser.next_char();
+  n.push(parser.current());
+  let result = parse_decimal(parser, n);
+  if !matches!(parser.current(), 'e' | 'E') {
+    return result;
+  }
+  // TODO: add signed exponents
+  let exponent = parse_decimal(parser, String::new());
+  Number::Exp(Box::new(result), Box::new(exponent))
+}
+
+fn parse_decimal(parser: &mut Parser, mut n: String) -> Number {
+  loop {
+    if parser.current().is_ascii_digit() {
+      n.push(parser.current());
+      parser.next_char();
+    }
+    if parser.current() == '_' {
+      continue;
+    }
+    break;
   }
 
-  // How to handle this? The next token can be both a digit and a property name
-  // Example: `1.2` or `1.to_string()`
-  if parser.current == '.' {
+  if parser.current() == '.' {
     // Peeked because the next char can be a property name
     // For example, `1.to_string`
     // So if it is not a float, we let the current char be the dot
@@ -58,13 +84,19 @@ pub fn parse_unsigned_number(parser: &mut Parser) -> Number {
     // Skip the dot and the peeked
     parser.next_char();
     parser.next_char();
-    while parser.current.is_ascii_digit() {
-      n.push(parser.current);
-      parser.next_char();
+    loop {
+      if parser.current().is_ascii_digit() {
+        n.push(parser.current());
+        parser.next_char();
+      }
+      if parser.current() == '_' {
+        continue;
+      }
+      break;
     }
     return Number::Float(n);
   }
-
+  
   Number::Uint(n)
 }
 
@@ -80,5 +112,6 @@ pub enum Number {
   // 3.1415
   Float(String),
   /// 2e10 -> 20_000_000_000
-  Exp(String, String)
+  /// Of course these numbers won't be Bin, Hex, or another Exp
+  Exp(Box<Number>, Box<Number>)
 }

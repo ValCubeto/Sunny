@@ -2,7 +2,7 @@ use crate::types::{IntermediateValue, Value};
 use super::{ parse_unsigned_number, Parser };
 
 pub fn parse_value(parser: &mut Parser) -> IntermediateValue {
-  match parser.current {
+  match parser.current() {
     // '-' => {
     //   let sign = parser.current;
     //   parser.next_token();

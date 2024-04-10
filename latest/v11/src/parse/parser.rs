@@ -6,7 +6,8 @@ pub struct Parser<'a> {
   data_len: usize,
   data: Peekable<Chars<'a>>,
   pub idx: usize,
-  pub current: char,
+  /// If you modify it, make sure to call `self.update_file_pos()` after.
+  current: char,
 
   pub line: usize,
   pub column: usize,
@@ -29,8 +30,14 @@ impl<'a> Parser<'a> {
     this
   }
 
-  /// This function MUST be called instead of directly updating `self.current`
-  /// Updates the file pos (`self.line` and `self.column`)
+  /// Returns `self.current`. This prevents modifications from outside.
+  #[inline(always)]
+  pub fn current(&self) -> char {
+    self.current
+  }
+
+  /// This function MUST be called after of directly updating `self.current`
+  /// Updates the file position (`self.line` and `self.column`).
   pub fn update_file_pos(&mut self) {
     match self.current {
       '\n' => {
@@ -38,10 +45,10 @@ impl<'a> Parser<'a> {
         self.line += 1;
       }
       '\t' => {
-        // HINT: let the user decide how many spaces a tab uses
+        // HINT: let the user decide how many spaces a tab uses.
         self.column += 4;
       }
-      _ch => {
+      _ => {
         self.column += 1;
       }
     }
@@ -51,7 +58,7 @@ impl<'a> Parser<'a> {
     *(self.data.peek().expect("unexpected end of input"))
   }
 
-  /// Goes to the next character and returns it. Panics if the input ends
+  /// Goes to the next character and returns it. Panics if the input ends.
   pub fn next_char(&mut self) {
     self.idx += 1;
     if self.idx >= self.data_len {
@@ -62,7 +69,7 @@ impl<'a> Parser<'a> {
     self.update_file_pos();
   }
 
-  /// Skips spaces, excluding the end of line. Panics if the input ends
+  /// Skips spaces, excluding the end of line. Panics if the input ends.
   pub fn skip_spaces(&mut self) {
     while matches!(self.current, ' ' | '\t') {
       self.next_char();
@@ -70,9 +77,9 @@ impl<'a> Parser<'a> {
   }
 
   /// Goes to the next character until there is a non-whitespace character,
-  /// or finishes the program when reaching the end of the input
+  /// or finishes the program when reaching the end of the input.
   pub fn skip_whitespaces(&mut self) {
-    // NOTE: other types of whitespace will be considered invalid
+    // NOTE: other types of whitespace will be considered invalid.
     while matches!(self.current, ' ' | '\n' | '\t' | '\r') {
       self.idx += 1;
       if self.idx >= self.data_len {
@@ -83,20 +90,21 @@ impl<'a> Parser<'a> {
     }
   }
 
-  /// Similar to `self.skip_whitespaces`, but matches new lines
+  /// Similar to `self.skip_whitespaces`, but matches new lines.
   pub fn next_token(&mut self) {
     while matches!(self.current, ' ' | '\t' | '\n' | '\r') {
       self.next_char();
     }
   }
 
-  /// Used when an alphabetic character is found. Returns it + the next alphanumeric characters, if any
+  /// Used when an alphabetic character is found.
+  /// Returns it + the next alphanumeric characters, if any.
   #[must_use]
   pub fn parse_word(&mut self) -> String {
     let mut word = String::from(self.current);
     self.next_char();
     // TODO: I should look for ascii characters, then the underscore,
-    // and finally other alphanumeric characters
+    // and finally other alphanumeric characters.
     while self.current.is_alphanumeric() || self.current == '_' {
       word.push(self.current);
       self.next_char();
@@ -104,7 +112,7 @@ impl<'a> Parser<'a> {
     word
   }
 
-  /// Used when a keyword is expected. Similar to `Parser::parse_word`
+  /// Used when a keyword is expected. Similar to `Parser::parse_word`.
   #[must_use]
   pub fn parse_ascii_word(&mut self) -> String {
     let mut word = String::from(self.current);
@@ -113,19 +121,27 @@ impl<'a> Parser<'a> {
       word.push(self.current);
       self.next_char();
     }
+    if self.current.is_alphanumeric() {
+      syntax_err!("unexpected identifier `{word}{}` here", self.parse_word(); self);
+    }
     word
   }
 
-  /// Expects the current character to be a valid identifier character, and then calls `Self::parse_word`
+  /// Expects the current character to be a valid identifier character,
+  /// and then calls `Self::parse_word`.
   #[must_use]
   pub fn expect_word(&mut self) -> String {
-    // NOTE: `is_alphanumeric` includes ascii digits
+    // NOTE: `is_alphanumeric` includes ascii digits.
+    // Doesn't allow the first character to be an ascii digit.
+    // For example, `2dVector` will be invalid.
     if self.current.is_ascii_digit() || !self.current.is_alphanumeric() {
       syntax_err!("expected an identifier, found {:?}", self.current; self)
     }
     self.parse_word()
   }
 
+  /// Errors if the current character is not the expected.
+  /// If it is, goes to the next character.
   pub fn expect(&mut self, expected: char) {
     if self.current != expected {
       syntax_err!("expected {expected:?}, but got {:?}", self.current; self);

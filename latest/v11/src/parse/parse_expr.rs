@@ -4,7 +4,7 @@ pub fn parse_expr(parser: &mut Parser) {
   loop {
     parse_value(parser);
     parser.skip_spaces();
-    match parser.current {
+    match parser.current() {
       '\n' => {
         // Look for a token that completes the expression, or end it.
         // This will be complicated
@@ -13,7 +13,7 @@ pub fn parse_expr(parser: &mut Parser) {
         // 2 expressions: `let x = 1\nlet y = 2`
         todo!()
       },
-      _ => syntax_err!("unexpected token {:?}", parser.current; parser)
+      _ => syntax_err!("unexpected token {:?}", parser.current(); parser)
     }
   }
 }
