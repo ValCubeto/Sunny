@@ -25,9 +25,8 @@ pub mod types;
 
 fn main() {
   let file_name = "files/main.sny";
-  let code = "
-    const TEST: int = 1
-  ";
+  let code = std::fs::read_to_string("files/main.sny")
+    .expect("failed to read the file");
   // [
   //   {
   //     "std" => ?
@@ -37,7 +36,7 @@ fn main() {
   //     "TEST" => Constant { ty: Int32, val: Value::u8(1) }
   //   }
   // ]
-  parse::parse_file(file_name, code);
+  parse::parse_file(file_name, &code);
 }
 
 // Global variables:

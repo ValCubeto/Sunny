@@ -1,4 +1,4 @@
-use crate::types::{IntermediateValue, Value};
+use crate::types::IntermediateValue;
 use super::{ parse_unsigned_number, Parser };
 
 pub fn parse_value(parser: &mut Parser) -> IntermediateValue {
@@ -19,7 +19,15 @@ pub fn parse_value(parser: &mut Parser) -> IntermediateValue {
     //   }
     //   parse_signed_number(parser, sign)
     // },
-    ch if ch.is_ascii_digit() => {
+
+    // '\'' => {}
+    // '"' => {}
+    // 'f' => {}
+    // 'r' => {}
+    // 'c' => {}
+    // '(' => {}
+    // '[' => {}
+    '0'..='9' => {
       IntermediateValue::Number(parse_unsigned_number(parser))
     }
     // ch if ch.is_alphanumeric() || ch == '_' => {

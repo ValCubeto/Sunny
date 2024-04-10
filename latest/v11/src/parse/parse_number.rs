@@ -14,7 +14,7 @@ pub fn parse_unsigned_number(parser: &mut Parser) -> Number {
   if parser.current() == '0' {
     parser.next_char();
 
-    if parser.current() == 'x' {
+    if matches!(parser.current(), 'x' | 'X') {
       parser.next_char();
       loop {
         if parser.current().is_ascii_hexdigit() {
@@ -30,7 +30,7 @@ pub fn parse_unsigned_number(parser: &mut Parser) -> Number {
       return Number::Hex(n)
     }
     
-    if parser.current() == 'b' {
+    if matches!(parser.current(), 'b' | 'B') {
       parser.next_char();
       loop {
         if matches!(parser.current(), '0' | '1') {
@@ -41,6 +41,9 @@ pub fn parse_unsigned_number(parser: &mut Parser) -> Number {
         if parser.current() == '_' {
           continue;
         }
+        if matches!(parser.current(), '2'..='9') {
+          syntax_err!("unexpected decimal in binary number"; parser);
+        }
         break;
       }
       return Number::Bin(n);
@@ -50,10 +53,12 @@ pub fn parse_unsigned_number(parser: &mut Parser) -> Number {
   }
 
   n.push(parser.current());
+  parser.next_char();
   let result = parse_decimal(parser, n);
   if !matches!(parser.current(), 'e' | 'E') {
     return result;
   }
+  parser.next_char();
   // TODO: add signed exponents
   let exponent = parse_decimal(parser, String::new());
   Number::Exp(Box::new(result), Box::new(exponent))
@@ -64,6 +69,7 @@ fn parse_decimal(parser: &mut Parser, mut n: String) -> Number {
     if parser.current().is_ascii_digit() {
       n.push(parser.current());
       parser.next_char();
+      continue;
     }
     if parser.current() == '_' {
       continue;
@@ -100,6 +106,7 @@ fn parse_decimal(parser: &mut Parser, mut n: String) -> Number {
   Number::Uint(n)
 }
 
+#[derive(Debug)]
 pub enum Number {
   /// 0000_0001 -> 1
   Bin(String),

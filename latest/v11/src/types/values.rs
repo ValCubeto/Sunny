@@ -33,6 +33,7 @@ pub enum Value {
   // HashMap(HashMap<Rc<str>, Value>)
 }
 
+#[derive(Debug)]
 pub enum IntermediateValue {
   Number(Number),
   Identifier(String)

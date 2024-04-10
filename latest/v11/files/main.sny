@@ -1,3 +1,5 @@
-fun main() {
-  println("Hello, world!")
-}
+const TEST = 123.4
+
+// fun main() {
+//   println("Hello, world!")
+// }

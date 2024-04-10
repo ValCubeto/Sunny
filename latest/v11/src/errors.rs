@@ -7,6 +7,7 @@ macro_rules! err {
     $(
       eprintln!("    at {}:{}:{}", $parser.file_name, $parser.line, $parser.column);
     )?
+    eprintln!("    at {}:{}:{}", file!(), line!(), column!());
     ::std::process::exit(1);
   }};
 }

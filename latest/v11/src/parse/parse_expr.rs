@@ -2,7 +2,8 @@ use super::{ parse_value, Parser };
 
 pub fn parse_expr(parser: &mut Parser) {
   loop {
-    parse_value(parser);
+    println!("Parsed value: {:?}", parse_value(parser));
+    println!();
     parser.skip_spaces();
     match parser.current() {
       '\n' => {

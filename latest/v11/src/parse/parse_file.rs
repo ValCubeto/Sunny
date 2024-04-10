@@ -18,14 +18,9 @@ pub fn parse_file(file_name: &str, data: &str) {
         // HINT: maybe we should match `{` or `[` to implement destructuring,
         // and if any alphabetic character is found, then call `parser.parse_word()`
         let ident = parser.expect_word();
-        println!("const {ident:?}");
 
         parser.next_token();
-        parser.expect(':');
-        if parser.current() == ':' {
-          parser.next_token();
-          
-        }
+        // parser.expect(':');
 
         parser.expect('=');
         parser.next_token();
