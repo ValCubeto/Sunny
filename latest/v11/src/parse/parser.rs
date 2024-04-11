@@ -6,14 +6,13 @@ pub struct Parser<'a> {
   data_len: usize,
   data: Peekable<Chars<'a>>,
   pub idx: usize,
+  /// # IMPORTANT
   /// If you modify it, make sure to call `self.update_file_pos()` after.
   current: char,
-
   pub line: usize,
   pub column: usize,
 }
 
-// FIXME: where the 'ignore comments' section should be?
 impl<'a> Parser<'a> {
   pub fn new(file_name: &'a str, data: &'a str) -> Self {
     let mut chars = data.chars().peekable();
@@ -36,9 +35,10 @@ impl<'a> Parser<'a> {
     self.current
   }
 
-  /// This function MUST be called after of directly updating `self.current`
+  /// This function MUST be called after of directly updating
+  /// `self.current`
   /// Updates the file position (`self.line` and `self.column`).
-  pub fn update_file_pos(&mut self) {
+  fn update_file_pos(&mut self) {
     match self.current {
       '\n' => {
         self.column = 1;
@@ -54,19 +54,57 @@ impl<'a> Parser<'a> {
     }
   }
 
+  /// Returns a copy of the next character without
+  /// advancing the cursor
   pub fn peek(&mut self) -> char {
-    *(self.data.peek().expect("unexpected end of input"))
+    *(self.data.peek()
+      .unwrap_or_else(|| syntax_err!("unexpected end of input")))
   }
 
-  /// Goes to the next character and returns it. Panics if the input ends.
+  /// Used to prevent recursion by `self.next_char`
+  #[inline]
+  fn _next_char(&mut self) {
+    self.idx += 1;
+    if self.idx >= self.data_len {
+      syntax_err!("unexpected end of input"; self);
+    }
+    self.current = self.data.next().unwrap();
+    self.update_file_pos();
+  }
+
+  /// Goes to the next character and returns it.
+  /// Panics if the input ends.
   pub fn next_char(&mut self) {
     self.idx += 1;
     if self.idx >= self.data_len {
       syntax_err!("unexpected end of input"; self);
     }
-    self.current = self.data.next()
-      .expect("unexpected end of input");
+    self.current = self.data.next().unwrap();
     self.update_file_pos();
+
+    // Peeks so the current keeps being '/'
+    if self.current == '/' {
+      let peeked = self.peek();
+      if peeked == '/' {
+        self._next_char();
+        self._next_char();
+        while self.current != '\n' {
+          self._next_char();
+        }
+      } else if peeked == '*' {
+        self._next_char();
+        self._next_char();
+        loop {
+          if self.current == '*' && self.peek() == '/' {
+            self._next_char();
+            self._next_char();
+            break;
+          }
+          self._next_char();
+        }
+      }
+    }
+    println!("    {}: {:?}", self.idx, self.current);
   }
 
   /// Skips spaces, excluding the end of line. Panics if the input ends.
