@@ -13,6 +13,13 @@ macro_rules! err {
 }
 
 /// Macro for printing syntax errors
+macro_rules! internal_err {
+  ($($arg: expr),* $(; $parser: expr)?) => {
+    err!("Internal error", $($arg),* $(; $parser)?)
+  };
+}
+
+/// Macro for printing syntax errors
 macro_rules! syntax_err {
   ($($arg: expr),* $(; $parser: expr)?) => {
     err!("Syntax error", $($arg),* $(; $parser)?)
