@@ -1,5 +1,5 @@
 const TEST // hello
-= 123.4
+= 123.4;
 
 // fun main() {
 //   println("Hello, world!")
