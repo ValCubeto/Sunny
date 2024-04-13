@@ -29,19 +29,19 @@ match parser.current() {
   '+' => {
     parser.next_token();
     let right = parse_value(parser);
-    return Sum(left, right);
+    return Expr(Sum, left, right);
   }
   '*' => {
     if parser.peek() == '*' {
       parser.next_token();
       let right = parse_value(parser);
-      return Pow(left, right);
+      return Expr(Pow, left, right);
     }
     parser.next_token();
     let right = parse_value(parser);
-    return Mul(left, right);
+    return Expr(Mul, left, right);
   }
-  ch => syntax_err!("unexpected token {ch:?}"; parser)
+  _ => left
 }
 
 */
