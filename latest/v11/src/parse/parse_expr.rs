@@ -21,7 +21,7 @@ pub fn parse_expr(parser: &mut Parser) -> Expression {
 /*
 
 `1 + 2 * 3`
-Expected: Sum(1, Mul(2, 3))
+Expected: E(Sum, 1, E(Mul, 2, 3))
 
 let left = Value(Int(12));
 parser.next_token();
@@ -44,6 +44,10 @@ match parser.current() {
   _ => left
 }
 
+
+let left: Val | Expr = parse()
+
+
 */
 
 fn parse_to_right(parser: &mut Parser, expr: Expression) -> Expression {
@@ -64,30 +68,87 @@ fn parse_to_right(parser: &mut Parser, expr: Expression) -> Expression {
   }
 }
 
-pub enum Operator {
-  /// a + b
+/// Operators that take two values
+pub enum BinOperator {
+  /// `a + b`
   Add,
-  /// a - b
+  /// `a - b`
   Sub,
-  /// a * b
+  /// `a * b`
   Mul,
-  /// a / b
+  /// `a / b`
   Div,
+  /// `a ** b`
+  Pow,
+  /// `a % b`
+  Mod,
 
-  /// a && b
+  /// `a && b`
   And,
-  /// a || b
+  /// `a || b`
   Or,
 
-  /// a & b
-  BinAnd,
-  /// a | b
-  BinOr,
-  /// a ^ b
-  BinXor,
+  /// a > b
+  GreaterThan,
+  /// `a >= b`
+  GreaterThanOrEq,
+  /// `a < b`
+  LessThan,
+  /// `a <= b`
+  LessThanOrEq,
+
+  /// `a == b`
+  Equal,
+  /// `a != b`
+  NotEqual,
+
+  /// `a & b`
+  BitAnd,
+  /// `a | b`
+  BitOr,
+  /// `a ^ b`
+  BitXor,
+
+  /// `a.b`
+  GetProp,
+  /// `a::b`
+  GetItem,
+}
+
+pub enum Operator {
+  /// `-a`
+  Negate,
+
+  /// `!a`
+  Not,
+
+  /// `a?`
+  Try,
+
+  /// `&a`
+  Ref,
+  /// `*a`
+  Deref
+}
+
+pub enum TriOperator {
+  /// `a then b else c`
+  ThenElse,
+
+  /// `a |> b: c`
+  Pipe
 }
 
 pub enum Expression {
   Value(IntermediateValue),
-  Operation(Operator, Box<Expression>, Box<Expression>),
+  TriOperation(TriOperator, Box<Expression>, Box<Expression>, Box<Expression>),
+  BinOperation(BinOperator, Box<Expression>, Box<Expression>),
+  Operation(Operator, Box<Expression>)
 }
+
+// b if a else c
+// a then b else c
+
+/*
+a then { b } else { c }
+*/
