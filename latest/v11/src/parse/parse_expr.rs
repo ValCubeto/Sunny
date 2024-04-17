@@ -6,16 +6,7 @@ pub fn parse_expr(parser: &mut Parser) -> Expression {
   let left = parse_value(parser);
   println!("Parsed value: {left:?}");
   println!();
-  let mut value = Expression::Value(left);
-  parser.next_char();
-  match parser.current() {
-    ';' | ',' => {
-      parser.next_char();
-      value
-    }
-    '+' => value
-  }
-  parse_to_right(parser, value)
+  parse_to_right(parser, Expression::Value(left))
 }
 
 /*
@@ -50,21 +41,21 @@ let left: Val | Expr = parse()
 
 */
 
-fn parse_to_right(parser: &mut Parser, expr: Expression) -> Expression {
+fn parse_to_right(parser: &mut Parser, left: Expression) -> Expression {
   match parser.current() {
     ';' | ',' => {
       parser.next_char();
-      expr
+      left
     }
     '\n' => {
       parser.next_token();
-      parse_to_right(parser, expr)
+      parse_to_right(parser, left)
     },
     '+' => {
       let right = parse_value(parser);
       expr
     }
-    ch => syntax_err!("unexpected token {ch:?}"; parser)
+    _ => left
   }
 }
 
@@ -115,6 +106,40 @@ pub enum BinOperator {
   GetItem,
 }
 
+impl BinOperator {
+  pub fn precedence(&self) -> u8 {
+    use BinOperator as O;
+    match self {
+      O::GetProp => 0,
+      O::GetItem => 0,
+
+      O::Pow => 1,
+      
+      O::Mul => 2,
+      O::Div => 2,
+      O::Mod => 2,
+      
+      O::Add => 3,
+      O::Sub => 3,
+
+      O::BitAnd => 4,
+      O::BitOr => 4,
+      O::BitXor => 4,
+
+      O::And => 5,
+      O::Or => 5,
+      O::GreaterThan => 5,
+      O::GreaterThanOrEq => 5,
+      O::LessThan => 5,
+      O::LessThanOrEq => 5,
+
+      O::Equal => 6,
+      O::NotEqual => 6,
+    }
+  }
+}
+
+/// Precedence: 1
 pub enum Operator {
   /// `-a`
   Negate,

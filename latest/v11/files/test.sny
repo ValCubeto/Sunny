@@ -1,7 +1,6 @@
 
 class Point {
-  // *default has no effect, is just syntactic sugar
-  impl Debug { *default }
+  impl Debug { ... }
 
   struct {
     x: int
@@ -13,9 +12,9 @@ class Point {
   }
 }
 
-class Point3d extends Point {
+class Point3d: Point {
   struct {
-    *Super
+    ...Super
     z: int
   }
   fun create(x: int, y: int, z: int) -> Self {
@@ -24,7 +23,7 @@ class Point3d extends Point {
 }
 
 bitset Intents {
-  // Shifting zero has no effect but I added it because of consistency
+  // Shifting zero times has no effect
   GUILDS = 1 << 0
   MESSAGE_CONTENT = 1 << 1
 }
