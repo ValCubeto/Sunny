@@ -1,4 +1,4 @@
-use std::{ iter::Peekable, str::Chars };
+use std::{ collections::HashSet, iter::Peekable, str::Chars };
 
 /// I think the name is enough descriptive
 pub struct Parser<'a> {
@@ -11,11 +11,46 @@ pub struct Parser<'a> {
   current: char,
   pub line: usize,
   pub column: usize,
+  keywords: HashSet<&'a str>
 }
 
 impl<'a> Parser<'a> {
   pub fn new(file_name: &'a str, data: &'a str) -> Self {
     let mut chars = data.chars().peekable();
+    let keywords = HashSet::from([
+      "const",
+      "fun",
+      "class",
+      "enum",
+      "struct",
+      "trait",
+      "typedef",
+      "flagset",
+
+      "let",
+      "var",
+
+      "if",
+      "then",
+      "else",
+
+      "loop",
+      "while",
+      "for",
+
+      "return",
+      "break",
+      "continue",
+
+      "use",
+      "as",
+      "from",
+
+      "new",
+      "match",
+
+      "with",
+    ]);
     let mut this = Parser {
       file_name,
       current: chars.next().unwrap(),
@@ -23,10 +58,19 @@ impl<'a> Parser<'a> {
       data: chars,
       idx: 1,
       line: 1,
-      column: 1
+      column: 1,
+      keywords
     };
     this.update_file_pos();
     this
+  }
+
+  /// Panics if the token is a keyword
+  #[inline(always)]
+  pub fn is_keyword(&self, word: &str) {
+    if self.keywords.contains(word) {
+      syntax_err!("unexpected keyword {word:?} here"; self);
+    }
   }
 
   /// Returns `self.current`. This prevents modifications from outside.
@@ -109,7 +153,7 @@ impl<'a> Parser<'a> {
 
   /// Skips spaces, excluding the end of line. Panics if the input ends.
   pub fn skip_spaces(&mut self) {
-    while matches!(self.current, ' ' | '\t') {
+    while matches!(self.current, ' ' | '\t' | '\r') {
       self.next_char();
     }
   }

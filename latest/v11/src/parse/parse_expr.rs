@@ -6,6 +6,8 @@ pub fn parse_expr(parser: &mut Parser) -> Expression {
   let left = parse_value(parser);
   println!("Parsed value: {left:?}");
   println!();
+  parser.skip_spaces();
+  let line_broken = parser.current() == '\n';
   parse_to_right(parser, Expression::Value(left))
 }
 
@@ -37,23 +39,43 @@ match parser.current() {
 
 
 let left: Val | Expr = parse()
-
-
 */
 
-fn parse_to_right(parser: &mut Parser, left: Expression) -> Expression {
+fn parse_to_right(parser: &mut Parser, left: Expression) /* -> Expression */ {
   match parser.current() {
-    ';' | ',' => {
-      parser.next_char();
-      left
-    }
-    '\n' => {
-      parser.next_token();
-      parse_to_right(parser, left)
-    },
     '+' => {
+      let op = BinOperator::Add;
+      parser.next_token();
       let right = parse_value(parser);
-      expr
+      Expression::BinOperation(op, left, right)
+    },
+    '-' => {
+      let op = BinOperator::Sub;
+    },
+    '*' => {
+      if parser.peek() == '*' {
+        parser.next_token();
+        let op = BinOperator::Pow;
+        
+      }
+      let op = BinOperator::Mul;
+    },
+    '/' => {
+      let op = BinOperator::Div;
+    },
+    '^' => {
+      let op = BinOperator::Pow;
+    },
+    '<' => {
+      if
+        matches!(
+          left,
+          | Expression::Value(IntermediateValue::Identifier(_))
+        )
+      {
+        //
+      }
+      let op = BinOperator::LessThan;
     }
     _ => left
   }
@@ -106,40 +128,6 @@ pub enum BinOperator {
   GetItem,
 }
 
-impl BinOperator {
-  pub fn precedence(&self) -> u8 {
-    use BinOperator as O;
-    match self {
-      O::GetProp => 0,
-      O::GetItem => 0,
-
-      O::Pow => 1,
-      
-      O::Mul => 2,
-      O::Div => 2,
-      O::Mod => 2,
-      
-      O::Add => 3,
-      O::Sub => 3,
-
-      O::BitAnd => 4,
-      O::BitOr => 4,
-      O::BitXor => 4,
-
-      O::And => 5,
-      O::Or => 5,
-      O::GreaterThan => 5,
-      O::GreaterThanOrEq => 5,
-      O::LessThan => 5,
-      O::LessThanOrEq => 5,
-
-      O::Equal => 6,
-      O::NotEqual => 6,
-    }
-  }
-}
-
-/// Precedence: 1
 pub enum Operator {
   /// `-a`
   Negate,
@@ -154,6 +142,53 @@ pub enum Operator {
   Ref,
   /// `*a`
   Deref
+}
+
+pub trait Precedence {
+  fn precedence(&self) -> u8;
+}
+
+impl Precedence for BinOperator {
+  fn precedence(&self) -> u8 {
+    use BinOperator as O;
+    match self {
+      // Less precedence than `Operator`
+      // so `a.b?`, `!a.b`, `&a::b`, etc. works correctly.
+      O::GetProp => 0,
+      O::GetItem => 0,
+
+      // Greater precedence than `Operator`
+      // so `*a ** b` works correctly
+      O::Pow => 2,
+      
+      O::Mul => 3,
+      O::Div => 3,
+      O::Mod => 3,
+      
+      O::Add => 4,
+      O::Sub => 4,
+
+      O::BitAnd => 5,
+      O::BitOr => 5,
+      O::BitXor => 5,
+
+      O::And => 6,
+      O::Or => 6,
+      O::GreaterThan => 6,
+      O::GreaterThanOrEq => 6,
+      O::LessThan => 6,
+      O::LessThanOrEq => 6,
+
+      O::Equal => 7,
+      O::NotEqual => 7,
+    }
+  }
+}
+
+impl Precedence for Operator {
+  fn precedence(&self) -> u8 {
+    1
+  }
 }
 
 pub enum TriOperator {
