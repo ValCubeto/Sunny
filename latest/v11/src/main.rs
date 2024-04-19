@@ -6,6 +6,9 @@ pub mod parse;
 pub mod colors;
 pub mod types;
 
+#[cfg(test)]
+mod tests;
+
 // TODO: custom `unexpected` function that tries to print the type of the value
 // Examples:
 // `unexpected('1')` -> `Syntax error: unexpected number`
@@ -26,7 +29,8 @@ pub mod types;
 
 fn main() {
   let file_name = "files/main.sny";
-  let code = std::fs::read_to_string("files/main.sny")
+
+  let code = std::fs::read_to_string(file_name)
     .expect("failed to read the file");
   // [
   //   {
@@ -47,12 +51,24 @@ fn main() {
 // - typedef uint = u32
 // - typedef float = f32
 // - use std::lists::Vec
-// - use std::strings::String
+// - use std::display::String
 // - use std::io::println
 // - use std::process::exit
 // - use std::debug::assert!
+// - use std::result::Result::{ self, Ok, Err };
+// - use std::option::Option::{ self, Some, None };
 
 // Std lib structure:
+// - mem:
+//   - psize
+//   - alloc (malloc)
+//   - alloc_init (calloc)
+//   - realloc
+//   - free
+//   - copy
+//   - move
+//   - Error
+//   - Result
 // - cmp:
 //   - Eq, Neq
 //   - LessThan, GreaterThan
@@ -69,14 +85,16 @@ fn main() {
 //   - f32, f64, f128
 //   - BigInt, BigUint, BigDecimal
 //   - Complex, Ratio, BigRational
-// - vecs:
+// - lists:
 //   - Vec
-// - strings:
+// - display:
 //   - ToString
+//   - FromString
+//   - Display
 //   - String
 //   - Char
 // - fmt:
-//   - Display, Debug
+//   - Display, Debug, NumberFormat
 // - io:
 //   - stdin
 //   - readln
@@ -86,6 +104,9 @@ fn main() {
 //   - stderr
 //   - eprint
 //   - eprintln
+//   - ask
+//   - Error
+//   - Result
 // - debug:
 //   - assert!
 //   - BOLD, BOLD_END, ITALIC, ITALIC_END, ...
@@ -119,7 +140,7 @@ fn main() {
 // - math:
 //   - PI
 //   - E
-//   - MathOps (sqrt, cbrt, log2, log10, ...)
+//   - trait Math
 // - ranges:
 //   - Range
 // - env:
@@ -127,8 +148,10 @@ fn main() {
 //   - use_var!
 // - json:
 //   - json!
+//   - jsonify
+//   - parse_json
 //
-// - cfg!
+// - cfg
 // - matches!
 // - stringify!
 // - type_name!

@@ -2,6 +2,7 @@ use super::Value;
 
 pub enum Item {
   Constant(Constant),
+  // Function(Function),
   // Alias(Alias),
   // Macro(Macro),
   // Trait(Trait),
@@ -12,7 +13,7 @@ pub enum Item {
 }
 
 pub enum BuiltInType {
-  Reference(*const str),
+  Reference(*const ()),
   Unknown,
 
   ClassInstance(*const ()),
@@ -33,6 +34,8 @@ pub enum BuiltInType {
   Isize,
   Float32,
   Float64,
+  Char,
+  Vec,
   String,
 }
 

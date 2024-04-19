@@ -21,20 +21,32 @@ pub enum Value {
   Float32(f32),
   Float64(f64),
 
-  // Tuple(???),
-  // Array(*const ()),
+  Tuple(*const [Value]),
+  Vec(Vector),
   // Vec(*mut ()),
   // Str(*const str),
   String(String),
-  // Char(char),
+  Char(char),
 
   // Function(Function),
 
-  // HashMap(HashMap<Rc<str>, Value>)
+  // HashMap(HashMap<*const str, Value>)
 }
 
 #[derive(Debug)]
 pub enum IntermediateValue {
   Number(Number),
   Identifier(String)
+}
+
+pub struct Vector {
+  /// Elements size in bytes
+  elem_size: u8,
+  /// Pointer size in bytes
+  /// Usually 32 bits long because of relative pointers
+  ptr_size: u8,
+  // HINT: if relative pointers are used, I should reduce this size
+  ptr: usize,
+  /// Will use the size of ptr_size
+  len: usize
 }

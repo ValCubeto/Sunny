@@ -2,13 +2,13 @@ use crate::types::IntermediateValue;
 
 use super::{ parse_value, Parser };
 
-pub fn parse_expr(parser: &mut Parser) -> Expression {
+pub fn parse_expr(parser: &mut Parser) /* -> Expression */ {
   let left = parse_value(parser);
   println!("Parsed value: {left:?}");
   println!();
   parser.skip_spaces();
   let line_broken = parser.current() == '\n';
-  parse_to_right(parser, Expression::Value(left))
+  parse_to_right(parser, Expression::Value(left));
 }
 
 /*
@@ -46,8 +46,8 @@ fn parse_to_right(parser: &mut Parser, left: Expression) /* -> Expression */ {
     '+' => {
       let op = BinOperator::Add;
       parser.next_token();
-      let right = parse_value(parser);
-      Expression::BinOperation(op, left, right)
+      let right = Expression::Value(parse_value(parser));
+      Expression::BinOperation(op, Box::new(left), Box::new(right));
     },
     '-' => {
       let op = BinOperator::Sub;
@@ -77,7 +77,7 @@ fn parse_to_right(parser: &mut Parser, left: Expression) /* -> Expression */ {
       }
       let op = BinOperator::LessThan;
     }
-    _ => left
+    _ => {left;}
   }
 }
 
