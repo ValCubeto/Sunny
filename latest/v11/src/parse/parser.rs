@@ -1,4 +1,49 @@
 use std::{ collections::HashSet, iter::Peekable, str::Chars };
+use once_cell::sync::Lazy;
+
+static KEYWORDS: Lazy<HashSet<&str>> = Lazy::new(|| HashSet::from([
+  "mod",
+  "pub",
+  "priv",
+  "self",
+  "Self",
+  "const",
+  "fun",
+  "class",
+  "enum",
+  "struct",
+  "trait",
+  "impl",
+  "typedef",
+  "flagset",
+
+  "let",
+  "var",
+
+  "if",
+  "then",
+  "else",
+
+  "loop",
+  "while",
+  "for",
+
+  "return",
+  "break",
+  "continue",
+
+  "use",
+  "as",
+  "from",
+
+  "new",
+  "match",
+
+  "with",
+  "unsafe",
+  "async",
+  "await",
+]));
 
 /// I think the name is enough descriptive
 pub struct Parser<'a> {
@@ -10,47 +55,12 @@ pub struct Parser<'a> {
   /// If you modify it, make sure to call `self.update_file_pos()` after.
   current: char,
   pub line: usize,
-  pub column: usize,
-  keywords: HashSet<&'a str>
+  pub column: usize
 }
 
 impl<'a> Parser<'a> {
   pub fn new(file_name: &'a str, data: &'a str) -> Self {
     let mut chars = data.chars().peekable();
-    let keywords = HashSet::from([
-      "const",
-      "fun",
-      "class",
-      "enum",
-      "struct",
-      "trait",
-      "typedef",
-      "flagset",
-
-      "let",
-      "var",
-
-      "if",
-      "then",
-      "else",
-
-      "loop",
-      "while",
-      "for",
-
-      "return",
-      "break",
-      "continue",
-
-      "use",
-      "as",
-      "from",
-
-      "new",
-      "match",
-
-      "with",
-    ]);
     let mut this = Parser {
       file_name,
       current: chars.next().unwrap(),
@@ -59,7 +69,6 @@ impl<'a> Parser<'a> {
       idx: 1,
       line: 1,
       column: 1,
-      keywords
     };
     this.update_file_pos();
     this
@@ -68,7 +77,7 @@ impl<'a> Parser<'a> {
   /// Panics if the token is a keyword
   #[inline(always)]
   pub fn is_keyword(&self, word: &str) {
-    if self.keywords.contains(word) {
+    if KEYWORDS.contains(word) {
       syntax_err!("unexpected keyword {word:?} here"; self);
     }
   }
