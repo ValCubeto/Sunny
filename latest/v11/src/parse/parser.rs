@@ -77,7 +77,7 @@ impl<'a> Parser<'a> {
 
   /// Panics if the token is a keyword
   #[inline(always)]
-  pub fn is_keyword(&self, word: &str) {
+  pub fn check_keyword(&self, word: &str) {
     if KEYWORDS.contains(word) {
       syntax_err!("unexpected keyword {word:?} here"; self);
     }
