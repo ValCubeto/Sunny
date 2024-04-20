@@ -2,13 +2,13 @@ use crate::types::IntermediateValue;
 
 use super::{ parse_value, Parser };
 
-pub fn parse_expr(parser: &mut Parser) /* -> Expression */ {
+pub fn parse_expr(parser: &mut Parser) -> Expression {
   let left = parse_value(parser);
   println!("Parsed value: {left:?}");
   println!();
   parser.skip_spaces();
   let line_broken = parser.current() == '\n';
-  parse_to_right(parser, Expression::Value(left));
+  parse_to_right(parser, Expression::Value(left))
 }
 
 /*
@@ -41,47 +41,93 @@ match parser.current() {
 let left: Val | Expr = parse()
 */
 
-fn parse_to_right(parser: &mut Parser, left: Expression) /* -> Expression */ {
-  match parser.current() {
-    '+' => {
-      let op = BinOperator::Add;
-      parser.next_token();
-      let right = Expression::Value(parse_value(parser));
-      Expression::BinOperation(op, Box::new(left), Box::new(right));
-    },
-    '-' => {
-      let op = BinOperator::Sub;
-    },
+fn parse_to_right(parser: &mut Parser, expr: Expression) -> Expression {
+  let right_op = match parser.current() {
+    '?' => {
+      return Expression::Operation(Operator::Try, Box::new(expr))
+    }
+    '+' => BinOperator::Add,
+    '-' => BinOperator::Sub,
+    '/' => BinOperator::Div,
+    '^' => BinOperator::BitXor,
     '*' => {
       if parser.peek() == '*' {
         parser.next_token();
-        let op = BinOperator::Pow;
-        
+        BinOperator::Pow
+      } else {
+        BinOperator::Mul
       }
-      let op = BinOperator::Mul;
     },
-    '/' => {
-      let op = BinOperator::Div;
-    },
-    '^' => {
-      let op = BinOperator::Pow;
-    },
-    '<' => {
-      if
-        matches!(
-          left,
-          | Expression::Value(IntermediateValue::Identifier(_))
-        )
-      {
-        //
+    '|' => {
+      if parser.peek() == '|' {
+        parser.next_token();
+        BinOperator::Or
+      } else {
+        BinOperator::BitXor
       }
-      let op = BinOperator::LessThan;
     }
-    _ => {left;}
-  }
+    '&' => {
+      if parser.peek() == '&' {
+        parser.next_token();
+        BinOperator::Or
+      } else {
+        BinOperator::BitXor
+      }
+    }
+    '>' => {
+      if parser.peek() == '=' {
+        parser.next_token();
+        BinOperator::GreaterThanOrEq
+      } else {
+        BinOperator::GreaterThan
+      }
+    }
+    // '<' => {
+    //   if
+    //     matches!(
+    //       left,
+    //       | Expression::Value(IntermediateValue::Identifier(_))
+    //     )
+    //   {
+    //     //
+    //   }
+    //   let op = BinOperator::LessThan;
+    // }
+    _ => return expr
+  };
+  parser.next_char();
+  parser.next_token();
+  println!("curr = {:?}", parser.current());
+  let right = match expr {
+    Expression::Value(_) => {
+      let right = Expression::Value(parse_value(parser));
+      Expression::BinOperation(right_op, Box::new(expr), Box::new(right))
+    }
+    Expression::BinOperation(left_op, left, right) => {
+      let third = Expression::Value(parse_value(parser));
+
+      if left_op.precedence() < right_op.precedence() {
+        Expression::BinOperation(
+          right_op,
+          Box::new(Expression::BinOperation(left_op, left, right)),
+          Box::new(third)
+        )
+      } else {
+        Expression::BinOperation(
+          left_op,
+          left,
+          Box::new(Expression::BinOperation(right_op, right, Box::new(third)))
+        )
+      }
+    }
+    _ => unimplemented!("idk what should i put here")
+  };
+  parser.next_token();
+  parse_to_right(parser, right)
 }
 
 /// Operators that take two values
+#[derive(Debug)]
 pub enum BinOperator {
   /// `a + b`
   Add,
@@ -128,6 +174,7 @@ pub enum BinOperator {
   GetItem,
 }
 
+#[derive(Debug)]
 pub enum Operator {
   /// `-a`
   Negate,
@@ -199,9 +246,10 @@ pub enum TriOperator {
   Pipe
 }
 
+#[derive(Debug)]
 pub enum Expression {
   Value(IntermediateValue),
-  TriOperation(TriOperator, Box<Expression>, Box<Expression>, Box<Expression>),
+  // TriOperation(TriOperator, Box<Expression>, Box<Expression>, Box<Expression>),
   BinOperation(BinOperator, Box<Expression>, Box<Expression>),
   Operation(Operator, Box<Expression>)
 }

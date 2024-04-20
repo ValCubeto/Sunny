@@ -180,6 +180,30 @@ impl<'a> Parser<'a> {
       self.current = self.data.next().unwrap();
       self.update_file_pos();
     }
+
+    if self.current != '/' {
+      return
+    }
+    let peeked = self.peek();
+    if peeked == '/' {
+      self._next_char();
+      self._next_char();
+      while self.current != '\n' {
+        self._next_char();
+      }
+    } else if peeked == '*' {
+      self._next_char();
+      self._next_char();
+      loop {
+        if self.current == '*' && self.peek() == '/' {
+          self._next_char();
+          self._next_char();
+          break;
+        }
+        self._next_char();
+      }
+    }
+    self.skip_whitespaces();
   }
 
   /// Similar to `self.skip_whitespaces`, but matches new lines.

@@ -24,7 +24,8 @@ pub fn parse_file(file_name: &str, data: &str) {
 
         parser.expect('=');
         parser.next_token();
-        parse_expr(&mut parser);
+        let value = parse_expr(&mut parser);
+        println!("{:#?}", value);
         todo!()
       },
       "fun" => {

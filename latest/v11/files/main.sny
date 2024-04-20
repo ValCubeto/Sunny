@@ -1,19 +1,8 @@
-const TEST // hello
-= 123.4
+// Inline comment
+/* Block comment */
+
+const TEST = 1 * 2 + 3;
 
 // fun main() {
 //   println("Hello, world!")
 // }
-
-fun sum -> int
-  ( first_really_long_arg_name: int
-    second_really_long_arg_name: int )
-{
-  first_really_long_arg_name + second_really_long_arg_name
-}
-
-let type = "C string"
-let cstr = rfc"This is a format raw {type}.\n"
-assert(cstr.last() == '\n')
-
-Parser<
