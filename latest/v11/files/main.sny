@@ -1,7 +1,7 @@
 // Inline comment
 /* Block comment */
 
-const TEST = 1 * 2 + 3;
+const TEST = 1? * 2 + 3?
 
 // fun main() {
 //   println("Hello, world!")

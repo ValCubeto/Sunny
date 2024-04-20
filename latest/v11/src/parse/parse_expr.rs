@@ -44,7 +44,8 @@ let left: Val | Expr = parse()
 fn parse_to_right(parser: &mut Parser, expr: Expression) -> Expression {
   let right_op = match parser.current() {
     '?' => {
-      return Expression::Operation(Operator::Try, Box::new(expr))
+      parser.next_char();
+      return parse_to_right(parser, Expression::Operation(Operator::Try, Box::new(expr)));
     }
     '+' => BinOperator::Add,
     '-' => BinOperator::Sub,
@@ -100,6 +101,10 @@ fn parse_to_right(parser: &mut Parser, expr: Expression) -> Expression {
   println!("curr = {:?}", parser.current());
   let right = match expr {
     Expression::Value(_) => {
+      let right = Expression::Value(parse_value(parser));
+      Expression::BinOperation(right_op, Box::new(expr), Box::new(right))
+    }
+    Expression::Operation(_, _) => {
       let right = Expression::Value(parse_value(parser));
       Expression::BinOperation(right_op, Box::new(expr), Box::new(right))
     }
