@@ -30,11 +30,9 @@ pub fn parse_value(parser: &mut Parser) -> IntermediateValue {
     '0'..='9' => {
       IntermediateValue::Number(parse_unsigned_number(parser))
     }
-    // ch if ch.is_alphanumeric() || ch == '_' => {
-    //   let word = parser.parse_word();
-    //   // What should I do here?
-    //   // The variable can be declared later in the file, after the current scope
-    // }
+    ch if ch.is_alphanumeric() || ch == '_' => {
+      IntermediateValue::Ident(parser.parse_word())
+    }
     ch => syntax_err!("unexpected token {ch:?}"; parser),
   }
 }

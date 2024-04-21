@@ -36,9 +36,10 @@ pub enum Value {
 #[derive(Debug)]
 pub enum IntermediateValue {
   Number(Number),
-  Identifier(String)
+  Ident(String)
 }
 
+#[allow(unused)]
 pub struct Vector {
   /// Elements size in bytes
   elem_size: u8,

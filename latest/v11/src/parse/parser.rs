@@ -56,7 +56,12 @@ pub struct Parser<'a> {
   /// If you modify it, make sure to call `self.update_file_pos()` after.
   current: char,
   pub line: usize,
-  pub column: usize
+  pub column: usize,
+  /// The language accepts not using semicolons or commas,
+  /// so we need to know if the line was broken.
+  /// I mean `const a = 1 const b = 2` is not valid code,
+  /// you do need a semicolon there, or put a new line.
+  line_broken: bool
 }
 
 impl<'a> Parser<'a> {
@@ -70,9 +75,21 @@ impl<'a> Parser<'a> {
       idx: 1,
       line: 1,
       column: 1,
+      line_broken: false
     };
     this.update_file_pos();
     this
+  }
+
+  #[inline(always)]
+  pub fn line_broken(&mut self) -> bool {
+    if self.line_broken {
+      // NOTE: you have the value, it won't be
+      // important anymore until there is another end of line.
+      self.line_broken = false;
+      return true;
+    }
+    false
   }
 
   /// Panics if the token is a keyword
@@ -95,6 +112,7 @@ impl<'a> Parser<'a> {
   fn update_file_pos(&mut self) {
     match self.current {
       '\n' => {
+        self.line_broken = true;
         self.column = 1;
         self.line += 1;
       }
@@ -159,13 +177,6 @@ impl<'a> Parser<'a> {
       }
     }
     println!("    {}: {:?}", self.idx, self.current);
-  }
-
-  /// Skips spaces, excluding the end of line. Panics if the input ends.
-  pub fn skip_spaces(&mut self) {
-    while matches!(self.current, ' ' | '\t' | '\r') {
-      self.next_char();
-    }
   }
 
   /// Goes to the next character until there is a non-whitespace character,
@@ -257,7 +268,7 @@ impl<'a> Parser<'a> {
   }
 
   /// Errors if the current character is not the expected.
-  /// If it is, goes to the next character.
+  /// Otherwise goes to the next character.
   pub fn expect(&mut self, expected: char) {
     if self.current != expected {
       syntax_err!("expected {expected:?}, but got {:?}", self.current; self);
