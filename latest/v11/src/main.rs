@@ -28,6 +28,7 @@ mod tests;
 // This allows faster searches, but obviously uses more memory
 
 fn main() {
+  println!("r: {}", 2 * 5 | 7);
   let file_name = "files/main.sny";
 
   let code = std::fs::read_to_string(file_name)

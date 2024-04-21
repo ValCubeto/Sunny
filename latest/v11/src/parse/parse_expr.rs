@@ -7,7 +7,6 @@ pub fn parse_expr(parser: &mut Parser) -> Expr {
   println!("Parsed value: {left:?}");
   println!();
   parser.next_token();
-  let line_broken = parser.current() == '\n';
   parse_to_right(parser, Expr::Value(left))
 }
 
@@ -55,16 +54,16 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
       parser.next_char();
       parser.next_token();
       let expr = match expr {
-        Expr::BinOperation(op, left, right) => {
+        Expr::BinOp(op, left, right) => {
           if op.precedence() < Op::Try.precedence() {
-            Expr::Operation(Op::Try, Box::new(Expr::BinOperation(op, left, right)))
+            Expr::Op(Op::Try, Expr::BinOp(op, left, right).boxed())
           } else {
-            Expr::BinOperation(op, left, Box::new(Expr::Operation(Op::Try, right)))
+            Expr::BinOp(op, left, Expr::Op(Op::Try, right).boxed())
           }
         }
-        | Expr::Operation(_, _)
+        | Expr::Op(_, _)
         | Expr::Value(_) => {
-            Expr::Operation(Op::Try, Box::new(expr))
+            Expr::Op(Op::Try, expr.boxed())
           }
         // _ => todo!()
       };
@@ -99,24 +98,41 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
       }
     }
     '>' => {
-      if parser.peek() == '=' {
-        parser.next_token();
-        BinOp::GreaterThanOrEq
-      } else {
-        BinOp::GreaterThan
+      match parser.peek() {
+        '=' => {
+          parser.next_token();
+          BinOp::GreaterThanOrEq
+        }
+        '>' => {
+          parser.next_token();
+          BinOp::RightShift
+        }
+        _ => BinOp::GreaterThan
       }
     }
-    // '<' => {
-    //   if
-    //     matches!(
-    //       left,
-    //       | Expr::Value(IntermediateValue::Identifier(_))
-    //     )
-    //   {
-    //     //
-    //   }
-    //   let op = BinOp::LessThan;
-    // }
+    '<' => {
+      // if
+      //   matches!(
+      //     left,
+      //     | Expr::Value(IntermediateValue::Identifier(_))
+      //     | Expr::BinOp(BinOp::GetProp, _)
+      //     | Expr::BinOp(BinOp::GetItem, _)
+      //   )
+      // {
+      //   //
+      // }
+      match parser.peek() {
+        '=' => {
+          parser.next_token();
+          BinOp::LessThanOrEq
+        }
+        '<' => {
+          parser.next_token();
+          BinOp::LeftShift
+        }
+        _ => BinOp::LessThan
+      }
+    }
     ch => {
       println!("ch = {ch:?}");
       return expr
@@ -128,30 +144,29 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
   let right = match expr {
     Expr::Value(_) => {
       let right = Expr::Value(parse_value(parser));
-      Expr::BinOperation(right_op, Box::new(expr), Box::new(right))
+      Expr::BinOp(right_op, expr.boxed(), right.boxed())
     }
-    Expr::Operation(_, _) => {
+    Expr::Op(_, _) => {
       let right = Expr::Value(parse_value(parser));
-      Expr::BinOperation(right_op, Box::new(expr), Box::new(right))
+      Expr::BinOp(right_op, expr.boxed(), right.boxed())
     }
-    Expr::BinOperation(left_op, left, right) => {
+    Expr::BinOp(left_op, left, right) => {
       let third = Expr::Value(parse_value(parser));
 
       if left_op.precedence() < right_op.precedence() {
-        Expr::BinOperation(
+        Expr::BinOp(
           left_op,
           left,
-          Box::new(Expr::BinOperation(right_op, right, Box::new(third))),
+          Expr::BinOp(right_op, right, third.boxed()).boxed(),
         )
       } else {
-        Expr::BinOperation(
+        Expr::BinOp(
           right_op,
-          Box::new(Expr::BinOperation(left_op, left, right)),
-          Box::new(third),
+          Expr::BinOp(left_op, left, right).boxed(),
+          third.boxed(),
         )
       }
     }
-    _ => unimplemented!("idk what should i put here")
   };
   parser.next_token();
   parse_to_right(parser, right)
@@ -198,6 +213,10 @@ pub enum BinOp {
   BitOr,
   /// `a ^ b`
   BitXor,
+  /// `a << b`
+  LeftShift,
+  /// `a >> b`
+  RightShift,
 
   /// `a.b`
   GetProp,
@@ -249,6 +268,8 @@ impl Precedence for BinOp {
       O::BitAnd => 6,
       O::BitOr => 6,
       O::BitXor => 6,
+      O::LeftShift => 6,
+      O::RightShift => 6,
 
       O::And => 7,
       O::Or => 7,
@@ -280,23 +301,29 @@ pub enum TriOp {
 
 pub enum Expr {
   Value(IntermediateValue),
-  // TriOperation(TriOp, Box<Expr>, Box<Expr>, Box<Expr>),
-  BinOperation(BinOp, Box<Expr>, Box<Expr>),
-  Operation(Op, Box<Expr>)
+  // TriOp(TriOp, Box<Expr>, Box<Expr>, Box<Expr>),
+  BinOp(BinOp, Box<Expr>, Box<Expr>),
+  Op(Op, Box<Expr>)
+}
+
+impl Expr {
+  pub fn boxed(self) -> Box<Self> {
+    Box::new(self)
+  }
 }
 
 impl std::fmt::Debug for Expr {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     match self {
       Expr::Value(val) => write!(f, "{:?}", val),
-      Expr::BinOperation(op, left, right) => {
+      Expr::BinOp(op, left, right) => {
         f.debug_map()
           .entry(&"op", op)
           .entry(&"left", left)
           .entry(&"right", right)
           .finish()
       },
-      Expr::Operation(op, expr) => {
+      Expr::Op(op, expr) => {
         f.debug_map()
           .entry(&"op", op)
           .entry(&"expr", expr)
