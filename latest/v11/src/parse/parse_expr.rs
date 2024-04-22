@@ -52,7 +52,7 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
     }
     '?' => {
       parser.next_char();
-      parser.next_token();
+      parser.skip_whitespaces();
       let expr = match expr {
         Expr::BinOp(op, left, right) => {
           if op.precedence() < Op::Try.precedence() {
@@ -72,6 +72,7 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
     '+' => BinOp::Add,
     '-' => BinOp::Sub,
     '/' => BinOp::Div,
+    '%' => BinOp::Mod,
     '^' => BinOp::BitXor,
     '*' => {
       if parser.peek() == '*' {
@@ -175,6 +176,11 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
 /// Ops that take two values
 #[derive(Debug)]
 pub enum BinOp {
+  /// `a.b`
+  GetProp,
+  /// `a::b`
+  GetItem,
+
   /// `a + b`
   Add,
   /// `a - b`
@@ -217,11 +223,6 @@ pub enum BinOp {
   LeftShift,
   /// `a >> b`
   RightShift,
-
-  /// `a.b`
-  GetProp,
-  /// `a::b`
-  GetItem,
 }
 
 #[derive(Debug)]

@@ -186,7 +186,7 @@ impl<'a> Parser<'a> {
     while matches!(self.current, ' ' | '\n' | '\t' | '\r') {
       self.idx += 1;
       if self.idx >= self.data_len {
-        std::process::exit(0);
+        todo!("eof reached, here should be some logic to stop parsing and start doing type analysis and stuff");
       }
       self.current = self.data.next().unwrap();
       self.update_file_pos();
@@ -271,7 +271,7 @@ impl<'a> Parser<'a> {
   /// Otherwise goes to the next character.
   pub fn expect(&mut self, expected: char) {
     if self.current != expected {
-      syntax_err!("expected {expected:?}, but got {:?}", self.current; self);
+      syntax_err!("expected token {:?}, but got {:?}", expected, self.current; self);
     }
     self.next_char();
   } 
