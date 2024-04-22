@@ -134,10 +134,8 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
         _ => BinOp::LessThan
       }
     }
-    ch => {
-      println!("ch = {ch:?}");
-      return expr
-    }
+    // let the outer function decide what to do
+    _ => return expr
   };
   parser.next_char();
   parser.next_token();
@@ -156,15 +154,15 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
 
       if left_op.precedence() < right_op.precedence() {
         Expr::BinOp(
-          left_op,
-          left,
-          Expr::BinOp(right_op, right, third.boxed()).boxed(),
-        )
-      } else {
-        Expr::BinOp(
           right_op,
           Expr::BinOp(left_op, left, right).boxed(),
           third.boxed(),
+        )
+      } else {
+        Expr::BinOp(
+          left_op,
+          left,
+          Expr::BinOp(right_op, right, third.boxed()).boxed(),
         )
       }
     }

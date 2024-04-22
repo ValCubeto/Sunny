@@ -255,7 +255,7 @@ impl<'a> Parser<'a> {
   }
 
   /// Expects the current character to be a valid identifier character,
-  /// and then calls `Self::parse_word`.
+  /// calls `self.parse_word`, and calls `self.check_keyword`.
   #[must_use]
   pub fn expect_word(&mut self) -> String {
     // NOTE: `is_alphanumeric` includes ascii digits.
@@ -264,7 +264,9 @@ impl<'a> Parser<'a> {
     if self.current.is_ascii_digit() || !self.current.is_alphanumeric() {
       syntax_err!("expected an identifier, found {:?}", self.current; self)
     }
-    self.parse_word()
+    let word = self.parse_word();
+    self.check_keyword(&word);
+    word
   }
 
   /// Errors if the current character is not the expected.

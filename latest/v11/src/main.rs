@@ -11,8 +11,8 @@ mod tests;
 
 // TODO: custom `unexpected` function that tries to print the type of the value
 // Examples:
-// `unexpected('1')` -> `Syntax error: unexpected number`
-// `unexpected('i')` -> `Syntax error: unexpected \`if\` keyword here`
+// `parser.unexpected('1')` -> `Syntax error: unexpected number`
+// `parser.unexpected('i')` -> `Syntax error: unexpected \`if\` keyword here`
 
 // HINT: structure of the scopes
 // ```rs
@@ -28,7 +28,6 @@ mod tests;
 // This allows faster searches, but obviously uses more memory
 
 fn main() {
-  println!("r: {}", 2 * 5 | 7);
   let file_name = "files/main.sny";
 
   let code = std::fs::read_to_string(file_name)
