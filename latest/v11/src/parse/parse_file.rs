@@ -8,6 +8,11 @@ pub fn parse_file(file_name: &str, data: &str) {
 
   loop {
     parser.skip_whitespaces();
+    if parser.current() == '#' {
+      parser.next_token();
+      parser.expect('[');
+      todo!();
+    }
     if !parser.current().is_ascii_alphabetic() {
       syntax_err!("invalid or unexpected token {:?}", parser.current(); parser);
     }
@@ -26,13 +31,28 @@ pub fn parse_file(file_name: &str, data: &str) {
         parser.next_token();
         let value = parse_expr(&mut parser);
         println!("{:#?}", value);
-        todo!()
+        todo!();
       },
+      "var" => todo!(),
       "fun" => {
         parser.skip_whitespaces();
         parse_function(&mut parser);
         todo!();
       }
+      "struct" => todo!(),
+      "enum" => todo!(),
+      "flagset" => todo!(),
+      "class" => todo!(),
+      "trait" => todo!(),
+      "mod" => todo!(),
+      "if" => todo!(),
+      "pub" => todo!(),
+      "priv" => todo!(),
+      "impl" => todo!(),
+      "typedef" => todo!(),
+      "use" => todo!(),
+      "unsafe" => todo!(),
+      "async" => todo!(),
       _ => syntax_err!("unexpected token {word:?} here"; parser)
     }
   }

@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use crate::types::IntermediateValue;
 
 use super::{ parse_value, Parser };
@@ -98,6 +100,16 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
         BinOp::BitXor
       }
     }
+    '=' => {
+      parser.next_char();
+      parser.expect('=');
+      BinOp::Equal
+    }
+    '!' => {
+      parser.next_char();
+      parser.expect('=');
+      BinOp::NotEqual
+    }
     '>' => {
       match parser.peek() {
         '=' => {
@@ -151,18 +163,24 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
     }
     Expr::BinOp(left_op, left, right) => {
       let third = Expr::Value(parse_value(parser));
+      // Less `a.b + c` => {prec:1} + {prec:2}
+      //     (a.b) * c -> ((a.b) + c)
+      // Equal `a.b.c`   => {prec:1} + {prec:1}
+      //     (a.b) . c -> ((a.b) . c)
+      // Great `a + b.c` => {prec:2} + {prec:1}
+      //     (a * b) . c -> (a + (b.c))
 
-      if left_op.precedence() < right_op.precedence() {
-        Expr::BinOp(
-          right_op,
-          Expr::BinOp(left_op, left, right).boxed(),
-          third.boxed(),
-        )
-      } else {
+      if left_op.precedence() > right_op.precedence() {
         Expr::BinOp(
           left_op,
           left,
           Expr::BinOp(right_op, right, third.boxed()).boxed(),
+        )
+      } else {
+        Expr::BinOp(
+          right_op,
+          Expr::BinOp(left_op, left, right).boxed(),
+          third.boxed(),
         )
       }
     }
@@ -251,34 +269,34 @@ impl Precedence for BinOp {
       // Less precedence than `Op`
       // so `a.b?`, `!a.b`, `&a::b`, etc. works correctly.
       O::GetItem => 0,
-      O::GetProp => 1,
+      O::GetProp => 0,
 
       // Greater precedence than `Op`
       // so `*a ** b` works correctly
-      O::Pow => 3,
+      O::Pow => 2,
       
-      O::Mul => 4,
-      O::Div => 4,
-      O::Mod => 4,
+      O::Mul => 3,
+      O::Div => 3,
+      O::Mod => 3,
       
-      O::Add => 5,
-      O::Sub => 5,
+      O::Add => 4,
+      O::Sub => 4,
 
-      O::BitAnd => 6,
-      O::BitOr => 6,
-      O::BitXor => 6,
-      O::LeftShift => 6,
-      O::RightShift => 6,
+      O::BitAnd => 5,
+      O::BitOr => 5,
+      O::BitXor => 5,
+      O::LeftShift => 5,
+      O::RightShift => 5,
 
-      O::And => 7,
-      O::Or => 7,
-      O::GreaterThan => 7,
-      O::GreaterThanOrEq => 7,
-      O::LessThan => 7,
-      O::LessThanOrEq => 7,
+      O::And => 6,
+      O::Or => 6,
+      O::GreaterThan => 6,
+      O::GreaterThanOrEq => 6,
+      O::LessThan => 6,
+      O::LessThanOrEq => 6,
 
-      O::Equal => 8,
-      O::NotEqual => 8,
+      O::Equal => 7,
+      O::NotEqual => 7,
     }
   }
 }
