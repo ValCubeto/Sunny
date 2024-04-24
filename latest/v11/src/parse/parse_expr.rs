@@ -168,18 +168,20 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
       // Equal `a.b.c`   => {prec:1} + {prec:1}
       //     (a.b) . c -> ((a.b) . c)
       // Great `a + b.c` => {prec:2} + {prec:1}
-      //     (a * b) . c -> (a + (b.c))
+      //     (a * (b + c)) . c -> (a + (b.c))
 
       if left_op.precedence() > right_op.precedence() {
+        let right = parse_to_right(parser, Expr::BinOp(right_op, right, third.boxed())).boxed();
         Expr::BinOp(
           left_op,
           left,
-          Expr::BinOp(right_op, right, third.boxed()).boxed(),
+          right,
         )
       } else {
+        let left = parse_to_right(parser, Expr::BinOp(left_op, left, right)).boxed();
         Expr::BinOp(
           right_op,
-          Expr::BinOp(left_op, left, right).boxed(),
+          left,
           third.boxed(),
         )
       }
@@ -324,6 +326,12 @@ pub enum Expr {
 }
 
 impl Expr {
+  pub fn op(&self) -> &BinOp {
+    match self {
+      Expr::BinOp(op, _, _) => op,
+      _ => panic!()
+    }
+  }
   pub fn boxed(self) -> Box<Self> {
     Box::new(self)
   }
