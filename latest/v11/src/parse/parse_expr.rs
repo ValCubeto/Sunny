@@ -170,6 +170,15 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
       // Great `a + b.c` => {prec:2} + {prec:1}
       //     (a * (b + c)) . c -> (a + (b.c))
 
+      // 1 == 2        (eq, 1, 2)
+      // 1 == 2 + 3    (eq, 1, (add, 2, 3))
+      // 2 + 3         (add, 2, 3)
+      // 2 + 3 == 1    (eq, 1, (add, 2, 3))
+      // 1 + 2 == 3 + 4
+      // (add, 1, 2)
+      // (eq, (add, 1, 2), 3)
+      // (eq, (add, 1, 2), (add, 3, 4))
+
       if left_op.precedence() > right_op.precedence() {
         let right = parse_to_right(parser, Expr::BinOp(right_op, right, third.boxed())).boxed();
         Expr::BinOp(
@@ -188,7 +197,6 @@ fn parse_to_right(parser: &mut Parser, expr: Expr) -> Expr {
     }
   };
   parser.next_token();
-  parse_to_right(parser, right)
 }
 
 /// Ops that take two values

@@ -1,8 +1,11 @@
 // Inline comment
 /* Block comment */
+// bang, dash, trick
 
-const TEST = 2 != 2 * 3.to_string + std::math::PI.to_string.what?.len * 3
+const TEST = 2 != 2 * 3.bang
+// (2 != ((2 * (3.to_string)) + (((((((std::math)::PI).to_string).what)?).len) * 3)))
 ;
+
 
 // fun main() {
 //   println("Hello, world!")
