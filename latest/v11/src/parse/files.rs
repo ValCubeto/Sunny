@@ -1,4 +1,3 @@
-use crate::parse::parse_expr;
 
 use super::{ Parser, parse_function };
 
@@ -9,14 +8,30 @@ pub fn parse_file(file_name: &str, data: &str) {
   loop {
     parser.skip_whitespaces();
     if parser.current() == '#' {
-      parser.next_token();
+      parser.next_char();
+      if parser.current() == '!' {
+        parser.next_char();
+        todo!();
+      }
       parser.expect('[');
       todo!();
     }
     if !parser.current().is_ascii_alphabetic() {
       syntax_err!("invalid or unexpected token {:?}", parser.current(); parser);
     }
-    let word = parser.parse_ascii_word();
+    let mut word = parser.parse_ascii_word();
+    let is_public: bool;
+
+    if word == "pub" {
+      parser.next_token();
+      word = parser.parse_ascii_word();
+      is_public = true;
+    } else if word == "priv" {
+      parser.next_token();
+      word = parser.parse_ascii_word();
+      is_public = false;
+    }
+
     match word.as_str() {
       "const" => {
         parser.next_token();
@@ -53,6 +68,7 @@ pub fn parse_file(file_name: &str, data: &str) {
       "use" => todo!(),
       "unsafe" => todo!(),
       "async" => todo!(),
+      "test" => todo!(),
       _ => syntax_err!("unexpected token {word:?} here"; parser)
     }
   }

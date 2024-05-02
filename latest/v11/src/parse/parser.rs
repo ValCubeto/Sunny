@@ -44,6 +44,7 @@ static KEYWORDS: Lazy<HashSet<&str>> = Lazy::new(|| HashSet::from([
   "async",
   "await",
   "defer",
+  "test",
 ]));
 
 /// I think the name is enough descriptive
