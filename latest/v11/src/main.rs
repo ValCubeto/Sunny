@@ -4,7 +4,7 @@ pub mod errors;
 
 pub mod parse;
 pub mod colors;
-pub mod types;
+pub mod lang;
 
 #[cfg(test)]
 mod tests;
@@ -31,55 +31,64 @@ fn main() {
   let file_name = "files/main.sny";
 
   let code = std::fs::read_to_string(file_name)
-    .expect("failed to read the file");
+    .expect("failed to read the file")
+    // .trim() removes some characters that are considered
+    // invalid in a Sunny file
+    .trim_matches(|c| matches!(c, ' ' | '\t' | '\n' | '\r'));
+
+  if code.is_empty() {
+    return;
+  }
+
+  // std is a keyword instead of a reference to itself to
+  // avoid infinite recursion (`std::std::std::...`)
+  // In the case of `true`, `false`, `self`, `Self`,
+  // `super`, `Super`, etc. they're keywords to prevent overwrites.
+  // for example, `const true = 1` won't be allowed.
+
   // [
   //   {
-  //     "std" => ?
-  //     "int" => BuiltInType::Int8
+  //     "Int8" => BuiltInType::Int8
   //   },
   //   {
   //     "TEST" => Constant { ty: Int32, val: Value::u8(1) }
   //   }
   // ]
-  parse::parse_file(file_name, &code);
+  parse::parse_file(file_name, code);
 }
 
 // Global variables:
-// - std
-// - use std::numbers::{ u8, u16, u32, u64, i8, i16, i32, i64, f32, f64 };
-// - typedef int = i32
-// - typedef uint = u32
-// - typedef float = f32
-// - use std::lists::Vec
-// - use std::display::String
-// - use std::io::println
-// - use std::process::exit
-// - use std::debug::assert!
-// - use std::result::Result::{ self, Ok, Err };
-// - use std::option::Option::{ self, Some, None };
+// - Vec
+// - String
+// - println
+// - eprintln
+// - quit
+// - panic
+// - assert!
+// - Result::{ self, Ok, Err };
+// - Option::{ self, Some, None };
 
 // Std lib structure:
 // - mem:
-//   - psize
+//   - PSize
 //   - alloc (malloc)
 //   - alloc_init (calloc)
 //   - realloc
 //   - free
-//   - copy
+//   - copy (memcpy)
 //   - move
 //   - Error
 //   - Result
 // - cmp:
-//   - Eq, Neq
-//   - LessThan, GreaterThan
-//   - LessThanOrEq, GreaterThanOrEq
+//   - Cmp
+//   - Eq
 // - ops:
 //   - Add, Sub, Mul, Div, Pow, Mod
 //   - Not
 //   - And, Or
 //   - BinAnd, BinOr, BinXor
 // - numbers:
-//   - Number
+//   - Number (generic number trait)
 //   - u8, u16, u32, u64, u128, usize
 //   - i8, i16, i32, i64, i128, isize
 //   - f32, f64, f128

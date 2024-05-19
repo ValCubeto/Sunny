@@ -1,7 +1,35 @@
 // Inline comment
 /* Block comment */
 
-const TEST = 2 != 2 * 3.bang
+/*
+Constant {
+  ty: Type::Ident(Type {
+    path: Expr::Value(Value::String("Int8")),
+    generics: HashMap::new()
+  }),
+  val: Expr::Expr(
+    Op::Equal,
+    Expr::Value(IntermediateValue::Number(Number::Int(6))),
+    Expr::Expr(
+      Op::Mul,
+      Expr::Value(IntermediateValue::Number(Number::Int(2))),
+      Expr::Expr(
+        Op::Try,
+        Expr::Expr(
+          Op::Call,
+          Expr::Value(IntermediateValue::Ident("Some")),
+          Expr::Value(IntermediateValue::Map(hashmap! {
+            "0" => Value::Ident("3")
+          })),
+        ) // Expr(Call)
+        Expr::Value(IntermediateValue::Number(Number::Int(3)))
+        null
+      ) // Expr(Try)
+    ) // Expr(Mul)
+  ) // Expr(Equal)
+} // Constant
+*/
+const TEST : UInt8 = 6 == 2 * Some(3)?
 ;
 
 // fun main() {
