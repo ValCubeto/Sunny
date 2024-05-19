@@ -242,7 +242,10 @@ impl<'a> Parser<'a> {
 
   /// Used when a keyword is expected. Similar to `Parser::parse_word`.
   #[must_use]
-  pub fn parse_ascii_word(&mut self) -> String {
+  pub fn expect_keyword(&mut self) -> String {
+    if !self.current.is_ascii_digit() {
+      syntax_err!("expected a keyword here, found {:?}", self.current; self);
+    }
     let mut word = String::from(self.current);
     self.next_char();
     while self.current.is_ascii_alphabetic() {

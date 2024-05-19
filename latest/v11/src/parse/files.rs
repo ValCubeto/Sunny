@@ -19,36 +19,19 @@ pub fn parse_file(file_name: &str, data: &str) {
     if !parser.current().is_ascii_alphabetic() {
       syntax_err!("invalid or unexpected token {:?}", parser.current(); parser);
     }
-    let mut word = parser.parse_ascii_word();
+    let mut word = parser.expect_keyword();
     let is_public: bool;
 
-    if word == "pub" {
+    if matches!(word.as_str(), "pub" | "priv") {
       parser.next_token();
-      word = parser.parse_ascii_word();
-      is_public = true;
-    } else if word == "priv" {
-      parser.next_token();
-      word = parser.parse_ascii_word();
-      is_public = false;
+      word = parser.expect_keyword();
+      is_public = word == "pub";
     }
 
+    // let item = 
     match word.as_str() {
-      "const" => {
-        parser.next_token();
-        // HINT: maybe we should match `{` or `[` to implement destructuring,
-        // and if any alphabetic character is found, then call `parser.parse_word()`
-        let ident = parser.expect_word();
-
-        parser.next_token();
-        // parser.expect(':');
-
-        parser.expect('=');
-        parser.next_token();
-        let value = parse_expr(&mut parser);
-        println!("{:#?}", value);
-        todo!();
-      },
-      "var" => todo!(),
+      "const" => parse_const(&mut parser),
+      // "var" => parse_var(&mut parser),
       "fun" => {
         parser.skip_whitespaces();
         parse_function(&mut parser);
@@ -70,6 +53,8 @@ pub fn parse_file(file_name: &str, data: &str) {
       "async" => todo!(),
       "test" => todo!(),
       _ => syntax_err!("unexpected token {word:?} here"; parser)
-    }
+    };
+    // parser.set_item(item);
   }
+  // parser
 }

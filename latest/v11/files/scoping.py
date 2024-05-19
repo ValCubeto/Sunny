@@ -44,7 +44,7 @@ let scopes: [Scope] = [
   Scope {
     name: "main",
     values: {
-      "name": Value::Variable Intermediate::String("Sunny")
+      "name": Value::Variable(Intermediate::String("Sunny"))
     }
   }
 ]
