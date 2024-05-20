@@ -29,6 +29,28 @@ Constant {
   ) // Expr(Equal)
 } // Constant
 */
+/*
+enum Expr {
+  Value(Value),
+  Arith(Op, Box<Expr>, Box<Expr>),
+  Unary(Op, Box<Expr>),
+  Call {
+    path: Path,
+    generics: Map<Box<Expr>>,
+    args: Map<Box<Expr>>
+  },
+  If(Box<Expr>, Box<Expr>, Box<Expr>),
+}
+
+fun parse_expr(prev_val, prev_op) {
+  let val = parse_value()
+  let op = parse_op()
+  if op.precedence() < prev_op.precedence() {
+    parse_expr(val, op)
+  }
+}
+parse_expr("6", Equal)
+*/
 const TEST : UInt8 = 6 == 2 * Some(3)?
 ;
 
