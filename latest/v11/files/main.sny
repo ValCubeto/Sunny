@@ -36,23 +36,30 @@ enum Expr {
   Unary(Op, Box<Expr>),
   Call {
     path: Path,
-    generics: Map<Box<Expr>>,
-    args: Map<Box<Expr>>
-  },
+    generics: Map<String, Expr>,
+    args: Vec<Expr>,
+  }
   If(Box<Expr>, Box<Expr>, Box<Expr>),
 }
 
-fun parse_expr(prev_val: Expr, prev_op) -> Expr {
-  let val = parse_value()
-  let op = parse_op()
+/// Returns Expr::Unary too
+fn parse_value(parser: &mut Parser) -> Expr {
+  parser.next();
+  // match parser.current() { ... }
+  // ...
+}
+
+fn parse_expr(parser: &mut Parser, left: Expr, prev_op: Op) -> Expr {
+  let val: Expr = parse_value(parser);
+  let op = parse_op();
   let right = if op.precedence() < prev_op.precedence() {
     parse_expr(val, op)
   } else {
-    Expr::Value(val)
-  }
-  Expr::Arith(op, Box::new(prev_val), Box::new(right))
+    val
+  };
+  Expr::Arith(op, Box::new(left), Box::new(right))
 }
-parse_expr("6", Equal)
+parse_expr(Expr::Value("6"), Op::Equal);
 */
 const TEST: UInt8 = 6? == 2 * 3;
 

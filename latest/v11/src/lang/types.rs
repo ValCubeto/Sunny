@@ -7,7 +7,7 @@ pub enum BuiltInType {
   EnumVariant(*const ()),
   BitsetInstance(*const ()),
 
-  Pointer,
+  Pointer(Box<Type>),
 
   Bool,
 
