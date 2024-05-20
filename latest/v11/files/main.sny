@@ -54,8 +54,7 @@ fun parse_expr(prev_val: Expr, prev_op) -> Expr {
 }
 parse_expr("6", Equal)
 */
-const TEST : UInt8 = 6 == 2 * Some(3)?
-;
+const TEST: UInt8 = 6? == 2 * 3;
 
 // fun main() {
 //   println("Hello, world!")
