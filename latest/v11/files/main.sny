@@ -45,11 +45,12 @@ enum Expr {
 fun parse_expr(prev_val: Expr, prev_op) -> Expr {
   let val = parse_value()
   let op = parse_op()
-  if op.precedence() < prev_op.precedence() {
+  let right = if op.precedence() < prev_op.precedence() {
     parse_expr(val, op)
   } else {
-    Expr::Arith(op, Box::new(prev_val), Box::new(Expr::Value(val)))
+    Expr::Value(val)
   }
+  Expr::Arith(op, Box::new(prev_val), Box::new(right))
 }
 parse_expr("6", Equal)
 */
