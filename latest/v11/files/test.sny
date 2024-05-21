@@ -1,62 +1,30 @@
 
 class Point {
-  impl Debug { ... }
+  impl Debug
 
   struct {
-    x: int
-    y: int
+    x: Int8
+    y: Int8
   }
 
-  fun create(x: int, y: int) -> Self {
-    new Point { x, y }
+  fun new(x: Int8, y: Int8) -> Self {
+    Point { x, y }
   }
 }
 
 class Point3d: Point {
   struct {
     ...Super
-    z: int
+    z: Int8
   }
-  fun create(x: int, y: int, z: int) -> Self {
-    new Point3d { x, y, z }
+  fun new(x: Int8, y: Int8, z: Int8) -> Self {
+    Point3d { x, y, z }
   }
 }
 
 bitset Intents {
-  // Shifting zero times has no effect
-  GUILDS = 1 << 0
-  MESSAGE_CONTENT = 1 << 1
-}
-
-macro matches! {
-  ($val: @expr, $patt: @pattern) {
-    match $val {
-      $patt: true
-      else: false
-    }
-  }
-}
-
-class Result<T, E> {
-  enum {
-    Ok(T)
-    Err(E)
-  }
-  fun ok() -> Option<T> {
-    match self {
-      Self::Ok(value): Some(value)
-      else: None
-    }
-  }
-  fun is_err() -> bool {
-    matches!(self, Self::Err(_))
-  }
-  fun unwrap() -> T {
-    match self {
-      Self::Ok(value): value
-      else: panic("calling `unwrap` on an Err value")
-    }
-  }
+  GUILDS
+  MESSAGE_CONTENT
 }
 
 fun main() {
