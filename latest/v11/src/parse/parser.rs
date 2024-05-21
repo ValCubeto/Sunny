@@ -5,8 +5,6 @@ static KEYWORDS: Lazy<HashSet<&str>> = Lazy::new(|| HashSet::from([
   "mod",
   "pub",
   "priv",
-  "self",
-  "Self",
   "const",
   "fun",
   "class",
@@ -36,7 +34,6 @@ static KEYWORDS: Lazy<HashSet<&str>> = Lazy::new(|| HashSet::from([
   "as",
   "from",
 
-  "new",
   "match",
 
   "with",
@@ -45,6 +42,13 @@ static KEYWORDS: Lazy<HashSet<&str>> = Lazy::new(|| HashSet::from([
   "await",
   "defer",
   "test",
+
+  "self",
+  "super",
+  "Self",
+  "Super",
+  "true",
+  "false",
 ]));
 
 /// I think the name is enough descriptive
@@ -61,7 +65,7 @@ pub struct Parser<'a> {
   /// The language accepts not using semicolons or commas,
   /// so we need to know if the line was broken.
   /// I mean `const a = 1 const b = 2` is not valid code,
-  /// you do need a semicolon there, or put a new line.
+  /// you need a semicolon there, or put a new line.
   line_broken: bool
 }
 
@@ -184,7 +188,7 @@ impl<'a> Parser<'a> {
   /// or finishes the program when reaching the end of the input.
   pub fn skip_whitespaces(&mut self) {
     // NOTE: other types of whitespace will be considered invalid.
-    while matches!(self.current, ' ' | '\n' | '\t' | '\r') {
+    while Self::is_space(self.current) {
       self.idx += 1;
       if self.idx >= self.data_len {
         todo!("eof reached, here should be some logic to stop parsing and start doing type analysis and stuff");
@@ -218,9 +222,15 @@ impl<'a> Parser<'a> {
     self.skip_whitespaces();
   }
 
+  /// Returns true if the character is a space, tab,
+  /// new line, or carriage return.
+  pub fn is_space(ch: char) -> bool {
+    matches!(ch, ' ' | '\t' | '\n' | '\r')
+  }
+
   /// Similar to `self.skip_whitespaces`, but matches new lines.
   pub fn next_token(&mut self) {
-    while matches!(self.current, ' ' | '\t' | '\n' | '\r') {
+    while Self::is_space(self.current) {
       self.next_char();
     }
   }

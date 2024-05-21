@@ -1,107 +1,214 @@
-use std::{ foo, bar as baz }
-use "hello.sny" as hello
-use example from "example.sny"
+testit "Imports" {
+  use std::{ foo, bar as baz }
+  use "hello.sny" as hello
+  from "example.sny" use { test }
+}
 
 const NAME: String = "Sunny"
 // If the value is a literal, the type can be inferred
-const EOL := cfg!("windows") then "\r\n" else "\n"
+const EOL = if cfg("windows") { "\r\n" } else { "\n" }
 
-fun main() -> () {
+testit "Syntax" {
   var n = 2
   n *= 10
-  assert(n == 200)
+  assert!(n == 200)
 
   let bin = 0b1111_1111
   let hex = 0xff_3f_1d
   let sci = 10e-30
   // u32 by default, u64 if needed, i32 if there's a sign, f32 if there are decimals. Intelligently decided
   // Global number types: int (i32), uint (u32), float (f32)
-  let eight_bit_int: i8 = 255
+  let eight_bit_int: Int8 = 255
 
   let string = "Hello"
   let raw_str = r"\tHello\n\r"
   let strong = $"Hello "world""$
 
-  let sum = (a, b): a + b
-  let res = sum(5, 5)
+  let sum = (a, b) -> a + b
+  let res: Int8 = sum(5, 5)
 
   println(f"res = {res}")
+}
 
-  let intents = bitflags {
-    guilds = true
-    guild_members = 1
-    message_content = TRUE
-    guild_invites = false
+testit "Bitsets" {
+  bitset Intents {
+    Guilds
+    GuildMessages
+    MessageContent
+    GuildInvites
   }
+  let intents = Intents { Guilds | GuildMessages | MessageContent }
+  debug(intents)
+}
 
+testit "Maps" {
   fun random_id() -> String {
     use std::random::GenRandom
 
-    String::with_capacity(8).fill((_i): Char::gen_random())
+    String::with_capacity(8).fill(() -> Char::gen_random())
   }
 
   class User {
     struct {
       name: String
     }
-    fun new(name: String) -> Self {
-      User { name }
-    }
+    impl Debug
   }
 
-  // Equivalent to Rust's HashMap
-  let users = hashmap! {
-    random_id() => User::new(name: "John")
-    random_id() => User::new(name: "Sarah")
+  // Equivalent to Rust's hashbrown::HashMap
+  let users: {String => User} = {
+    random_id() => User { name: "John" }
+    random_id() => User { name: "Sarah" }
   }
 
+  debug(users)
+}
+
+testit "Map shorthand syntax" {
+  let map = {
+    "a" => 1,
+    "b" => 2,
+    "c" => 3
+  }
+  let map_shorthand = {
+    a: 1,
+    b: 2,
+    c: 3
+  }
+  assert!(map_shorthand == map)
+}
+
+testit "Dictionaries" {
   // Keys will be sorted. Equivalent to Rust's BTreeMap
-  let dict: Dictionary = dict! {
-    "z" => "zeta"
-    "x" => "equis"
-    "y" => "ye"
+  let dict: Dict<String, String> = {
+    z: "zeta"
+    x: "equis"
+    y: "ye"
   }
+  assert!(
+    dict.keys() == ["x", "y", "z"] &&
+    dict.values() == ["equis", "ye", "zeta"]
+  )
 }
 
-class A {
-  struct {
-    some_prop: int
-  }
-  fun print_prop() {
-    println(self.some_prop)
-  }
-}
+testit "`Result` class" {
+  class Result<T, E> {
+    enum {
+      Ok(T)
+      Err(E)
+    }
+    impl Eq where T: Eq, E: Eq
+    use Self::{Ok, Err, T, E}
 
-macro my_macro {
-  ($case1: @type) {
-    println(f"Case 1 - type: {type_name_of!($case1)}")
-  }
-  ($case2: @expr) {
-    println(f"Case 2 - expr: {stringify!($case2)}")
-  }
-}
-
-class Result<T, E> {
-  enum {
-    Ok(T)
-    Err(E)
-  }
-  fun ok() -> Option<T> {
-    match self {
-      Self::Ok(value): Some(value)
-      Self::Err(_err): None
+    method ok() -> Option<T> {
+      match self {
+        Ok(value) => Option::Some(value)
+        Err(_e) => Option::None
+      }
+    }
+    method err() -> Option<E> {
+      match self {
+        Ok(_v) => Option::None
+        Err(error) => Option::Some(error)
+      }
+    }
+    method is_err() -> Bool {
+      matches!(self, Err(_e))
+    }
+    method is_ok() -> Bool {
+      matches!(self, Ok(_v))
+    }
+    method map<U>(f: (T) -> U) -> Self<U, E> {
+      match self {
+        Ok(value) => Self::Ok(f(value))
+        Err(error) => Self::Err(error)
+      }
+    }
+    method and_then<U>(f: (T) -> Result<U, E>) -> Result<U, E> {
+      match self {
+        Ok(value) => f(value)
+        Err(error) => Err(error)
+      }
+    }
+    method or_else<U>(f: (E) -> Result<T, U>) -> Result<T, U> {
+      match self {
+        Ok(value) => Ok(value)
+        Err(error) => f(error)
+      }
+    }
+    method unwrap() -> T
+    where
+      E: Display
+    {
+      match self {
+        Ok(value) => value
+        Err(error) => panic!(error)
+      }
+    }
+    method unwrap_or(default: T) -> T {
+      match self {
+        Ok(value) => value
+        Err(_e) => default
+      }
+    }
+    method unwrap_or_else(f: (E) -> T) -> T {
+      match self {
+        Ok(value) => value
+        Err(error) => f(error)
+      }
+    }
+    method expect(msg: Display) -> T {
+      match self {
+        Ok(value) => value
+        Err(_e) => panic!(msg)
+      }
+    }
+    method unwrap_or_default() -> T
+    where
+      T: Default
+    {
+      match self {
+        Ok(value) => value
+        Err(_e) => T::default()
+      }
     }
   }
-  fun is_err() -> bool {
-    matches!(self, Self::Err(_err))
-  }
+  use Result::{Ok, Err}
+
+  assert!(
+    Ok(1).is_ok() &&
+    Err(-1).is_err() &&
+    Ok(1).ok() == Some(1) &&
+    Err(-1).ok() == None &&
+    Ok(1).err() == None &&
+    Err(-1).err() == Some(-1) &&
+    Ok(1).map((n) -> n + 1) == Ok(2) &&
+    Ok(1).and_then((n) -> Ok(n + 1)) == Ok(2) &&
+    Err(-1).and_then((n) -> Ok(n + 1)) == Err(-1) &&
+    Ok(1).or_else((n) -> Ok(n + 1)) == Ok(1) &&
+    Err(-1).or_else((n) -> Ok(n - 1)) == Ok(-2) &&
+    Ok(1).unwrap() == 1 &&
+    Ok(1).unwrap_or(0) == 1) &&
+    Err(-1).unwrap_or(0) == 0 &&
+    Ok(1).unwrap_or_else(() -> 0) == 1 &&
+    Err(-1).unwrap_or_else(() -> 0) == 0 &&
+    Ok(1).unwrap_or_default() == 1 &&
+    Err(-1).unwrap_or_default() == 0 &&
+    Ok(1).expect("It wasn't ok") == 1 &&
+  )
 }
 
-macro matches! {
-  ($value: @expr, ",", $patt: @pattern) {
-    match $value {
-      $patt: true
-      _: false
+testit "`matches!` macro" {
+  macro matches! {
+    ($value: @expr, ",", $patt: @pattern) => {
+      match $value {
+        $patt => true
+        else => false
+      }
     }
   }
+  let value = Ok(1)
+  assert!(matches!(value, Ok(1)))
+  assert!(!matches!(value, Ok(2)))
+  assert!(!matches!(value, Err(_)))
 }

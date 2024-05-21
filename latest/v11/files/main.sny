@@ -51,7 +51,7 @@ fn parse_value(parser: &mut Parser) -> Expr {
 
 fn parse_expr(parser: &mut Parser, left: Expr, prev_op: Op) -> Expr {
   let val: Expr = parse_value(parser);
-  let op = parse_op();
+  let op = parse_op()?;
   let right = if op.precedence() < prev_op.precedence() {
     parse_expr(val, op)
   } else {

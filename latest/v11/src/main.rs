@@ -1,3 +1,5 @@
+use parse::Parser;
+
 #[allow(unused)]
 #[macro_use]
 pub mod errors;
@@ -30,15 +32,20 @@ mod tests;
 fn main() {
   let file_name = "files/main.sny";
 
-  let code = std::fs::read_to_string(file_name)
-    .expect("failed to read the file")
+  let content = std::fs::read_to_string(file_name)
+    .expect("failed to read the file");
+  let mut code = content
     // .trim() removes some characters that are considered
     // invalid in a Sunny file
-    .trim_matches(|c| matches!(c, ' ' | '\t' | '\n' | '\r'));
+    .trim_matches(Parser::is_space)
+    .to_owned();
 
   if code.is_empty() {
     return;
   }
+
+  // EOF
+  code.push('\0');
 
   // std is a keyword instead of a reference to itself to
   // avoid infinite recursion (`std::std::std::...`)
@@ -51,14 +58,14 @@ fn main() {
   //     "Int8" => BuiltInType::Int8
   //   },
   //   {
-  //     "TEST" => Constant { ty: Int32, val: Value::u8(1) }
+  //     "TEST" => Constant { ty: Int32, val: Value::Int32(1) }
   //   }
   // ]
-  parse::parse_file(file_name, code);
+  parse::parse_file(file_name, &code);
 }
 
 // Global variables:
-// - Vec
+// - List
 // - String
 // - println
 // - eprintln
