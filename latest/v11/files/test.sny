@@ -1,40 +1,39 @@
 
-class Point {
-  impl Debug
+testit "Classy" {
+  class Point: Debug {
+    struct {
+      x: Int8
+      y: Int8
+    }
 
-  struct {
-    x: Int8
-    y: Int8
+    constructor new(x, y)
   }
 
-  fun new(x: Int8, y: Int8) -> Self {
-    Point { x, y }
+  class Point3d: Point {
+    struct {
+      ...Super
+      z: Int8
+    }
+    constructor new(x, y) {
+      Point3d { x, y, z: 0 }
+    }
   }
+
+  let point3d = Point3d::new(x: 10, y: 20)
+  // Format: debug using only 1 space
+  assert!(f"{point3d.debug(spacing: 1)}" == "Point3d { x: 10, y: 20, z: 0 }")
 }
 
-class Point3d: Point {
-  struct {
-    ...Super
-    z: Int8
+testit "Bitty setty" {
+  bitset Intents {
+    GUILDS
+    GUILD_MESSAGES
+    MESSAGE_CONTENT
   }
-  fun new(x: Int8, y: Int8, z: Int8) -> Self {
-    Point3d { x, y, z }
-  }
-}
 
-bitset Intents {
-  GUILDS
-  MESSAGE_CONTENT
-}
-
-fun main() {
   // 0000_0001
-  let intents = Intents::GUILDS
+  let intents = Intents { GUILDS | GUILD_MESSAGES }
   // self & query == query
   // 0000_0001 & 0000_0010 == 0100_0010 -> false
   assert!(!intents.contains(Intents::MESSAGE_CONTENT))
-
-  let point3d = Point3d::create(10, 20, -15)
-  // Format: debug using only 1 space
-  assert!(f"{point3d@?1}" == "Point3d { x: 10, y: 20, z: -15 }")
 }

@@ -30,7 +30,7 @@ testit "Syntax" {
   println(f"res = {res}")
 }
 
-testit "Bitsets" {
+testit "Bitvsets" {
   bitset Intents {
     Guilds
     GuildMessages
@@ -80,7 +80,7 @@ testit "Map shorthand syntax" {
 
 testit "Dictionaries" {
   // Keys will be sorted. Equivalent to Rust's BTreeMap
-  let dict: Dict<String, String> = {
+  let dict: Dict<_, _> = {
     z: "zeta"
     x: "equis"
     y: "ye"
@@ -138,7 +138,7 @@ testit "`Result` class" {
     }
     method unwrap() -> T
     where
-      E: Display
+      E: Error
     {
       match self {
         Ok(value) => value

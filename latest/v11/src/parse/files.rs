@@ -42,18 +42,15 @@ pub fn parse_file(file_name: &str, data: &str) {
       "class" => todo!(),
       "struct" => todo!(),
       "enum" => todo!(),
-      "flagset" => todo!(),
+      "bitset" => todo!(),
 
       "trait" => todo!(),
       "impl" => todo!(),
 
-
       "macro" => todo!(),
 
-      "if" => todo!(),
-
-      "test" => todo!(),
-      _ => syntax_err!("unexpected token {word:?} here"; parser)
+      "testit" => todo!(),
+      _ => syntax_err!("unexpected keyword {word:?} here"; parser)
     };
     // parser.set_item(item);
   }

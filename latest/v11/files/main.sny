@@ -63,6 +63,41 @@ parse_expr(Expr::Value("6"), Op::Equal);
 */
 const TEST: UInt8 = 6? == 2 * 3;
 
+/*
+fn parse_const(parser) -> ? {
+  // ...
+  // after '='
+  parser.next_token();
+  let value = parse_value(parser);
+  match parse_expr(parser, value) {}
+  let op = parse_op()
+}
+
+/// parses unary operators and prior ops too, so `&a.b?` is parsed here
+fn parse_value(parser) -> Expr {
+  parser.next_token();
+  match parser.current() {
+    '&' => Expr::Unary(Op::Ref, Box::new(parse_value(parser))),
+    '!' => Expr::Unary(Op::Not, Box::new(parse_value(parser))),
+    d if d.is_ascii_digit() => Expr::Value(Value::Number(parse_number(parser))),
+    ...
+    _ => syntax_error(...),
+  }
+}
+
+fn parse_expr(parser, left: Expr) -> Option<Expr> {
+  let op = match parser.current() {
+    '+' => Op::Add,
+    '-' => Op::Sub,
+    '*' => Op::Mul,
+    '/' => Op::Div,
+    ...
+    _ => return None,
+  };
+  parser.next_token();
+}
+*/
+
 // fun main() {
 //   println("Hello, world!")
 // }

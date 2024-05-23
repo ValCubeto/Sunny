@@ -142,7 +142,7 @@ impl<'a> Parser<'a> {
   #[inline]
   fn _next_char(&mut self) {
     self.idx += 1;
-    if self.idx >= self.data_len {
+    if self.current == '\0' {
       syntax_err!("unexpected end of input"; self);
     }
     self.current = self.data.next().unwrap();
@@ -153,7 +153,7 @@ impl<'a> Parser<'a> {
   /// Panics if the input ends.
   pub fn next_char(&mut self) {
     self.idx += 1;
-    if self.idx >= self.data_len {
+    if self.current == '\0' {
       syntax_err!("unexpected end of input"; self);
     }
     self.current = self.data.next().unwrap();
@@ -187,12 +187,8 @@ impl<'a> Parser<'a> {
   /// Goes to the next character until there is a non-whitespace character,
   /// or finishes the program when reaching the end of the input.
   pub fn skip_whitespaces(&mut self) {
-    // NOTE: other types of whitespace will be considered invalid.
-    while Self::is_space(self.current) {
+    while Self::is_space(self.current) || self.current != '\0' {
       self.idx += 1;
-      if self.idx >= self.data_len {
-        todo!("eof reached, here should be some logic to stop parsing and start doing type analysis and stuff");
-      }
       self.current = self.data.next().unwrap();
       self.update_file_pos();
     }
@@ -276,9 +272,17 @@ impl<'a> Parser<'a> {
     // Doesn't allow the first character to be an ascii digit.
     // For example, `2dVector` will be invalid.
     if self.current.is_ascii_digit() || !self.current.is_alphanumeric() {
-      syntax_err!("expected an identifier, found {:?}", self.current; self)
+      syntax_err!("expected a word, found {:?}", self.current; self)
     }
-    let word = self.parse_word();
+    self.parse_word()
+  }
+
+  #[must_use]
+  pub fn expect_ident(&mut self) -> String {
+    if self.current.is_ascii_digit() || !self.current.is_alphanumeric() {
+      syntax_err!("expected a word, found {:?}", self.current; self)
+    }
+    let word = self.expect_word();
     self.check_keyword(&word);
     word
   }

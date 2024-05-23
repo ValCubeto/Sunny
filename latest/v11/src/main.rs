@@ -32,6 +32,10 @@ mod tests;
 fn main() {
   let file_name = "files/main.sny";
 
+  // TODO: use libc::free to free the spaces
+  // start = trimmed.as_ptr() as usize - file.as_ptr() as usize
+  // end = start + trimmed.len()
+  // libc::free(start as *mut c_int);
   let content = std::fs::read_to_string(file_name)
     .expect("failed to read the file");
   let mut code = content
@@ -39,6 +43,8 @@ fn main() {
     // invalid in a Sunny file
     .trim_matches(Parser::is_space)
     .to_owned();
+  // was cloned
+  drop(content);
 
   if code.is_empty() {
     return;
@@ -58,7 +64,7 @@ fn main() {
   //     "Int8" => BuiltInType::Int8
   //   },
   //   {
-  //     "TEST" => Constant { ty: Int32, val: Value::Int32(1) }
+  //     "TEST" => Constant { ty: Int8, val: Value::Int8(1) }
   //   }
   // ]
   parse::parse_file(file_name, &code);
