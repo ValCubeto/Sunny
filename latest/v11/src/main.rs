@@ -1,15 +1,13 @@
-use parse::Parser;
-
-#[allow(unused)]
-#[macro_use]
-pub mod errors;
+// #[allow(unused)]
+// #[macro_use]
+// pub mod errors;
 
 pub mod parse;
-pub mod colors;
-pub mod lang;
+// pub mod colors;
+// pub mod lang;
 
-#[cfg(test)]
-mod tests;
+// #[cfg(test)]
+// mod tests;
 
 // TODO: custom `unexpected` function that tries to print the type of the value
 // Examples:
@@ -30,7 +28,7 @@ mod tests;
 // This allows faster searches, but obviously uses more memory
 
 fn main() {
-  let file_name = "files/main.sny";
+  let file_name = "./files/main.sny";
 
   // TODO: use libc::free to free the spaces
   // start = trimmed.as_ptr() as usize - file.as_ptr() as usize
@@ -41,9 +39,9 @@ fn main() {
   let mut code = content
     // .trim() removes some characters that are considered
     // invalid in a Sunny file
-    .trim_matches(Parser::is_space)
-    .to_owned();
-  // was cloned
+    .trim_matches(parse::Parser::is_space)
+    .to_string();
+  // It was cloned
   drop(content);
 
   if code.is_empty() {

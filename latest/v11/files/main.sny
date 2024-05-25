@@ -61,7 +61,8 @@ fn parse_expr(parser: &mut Parser, left: Expr, prev_op: Op) -> Expr {
 }
 parse_expr(Expr::Value("6"), Op::Equal);
 */
-const TEST: UInt8 = 6? == 2 * 3;
+// const TEST: UInt8 =
+6? == 2 * 3;
 
 /*
 fn parse_const(parser) -> ? {
