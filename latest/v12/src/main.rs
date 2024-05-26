@@ -59,6 +59,8 @@ impl<'a> Parser<'a> {
     self.current = self.data.next().unwrap();
     self.update_cursor_pos();
   }
+
+  /// Goes to the next character
   pub fn next_char(&mut self) {
     self.idx += 1;
     if self.current == '\0' {
@@ -100,4 +102,15 @@ impl<'a> Parser<'a> {
     }
     println!("[idx={}] Called next_char and got: {:?}", self.idx, self.current);
   }
+
+  /// Skips the spaces until there is a token
+  pub fn next_token(&mut self) {
+    while Self::is_space(self.current) {
+      self.next_char();
+    }
+  }
+}
+
+pub fn parse_expr(parser: &mut Parser) {
+  parser.next_token();
 }
