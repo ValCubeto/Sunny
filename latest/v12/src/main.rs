@@ -6,12 +6,12 @@ fn main() {
     .trim_matches(Parser::is_space)
     .to_owned();
   file.push('\0');
-  println!("{:?}", file);
+  println!("Data: {:?}", file);
+  println!();
 
   #[allow(clippy::needless_borrow)]
   let mut parser = Parser::new(&file);
   parser.next_char();
-  println!("{}: {:?}", parser.idx(), parser.current());
   // parse_expr(&mut parser);
 }
 
@@ -69,20 +69,20 @@ impl<'a> Parser<'a> {
 
     while self.current == '/' {
       // Peeks so the current keeps being '/'
-      println!("maybe comment: {:?}", self.current);
+      println!("[idx={}] About to check for comment", self.idx);
       let peeked = self.peek();
       if peeked == '/' {
-        println!("inline comment");
+        println!("[idx={}] Inline comment", self.idx);
         self._next_char();
         self._next_char();
         while self.current != '\n' {
           self._next_char();
         }
-        println!("about to continue with curr = {:?}", self.current);
+        println!("[idx={}] End of comment", self.idx);
         continue;
       }
       if peeked == '*' {
-        println!("block comment");
+        println!("[idx={}] Multiline comment", self.idx);
         self._next_char();
         self._next_char();
         loop {
@@ -93,10 +93,11 @@ impl<'a> Parser<'a> {
           }
           self._next_char();
         }
+        println!("[idx={}] End of comment", self.idx);
         continue;
       }
       break;
     }
-    println!("    {}: {:?}", self.idx, self.current);
+    println!("[idx={}] Called next_char and got: {:?}", self.idx, self.current);
   }
 }

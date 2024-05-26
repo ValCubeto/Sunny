@@ -168,6 +168,8 @@ impl<'a> Parser<'a> {
         while self.current != '\n' {
           self._next_char();
         }
+        println!("about to continue with curr = {:?}", self.current);
+        continue;
       } else if peeked == '*' {
         self._next_char();
         self._next_char();
@@ -187,10 +189,15 @@ impl<'a> Parser<'a> {
   /// Goes to the next character until there is a non-whitespace character,
   /// or finishes the program when reaching the end of the input.
   pub fn skip_whitespaces(&mut self) {
-    while Self::is_space(self.current) || self.current != '\0' {
+    while Self::is_space(self.current) {
       self.idx += 1;
       self.current = self.data.next().unwrap();
       self.update_file_pos();
+    }
+
+    // if this is called from `parse_file`, it will end parsing
+    if self.current == '\0' {
+      return;
     }
 
     if self.current != '/' {
