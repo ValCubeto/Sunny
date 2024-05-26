@@ -1,8 +1,4 @@
 
-fun println(data: Display) {
-  let _ = std::io::println(data)
-}
-
 fun main() {
   println("Hello, world!")
 }
