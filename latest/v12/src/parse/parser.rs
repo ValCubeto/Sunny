@@ -1,21 +1,35 @@
-use std::{iter::Peekable, str::Chars};
+use std::{iter::Peekable, path::Path, str::Chars};
 
 pub struct Parser<'a> {
   idx: usize,
   current: char,
-  data: Peekable<Chars<'a>>
+  data: Peekable<Chars<'a>>,
+  path: Box<Path>,
+  line: usize,
+  column: usize,
 }
 
 impl<'a> Parser<'a> {
-  pub fn new(data: &'a str) -> Self {
+  pub fn new(path: &'a str, data: &'a str) -> Self {
     let mut this = Parser {
       current: '0',
       idx: 0,
       data: data.chars().peekable(),
+      path: Box::from(Path::new(path)),
+      line: 1,
+      column: 0,
     };
     this.next_char();
-    // this.update_cursor_pos();
     this
+  }
+  pub fn path(&self) -> &Path {
+    &self.path
+  }
+  pub fn line(&self) -> usize {
+    self.line
+  }
+  pub fn column(&self) -> usize {
+    self.column
   }
   pub fn current(&self) -> char {
     self.current
