@@ -1,8 +1,10 @@
 use super::{parser, Parser};
 
-parser_method! { fn parse_op(prev: char) -> Option<Op> }
+parser_method! { fn parse_op() -> Option<Op> }
 
-fn parse_op(parser: &mut Parser, prev: char) -> Option<Op> {
+fn parse_op(parser: &mut Parser) -> Option<Op> {
+  let prev = parser.current();
+  parser.next_char();
   let curr = parser.current();
   let op = match prev {
     '+' => match curr {
