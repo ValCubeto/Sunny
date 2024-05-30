@@ -76,7 +76,6 @@ impl<'a> Parser<'a> {
 
     while self.current == '/' {
       // Peeks so the current keeps being '/'
-      println!("[idx={}] About to check for comment", self.idx);
       let peeked = self.peek();
       if peeked == '/' {
         println!("[idx={}] Inline comment", self.idx);
@@ -86,6 +85,7 @@ impl<'a> Parser<'a> {
           self._next_char();
         }
         println!("[idx={}] End of comment", self.idx);
+        println!();
         continue;
       }
       if peeked == '*' {
@@ -101,6 +101,7 @@ impl<'a> Parser<'a> {
           self._next_char();
         }
         println!("[idx={}] End of comment", self.idx);
+        println!();
         continue;
       }
       break;
@@ -110,6 +111,7 @@ impl<'a> Parser<'a> {
 
   /// Skips the spaces
   pub fn next_token(&mut self) {
+    self.next_char();
     while Self::is_space(self.current) {
       self.next_char();
     }
