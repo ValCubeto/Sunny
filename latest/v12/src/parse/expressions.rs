@@ -1,37 +1,61 @@
 use super::{Intermediate, Op, Parser};
 
-parser_method! { fn parse_expr() -> Expr }
+parser_method! { fn parse_expr(prev: Expr) -> Expr }
 
-fn parse_expr(parser: &mut Parser) -> Expr {
-  parser.next_token();
-  let val: Expr = parser.parse_value();
-  parser.next_token();
+fn parse_expr(parser: &mut Parser, prev: Expr) -> Expr {
   // ensure there is an operator, else return here
-  let Some(op1) = parser.parse_op() else {
-    return val;
+  let op = match parser.parse_op() {
+    Some(op) => op,
+    None => return prev
   };
-  parser.next_token();
-  let right = parser.parse_value();
-
-  let Some(op2) = parser.parse_op() else {
-    return Expr::Arith(op, val.ptr(), right.ptr())
-  };
-  if op1.prec() < op2.prec() {
-   //
+  if op.prec() < prev.op().prec() {
+    Expr::Arith(
+      *prev.op(),
+      prev.left().clone().ptr(),
+      parser.parse_expr(prev.right().clone()).ptr()
+    )
+  } else {
+    let value = parser.parse_value();
+    Expr::Arith(
+      op,
+      prev.clone().ptr(),
+      parser.parse_expr(value).ptr()
+    )
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
   Single(Intermediate),
   Unary(Op, Box<Expr>),
   Arith(Op, Box<Expr>, Box<Expr>),
-
 }
 impl Expr {
   #[inline(always)]
   pub fn ptr(self) -> Box<Expr> {
     Box::new(self)
+  }
+
+  pub fn op(&self) -> &Op {
+    match self {
+      Expr::Single(_) => unreachable!(),
+      Expr::Unary(op, _) => op,
+      Expr::Arith(op, _, _) => op,
+    }
+  }
+  pub fn left(&self) -> &Expr {
+    match self {
+      Expr::Single(_) => unreachable!(),
+      Expr::Unary(_, left) => left,
+      Expr::Arith(_, left, _) => left,
+    }
+  }
+  pub fn right(&self) -> &Expr {
+    match self {
+      Expr::Single(_) => unreachable!(),
+      Expr::Unary(_, _) => unreachable!(),
+      Expr::Arith(_, _, right) => right,
+    }
   }
 }
 

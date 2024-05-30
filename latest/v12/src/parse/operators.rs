@@ -73,7 +73,7 @@ fn parse_op(parser: &mut Parser) -> Option<Op> {
   Some(op)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum Op {
   /// `x::y`
   GetItem,

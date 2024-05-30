@@ -59,6 +59,12 @@ impl<'a> Parser<'a> {
     self.update_cursor_pos();
   }
 
+  #[inline(always)]
+  pub fn is_ident(&self) -> bool {
+    let ch = self.current;
+    !ch.is_ascii_digit() && ch.is_alphabetic() || ch == '_'
+  }
+
   /// Goes to the next character, ignoring the comments
   pub fn next_char(&mut self) {
     self.idx += 1;

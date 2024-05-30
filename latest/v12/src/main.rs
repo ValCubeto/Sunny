@@ -25,5 +25,6 @@ fn main() {
   #[allow(clippy::needless_borrow)]
   let mut parser = Parser::new(&path, &file);
   parser.next_char();
-  parser.parse_expr();
+  let value = parser.parse_value();
+  parser.parse_expr(value);
 }
