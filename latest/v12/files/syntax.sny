@@ -1,0 +1,93 @@
+
+test "Comments" {
+  // single line comment
+  /*
+   * multiline comment
+   */
+}
+
+test "Numbers" {
+  123
+  3.1415
+  -456
+  -0.001
+  1e4
+  5E-4
+  -4e+5
+}
+
+test "Strings" {
+  'c'
+  "Normal string"
+  f"Formatted string"
+  r"Raw string\n"
+  c"C string"
+}
+
+test "Booleans" {
+  True
+  False
+  True == False
+  True != False
+  True && False
+  False || True
+  False === False
+  False !== False
+  1 > 2
+  1 < 2
+  1 >= 2
+  1 <= 2
+}
+
+test "Operators" {
+  1 + 2
+  1 - 2
+
+  1 * 2
+  1 / 2
+  1 % 2
+
+  1 & 2
+  1 | 2
+  1 ^ 2
+
+  assert!(2 + 3 * 4 == 14)
+  -(1 + 2)
+}
+
+test "Collections" {
+  [1, 2, 3]
+  {"1" => "one", "2" => "two"}
+  {x: 1, y: 2}
+  {} as Dict
+}
+
+test "Constants" {
+  // no type needed for primitives
+  const GREETING = "Hello, world!"
+  // there are lot of number types,
+  // so we need to specify the type of this one
+  const PI: Float32 = 3.1415
+}
+
+test "Functions" {
+  fun add(a: Int32, b: Int32) -> Int32 {
+    a + b
+  }
+  debug!(add(1, 2))
+
+  let div = (a: Float32, b: Float32) -> a / b
+  debug!(div(1, 2))
+
+  fun where_is_it<T>(_: T) -> String {
+    path_to_type!(T)
+  }
+  assert!(where_is_it("help") == $"syntax::{"Functions"}::type_name::T"$)
+
+  #(allow(idk))
+  fun three_decimals<N: PrecisionFormat>(n: N) -> String {
+    f"{n#.3}"
+  }
+  assert!(three_decimals(1.23456789) == "1.234")
+  assert!(three_decimals(-100) == "-100.000")
+}
