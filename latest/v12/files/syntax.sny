@@ -19,8 +19,8 @@ test "Numbers" {
 test "Strings" {
   'c'
   "Normal string"
-  f"Formatted string"
   r"Raw string\n"
+  f"Formatted string {r"with a nested raw string"}"
   c"C string"
 }
 
@@ -47,11 +47,13 @@ test "Operators" {
   1 / 2
   1 % 2
 
+  1 ** 2
+
   1 & 2
   1 | 2
   1 ^ 2
 
-  assert!(2 + 3 * 4 == 14)
+  assert!(2 + 3 ** 4 * 2 == 164)
   -(1 + 2)
 }
 
@@ -62,12 +64,21 @@ test "Collections" {
   {} as Dict
 }
 
-test "Constants" {
+test "Variables" {
   // no type needed for primitives
   const GREETING = "Hello, world!"
   // there are lot of number types,
   // so we need to specify the type of this one
   const PI: Float32 = 3.1415
+
+  let inmutable = "I'm immutable"
+  var mutable = "I'm mutable"
+  mutable = "I changed"
+  assert!(mutable == "I changed")
+  match try { inmutable = "I can't change" } {
+    Ok(_) => panic("Shouldn't be able to change this immutable value...")
+    Err(what) => println!("Error when trying to change an immutable value: {}", what)
+  }
 }
 
 test "Structs" {
@@ -130,4 +141,80 @@ test "Functions" {
   }
   assert!(three_decimals(1.23456789) == "1.234")
   assert!(three_decimals(-100) == "-100.000")
+}
+
+test "Classes" {
+  class Point {
+    struct {
+      x: Int32
+      y: Int32
+    }
+    fun new(x: Int32, y: Int32) -> Self {
+      Self { x, y }
+    }
+    fun move(dx: Int32, dy: Int32) -> Self {
+      self.x += dx
+      self.y += dy
+      self
+    }
+    fun moved(dx: Int32, dy: Int32) -> Self {
+      Self { x: self.x + dx, y: self.y + dy }
+    }
+  }
+  var point = Point::new(10, 2)
+  assert!(point.x == 10)
+  point.move(15, 20)
+  assert!(point.x == 15)
+  let moved = point.moved(4, 10)
+  assert!(moved.x == 4 && point.x == 20)
+}
+
+test "Java" {
+  class Program {
+    pub static fun main(args: String[]) -> Nothing {
+      std::io::println("Hello, world!");
+    }
+  }
+  Program::main(std::env::args().collect());
+}
+
+test "C++" {
+  fun main(argc: Index, argv: &Char) -> Int32 {
+    std::io::stdout().writeln("Hello, world!");
+    return 0;
+  }
+}
+
+test "Type aliases" {
+  typedef Nothing = ()
+  typedef Dictionaty<V> = BinTreeMap<String, V>
+}
+
+test "Ternaries" {
+  const EOL = std::os::OS_NAME == "windows" ?? "\r\n" ?: "\n"
+}
+
+#(should_fail)
+test "Keywords" {
+  static pub priv
+  fun return yield where async await
+  defer
+  try
+  with
+  if else
+  match
+  trait impl
+  loop while for in break continue
+  test
+  struct
+  enum
+  bitset
+  class extends
+  const let var
+  macro
+  typedef
+  std
+  self Self
+  super Super
+  use from as
 }
