@@ -70,6 +70,46 @@ test "Constants" {
   const PI: Float32 = 3.1415
 }
 
+test "Structs" {
+  struct Point {
+    x: Int32
+    y: Int32
+  }
+  let point = Point { x: 1, y: 2 }
+  assert!(point.x == 1)
+}
+
+test "Enums" {
+  enum Direction {
+    North
+    South
+    East
+    West
+  }
+  let direction = Direction::North
+  // exactly the same because 'direction' is a constant
+  assert!(direction === Direction::North)
+
+  enum StructFields {
+    Single
+    WrapTuple(Int32, Int32)
+    WrapObject { x: Int32, y: Int32 }
+  }
+}
+
+test "Bit sets" {
+  bitset DiscordIntents {
+    // Default value
+    Guilds = True
+    GuildMessages = 0
+    // By default, all other bits are set to zero
+    MessageContent
+    // ...
+  }
+  // No need to include 'Guilds' here, because it's already set to true
+  let intents = DiscordIntents { GuildMessages | MessageContent }
+}
+
 test "Functions" {
   fun add(a: Int32, b: Int32) -> Int32 {
     a + b
