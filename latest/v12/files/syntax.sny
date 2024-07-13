@@ -220,3 +220,38 @@ test "Keywords" {
   super Super
   use from as
 }
+
+test "Number" {
+  trait Add<T = Self, O = Self> {
+    fun add(&self, other: &T) -> O
+  }
+
+  trait Integer : Add & Sub & Mul & Div & ... {}
+  trait Decimal : Integer {}
+  trait Number  : Integer | Decimal {}
+
+  impl Integer
+  for
+    Int8, Int16, Int32, Int64, Int128,
+    UInt8, UInt16, UInt32, UInt64, UInt128,
+    BigInt, BigUint
+  {}
+
+  impl Decimal
+  for
+    Float32, Float64, Float128,
+    // UFloat32, UFloat64, UFloat128
+    BigDecimal
+  {}
+
+  impl Add for Float32 {
+    fun add(&self, other: &Int32) -> Float32 {
+      //
+    }
+  }
+  impl Add for Int32 {
+    fun add(&self, other: &Float32) -> Int32 {
+      //
+    }
+  }
+}
