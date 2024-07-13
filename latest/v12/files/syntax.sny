@@ -187,15 +187,16 @@ test "C++" {
 }
 
 test "Type aliases" {
-  typedef Nothing = ()
-  typedef Dictionaty<V> = BinTreeMap<String, V>
+  typedef Dictionary<V> = BinTreeMap<String, V>
+  // Can be used as a type and as a value
+  struct Nothing = ()
 }
 
 test "Ternaries" {
-  const EOL = std::os::OS_NAME == "windows" ?? "\r\n" ?: "\n"
+  const EOL = if std::os::OS_NAME == "windows" { "\r\n" } else { "\n" }
 }
 
-#(should_fail)
+#[should_fail]
 test "Keywords" {
   static pub priv
   fun return yield where async await
