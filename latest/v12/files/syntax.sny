@@ -226,9 +226,19 @@ test "Number" {
     fun add(&self, other: &T) -> O
   }
 
-  trait Integer : Add & Sub & Mul & Div & ... {}
-  trait Decimal : Integer {}
-  trait Number  : Integer | Decimal {}
+  trait Natural: Add & Sub & Mul & Div & ... {}
+  trait Integer: Natural {}
+  trait Decimal: Integer {}
+  trait Number: Integer | Decimal {}
+  trait Math: Number {
+    fun sqrt(&self) -> Self?
+    fun log10(&self) -> Self?
+    fun log2(&self) -> Self?
+  }
+
+  use Math
+  let n = 10f32.sqrt()
+
 
   impl Integer
   for
@@ -246,12 +256,12 @@ test "Number" {
 
   impl Add for Float32 {
     fun add(&self, other: &Int32) -> Float32 {
-      //
+      self + other.into()
     }
   }
   impl Add for Int32 {
     fun add(&self, other: &Float32) -> Int32 {
-      //
+      self + other.floor().into()
     }
   }
 }
