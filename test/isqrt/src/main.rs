@@ -12,7 +12,7 @@ fn prompt(text: &str) {
 
 fn main() -> Result<()> {
   let input: N = loop {
-    prompt("> ");
+    prompt("Insert a number to get its integer square root: ");
     match read()?.trim().parse() {
       Ok(n) => break n,
       Err(_) => {
