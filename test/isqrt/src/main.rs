@@ -115,7 +115,7 @@ fn main() -> Result<()> {
     result
   });
 
-  // fastest (O(1)??) but limited by lossy conversion
+  // fastest (O(1), const time??) but limited by lossy conversion
   test("Test 7: conversion + floor", input, |n| {
     (n as f64).sqrt().floor() as N
   });
