@@ -10,6 +10,12 @@ fn prompt(text: &str) {
   stdout().flush().unwrap();
 }
 
+fn read() -> Result<String> {
+  let mut buf = String::new();
+  stdin().read_line(&mut buf)?;
+  Ok(buf)
+}
+
 fn main() -> Result<()> {
   let input: N = loop {
     prompt("Insert a number to get its integer square root: ");
@@ -22,9 +28,10 @@ fn main() -> Result<()> {
     }
   };
 
-  println!("{}, {}, {}", N::MAX, N::MAX as f64, MAX_SAFE_INT);
+  println!("Calculating...");
+  println!();
 
-  test("Test 1: underestimate (r <= f(n))", input, |n| {
+  test("underestimate (r <= f(n))", input, |n| {
     let mut l = 0;
     while (l + 1) * (l + 1) <= n {
       l += 1;
@@ -32,7 +39,9 @@ fn main() -> Result<()> {
     l
   });
 
-  test("Test 2: linear search (asc) using addition", input, |n| {
+  // "overestimate (f(n) <= r)" was omitted because it's too slow
+
+  test("linear search (asc) using addition", input, |n| {
     let mut l = 0;
     let mut a = 1;
     let mut d = 3;
@@ -44,7 +53,7 @@ fn main() -> Result<()> {
     l
   });
 
-  test("Test 3: binary search", input, |n| {
+  test("binary search", input, |n| {
     let mut l = 0;
     let mut r = n + 1;
     while l != r - 1 {
@@ -58,7 +67,7 @@ fn main() -> Result<()> {
     l
   });
 
-  test("Test 4: Heron's method", input, |n| {
+  test("Heron's method", input, |n| {
     if n < 2 {
       return n;
     }
@@ -70,7 +79,7 @@ fn main() -> Result<()> {
     }
     x0
   });
-  
+
   fn recur_isqrt(n: N) -> N {
     if n < 2 {
       return n;
@@ -83,9 +92,10 @@ fn main() -> Result<()> {
       large_cand
     }
   }
-  test("Test 5: recursion with bitwise ops", input, recur_isqrt);
+  // seems to be the fastest, it may use a lot of memory
+  test("recursion with bitwise ops", input, recur_isqrt);
 
-  test("Test 6: iter with bitwise ops", input, |n| {
+  test("iter with bitwise ops", input, |n| {
     if n < 2 {
       return n;
     }
@@ -105,26 +115,26 @@ fn main() -> Result<()> {
     result
   });
 
-  test("Test 8: conversion + floor", input, |n| {
+  // fastest (O(1)??) but limited by lossy conversion
+  test("Test 7: conversion + floor", input, |n| {
     (n as f64).sqrt().floor() as N
   });
 
   Ok(())
 }
 
-fn read() -> Result<String> {
-  let mut buf = String::new();
-  stdin().read_line(&mut buf)?;
-  Ok(buf)
-}
+static mut TEST_COUNT: u8 = 0;
 
 fn test(desc: &str, n: N, f: fn(N) -> N) {
   if n >= MAX_SAFE_INT {
     panic!("n >= MAX_SAFE_INT");
   }
-  let sqrt: f64 = (n as f64).sqrt();
 
-  println!("{desc:?}");
+  // just a counter, why is it unsafe?
+  unsafe {
+    TEST_COUNT += 1;
+    println!("Test No. {TEST_COUNT}: {desc:?}");
+  }
 
   let runs = 10_000;
 
@@ -136,7 +146,6 @@ fn test(desc: &str, n: N, f: fn(N) -> N) {
   }
   let total = (sum / runs) as f64 / 1e5;
   let result = f(n);
-  println!("n.sqrt() = {sqrt:.5}");
   println!("isqrt({n}) = {result}");
   println!("Average: {total:.5} ms");
   println!();
