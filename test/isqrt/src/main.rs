@@ -1,12 +1,18 @@
-use std::io::*;
+use std::io::{ Write, Result, stdin, stdout };
 use std::time::Instant;
 
 type N = u64;
+const TWO: N = 2;
+const MAX_SAFE_INT: N = TWO.pow(63) - 1;
+
+fn prompt(text: &str) {
+  print!("{text}");
+  stdout().flush().unwrap();
+}
 
 fn main() -> Result<()> {
   let input: N = loop {
-    print!("> ");
-    stdout().flush()?;
+    prompt("> ");
     match read()?.trim().parse() {
       Ok(n) => break n,
       Err(_) => {
@@ -16,7 +22,7 @@ fn main() -> Result<()> {
     }
   };
 
-  println!("{}, {}, {}", N::MAX, N::MAX as f64, f64::MAX);
+  println!("{}, {}, {}", N::MAX, N::MAX as f64, MAX_SAFE_INT);
 
   test("Test 1: underestimate (r <= f(n))", input, |n| {
     let mut l = 0;
@@ -26,16 +32,7 @@ fn main() -> Result<()> {
     l
   });
 
-  // slowest
-  test("Test 2: overestimate (f(n) <= r)", input, |n| {
-    let mut r = n;
-    while r * r > n {
-      r -= 1;
-    }
-    r
-  });
-
-  test("Test 3: linear search (asc) using addition", input, |n| {
+  test("Test 2: linear search (asc) using addition", input, |n| {
     let mut l = 0;
     let mut a = 1;
     let mut d = 3;
@@ -47,7 +44,7 @@ fn main() -> Result<()> {
     l
   });
 
-  test("Test 4: binary search", input, |n| {
+  test("Test 3: binary search", input, |n| {
     let mut l = 0;
     let mut r = n + 1;
     while l != r - 1 {
@@ -61,7 +58,7 @@ fn main() -> Result<()> {
     l
   });
 
-  test("Test 5: Heron's method", input, |n| {
+  test("Test 4: Heron's method", input, |n| {
     if n < 2 {
       return n;
     }
@@ -86,9 +83,9 @@ fn main() -> Result<()> {
       large_cand
     }
   }
-  test("Test 6: recursion with bitwise ops", input, recur_isqrt);
+  test("Test 5: recursion with bitwise ops", input, recur_isqrt);
 
-  test("Test 7: iter with bitwise ops", input, |n| {
+  test("Test 6: iter with bitwise ops", input, |n| {
     if n < 2 {
       return n;
     }
@@ -122,6 +119,9 @@ fn read() -> Result<String> {
 }
 
 fn test(desc: &str, n: N, f: fn(N) -> N) {
+  if n >= MAX_SAFE_INT {
+    panic!("n >= MAX_SAFE_INT");
+  }
   let sqrt: f64 = (n as f64).sqrt();
 
   println!("{desc:?}");
