@@ -1,0 +1,122 @@
+/*
+enum ImportPath {
+  Single(String),
+  Multiple(List<ImportPath>),
+  File(String),
+}
+
+enum Type {
+  Nothing,
+  Infer,
+  Ref(String),
+  // PassGenerics()
+}
+
+enum ParamName {
+  Index(u64),
+  Name(String)
+}
+
+enum Expr {
+  Ref(String),
+  GetItem {
+    name: String,
+    value: Expr
+  },
+  Call {
+    value: Expr,
+    generics: Map<ParamName, Type>,
+    args: Map<ParamName, Expr>
+  }
+}
+
+enum Item {
+  Import {
+    path: ImportPath,
+    name: ImportPath
+  }
+  Const {
+    type_of: Type,
+    value: Expr
+  }
+}
+*/
+
+
+/*
+Item::Import {
+  path: ImportPath::Single("std"),
+  name: ImportPath::Single("env"),
+}
+*/
+use std::env
+/*
+Item::Import {
+  path: ImportPath::Single("discord"),
+  name: ImportPath::Multiple([
+    ImportPath::Single("Client"),
+    ImportPath::Single("Intents"),
+  ])
+}
+*/
+use discord::{ Client, Intents }
+
+/*
+Item::Const {
+  type_of: Type::Infer,
+  value: Expr::Call {
+    value: Expr::GetItem {
+      name: "get_var",
+      value: Expr::Ref("env")
+    },
+    generics: {},
+    args: {
+      ParamName::Index(0) => Expr::String("TOKEN")
+    }
+  }
+}
+*/
+const TOKEN = env::get_var("TOKEN")
+
+/*
+Item::Function {
+  name: "main",
+  generics: {},
+  params: {},
+  output: Type::Nothing,
+  body: [...]
+}
+*/
+fun main() {
+  /*
+  Expr::Let {
+    type_of: Type::Infer,
+    value: Expr::Construct {
+      path: Expr::Ref("Intents"),
+      generics: {},
+      
+    }
+  */
+  let permissions = Intents { GUILDS | MESSAGE_CONTENT }
+
+  var client = Client::new(permissions)
+
+  client.on("ready", () => {
+
+    println("Logged in as {client.user.username}!")
+
+  })
+
+  client.on("message_create", (msg) => {
+
+    if msg.content == "!ping" {
+
+      msg.reply("Pong!")
+
+    }
+
+  })
+
+  client.login(TOKEN)
+}
+
