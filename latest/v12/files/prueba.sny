@@ -13,15 +13,15 @@ enum Type {
 }
 
 enum ParamName {
-  Index(u64),
+  Index(usize),
   Name(String)
 }
 
 enum Expr {
   Ref(String),
   GetItem {
-    name: String,
-    value: Expr
+    value: Expr,
+    name: Expr,
   },
   Call {
     value: Expr,
@@ -33,7 +33,7 @@ enum Expr {
 enum Item {
   Import {
     path: ImportPath,
-    name: ImportPath
+    items: ImportPath
   }
   Const {
     type_of: Type,
@@ -66,8 +66,8 @@ Item::Const {
   type_of: Type::Infer,
   value: Expr::Call {
     value: Expr::GetItem {
-      name: "get_var",
-      value: Expr::Ref("env")
+      value: Expr::Ref("env"),
+      name: Expr::Ref("get_var"),
     },
     generics: {},
     args: {
@@ -91,23 +91,97 @@ fun main() {
   /*
   Expr::Let {
     type_of: Type::Infer,
-    value: Expr::Construct {
-      path: Expr::Ref("Intents"),
-      generics: {},
-      
+    value: Expr::GetItem {
+      name: Expr::BinOr(
+        &Expr::Ref("GUILDS"),
+        &Expr::Ref("MESSAGE_CONTENT")
+      ),
+      value: Type::Ref("Intents"),
     }
   */
-  let permissions = Intents { GUILDS | MESSAGE_CONTENT }
+  let permissions = Intents::{ GUILDS | MESSAGE_CONTENT }
 
+  /*
+  Expr::Var {
+    type_of: Type::Infer,
+    value: Expr::Call {
+      value: Expr::GetItem {
+        name: Expr::Ref("new"),
+        value: Type::Ref("Client")
+      },
+      generics: {},
+      args: {
+        ParamName::Index(0) => Expr::Ref("permissions")
+      }
+    }
+  */
   var client = Client::new(permissions)
 
+  /*
+  Expr::Call {
+    value: Expr::GetItem {
+      name: Expr::Ref("on"),
+      value: Type::Ref("client")
+    },
+    generics: {},
+    args: {
+      ParamName::Index(0) => Expr::String("ready"),
+      ParamName::Index(1) => Expr::Function {
+        name: "",
+        generics: {},
+        params: {},
+        body: [...]
+      }
+    }
+  }
+  */
   client.on("ready", () => {
-
+    /*
+    Expr::Call {
+      value: Expr::Ref("println"),
+      generics: {},
+      args: {
+        ParamName::Index(0) => Expr::FmtString([
+          Expr::String("Logged in as "),
+          Expr::GetItem {
+            name: Expr::Ref("username"),
+            value: Expr::GetProp {
+              name: "username",
+              value: Expr::Ref("client")
+            }
+          }
+          Expr::String("!")
+        ])
+      }
+    }
+    */
     println("Logged in as {client.user.username}!")
-
   })
 
-  client.on("message_create", (msg) => {
+  /*
+  Expr::Call {
+    value: Expr::GetItem {
+      name: Expr::Ref("on"),
+      value: Type::Ref("client")
+    },
+    generics: {},
+    args: {
+      ParamName::Index(0) => Expr::String("message_receive"),
+      ParamName::Index(1) => Expr::Function {
+        name: "",
+        generics: {},
+        params: {
+          ParamName::Index(0) => Param {
+            name: "msg",
+            type_of: Type::Infer
+          }
+        },
+        body: [...]
+      }
+    }
+  } 
+  */
+  client.on("message_receive", (msg) => {
 
     if msg.content == "!ping" {
 
