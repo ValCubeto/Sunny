@@ -2,3 +2,66 @@
 fun main() {
   println("Hello, world!")
 }
+
+/*
+global = {
+  std: Namespace
+  println: fun (impl Display) -> USize
+}
+*/
+
+/*
+struct Function {
+  name: Rc<str>,
+  params: *const [ ... ],
+}
+enum Item {
+  Function(Function)
+  // ...
+}
+struct File(HashMap<*const str, Item>);
+
+// ignore spaces, newlines, and comments
+fn next_token() {}
+
+// ignore spaces (not newlines) and comments
+fn skip_spaces() {}
+
+fn eof() -> bool {
+  next_char().is_none()
+}
+
+fn parse_keyword() -> String {
+}
+
+fn parse_file() -> File {
+  let file: File = File::new();
+  loop {
+    next_token();
+    if eof() {
+      return file;
+    }
+    let word = parse_keyword();
+    next_token();
+    match word.as_str() {
+      "fun" => {
+        let function = parse_function();
+        file.set(function.name, Item::Function(function));
+      }
+      // ...
+      other => syntax_err!("unknown or unexpected keyword: {other}")
+    };
+  }
+}
+
+fn parse_function() -> Function {
+  let name = parse_word();
+  next_token();
+  let params = parse_params();
+}
+
+fn parse_params() -> Vec<...> {
+}
+
+
+*/

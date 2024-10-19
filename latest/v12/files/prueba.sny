@@ -6,8 +6,8 @@ enum ImportPath {
 }
 
 enum Type {
+  Undefined,
   Nothing,
-  Infer,
   Ref(String),
   // PassGenerics()
 }
@@ -91,15 +91,16 @@ fun main() {
   /*
   Expr::Let {
     type_of: Type::Infer,
-    value: Expr::GetItem {
-      name: Expr::BinOr(
-        &Expr::Ref("GUILDS"),
-        &Expr::Ref("MESSAGE_CONTENT")
-      ),
-      value: Type::Ref("Intents"),
+    value: Expr::With {
+      value: Expr::Ref("Intents"),
+      body: Expr::Operation {
+        operator: Operator::BitwiseOr,
+        lhs: Expr::Ref("GUILDS"),
+        rhs: Expr::Ref("MESSAGE_CONTENT")
+      }
     }
   */
-  let permissions = Intents::{ GUILDS | MESSAGE_CONTENT }
+  let permissions = with Intents { GUILDS | MESSAGE_CONTENT }
 
   /*
   Expr::Var {
@@ -121,7 +122,7 @@ fun main() {
   Expr::Call {
     value: Expr::GetItem {
       name: Expr::Ref("on"),
-      value: Type::Ref("client")
+      value: Expr::Ref("client")
     },
     generics: {},
     args: {
@@ -132,10 +133,11 @@ fun main() {
         params: {},
         body: [...]
       }
-    }
+    },
+    output: Type::Ref("Nothing")
   }
   */
-  client.on("ready", () => {
+  client.on("ready", $(): Nothing => {
     /*
     Expr::Call {
       value: Expr::Ref("println"),
@@ -155,7 +157,9 @@ fun main() {
       }
     }
     */
-    println("Logged in as {client.user.username}!")
+    try {
+      println(f"Logged in as {client.user?.username?}!")
+    }
   })
 
   /*
@@ -173,7 +177,7 @@ fun main() {
         params: {
           ParamName::Index(0) => Param {
             name: "msg",
-            type_of: Type::Infer
+            type_of: Type::Undefined
           }
         },
         body: [...]
@@ -181,7 +185,7 @@ fun main() {
     }
   } 
   */
-  client.on("message_receive", (msg) => {
+  client.on("message_receive", $(msg) => {
 
     if msg.content == "!ping" {
 
@@ -193,4 +197,3 @@ fun main() {
 
   client.login(TOKEN)
 }
-

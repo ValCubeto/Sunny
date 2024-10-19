@@ -59,10 +59,9 @@ test "Operators" {
 }
 
 test "Collections" {
-  [1, 2, 3]
-  {"1" => "one", "2" => "two"}
-  {x: 1, y: 2}
-  {} as Dict
+  [1, 2, 3] // Array
+  {"1" => "one", "2" => "two"} // Map
+  {x: 1, y: 2} // Map
 }
 
 test "Variables" {
@@ -76,9 +75,9 @@ test "Variables" {
   var mutable = "I'm mutable"
   mutable = "I changed"
   assert!(mutable == "I changed")
-  match try { inmutable = "I can't change" } {
-    Ok(_) => panic("Shouldn't be able to change this immutable value...")
-    Err(what) => println!("Error when trying to change an immutable value: {}", what)
+  match try { inmutable = "I won't change" } {
+    Ok(_) => panic("Shouldn't be able to change this value...")
+    Err(what) => println!("Error: {}", what)
   }
 }
 
