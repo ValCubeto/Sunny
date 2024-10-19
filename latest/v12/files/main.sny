@@ -15,6 +15,10 @@ struct Function {
   name: Rc<str>,
   params: *const [ ... ],
 }
+struct Variable {
+  typing: Type,
+  value: Value
+}
 enum Item {
   Function(Function)
   // ...

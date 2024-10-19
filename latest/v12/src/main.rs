@@ -1,10 +1,13 @@
 #[macro_use]
 mod macros;
+
 #[allow(unused)]
 #[macro_use]
 mod errors;
+
 #[allow(unused)]
 mod parse;
+
 #[allow(unused)]
 mod colors;
 
