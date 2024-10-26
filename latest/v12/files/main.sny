@@ -58,10 +58,10 @@ fn parse_file() -> File {
     match word.as_str() {
       "fun" => {
         let function = parse_function();
-        file.set(function.name, Item::Function(function));
+        file.set(function.name.clone(), Item::Function(function));
       }
       // ...
-      other => syntax_err!("unknown or unexpected keyword: {other}")
+      other => syntax_err!("unexpected token: {other}")
     };
   }
 }
@@ -73,6 +73,18 @@ fn parse_function() -> Function {
 }
 
 fn parse_params() -> Vec<...> {
+  expect('(');
+  next_token();
+  let mut params = Vec::new();
+  loop {
+    let param = parse_word();
+    params.push(param);
+    next_token();
+    if eof() || current() == ')' {
+      return params;
+    }
+    sep_or_nl(',');
+  }
 }
 
 
