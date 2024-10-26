@@ -6,14 +6,22 @@ fun main() {
 /*
 global = {
   std: Namespace
-  println: fun (impl Display) -> USize
+  println: $(impl Display) -> USize
+  Int*, Float*, USize, ISize: NumericType
+  Bool: enum { True, False }
+  Ordering: enum { Less, Equal, Great }
+  Result: enum { Ok, Err }
+  Option: enum { Some, None }
+  Array: priv Struct { ptr: USize, len: USize, cap?: USize }
+  String: priv Struct { arr: Array }
+  Function: priv Struct { name: String }
 }
 */
 
 /*
 struct Function {
   name: Rc<str>,
-  params: *const [ ... ],
+  params: Box<[ ... ]>,
 }
 struct Variable {
   typing: Type,
@@ -23,7 +31,7 @@ enum Item {
   Function(Function)
   // ...
 }
-struct File(HashMap<*const str, Item>);
+struct File(HashMap<Box<str>, Item>);
 
 // ignore spaces, newlines, and comments
 fn next_token() {}
