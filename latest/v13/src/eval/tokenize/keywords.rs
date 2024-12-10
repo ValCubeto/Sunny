@@ -1,4 +1,5 @@
 #[allow(unused)]
+#[derive(Debug)]
 pub enum Keyword {
   Use,
   As,

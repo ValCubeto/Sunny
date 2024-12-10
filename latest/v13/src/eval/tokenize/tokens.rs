@@ -1,6 +1,7 @@
 use super::keywords::Keyword;
 
 #[allow(unused)]
+#[derive(Debug)]
 pub enum Token {
   /// `\n`, `\r\n`
   NewLine,
@@ -40,6 +41,8 @@ pub enum Token {
   Percent,
   /// `=`
   Equal,
+  /// `^`
+  Xor,
   /// `&`
   And,
   /// `|`
@@ -64,16 +67,39 @@ pub enum Token {
   /// `>=`
   GreaterEqual,
   /// `&&`
-  AndAnd,
+  LogicalAnd,
   /// `||`
-  OrOr,
+  LogicalOr,
   /// `=>`
   Arrow,
+
+  /// `+=`
+  AddAssign,
+  /// `-=`
+  SubAssign,
+  /// `*=`
+  MulAssign,
+  /// `/=`
+  DivAssign,
+  /// `%=`
+  ModAssign,
+  /// `^=`
+  XorAssign,
+  /// `&=`
+  AndAssign,
+  /// `|=`
+  OrAssign,
+  /// `&&=`
+  LogicalAndAssign,
+  /// `||=`
+  LogicalOrAssign,
 
   /// `if`, `fun`, `for`, etc
   Keyword(Keyword),
   /// Any valid variable name
   Ident(String),
+
+  String(String),
 
   /// `0`-`9`
   Int(String),

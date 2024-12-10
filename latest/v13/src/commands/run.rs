@@ -26,12 +26,12 @@ fn parse_file_path(cwd: &Path, input: &str) -> PathBuf {
   }
   let path = input.trim();
   let mut path = PathBuf::from(path);
-  // main -> main.sny
   if !path.exists() {
     let mut path2 = path.clone();
+    // main -> main.sny
     path2.set_extension(EXTENSION);
     if !path2.exists() {
-      eprintln!("{}: File \"{}\" does not exist", "Argument error".error(), cwd.join(path).display());
+      eprintln!("{}: File \"{}\" does not exist", "Argument error".error(), cwd.join(path2).display());
       exit(1);
     }
     path.set_extension(EXTENSION);
