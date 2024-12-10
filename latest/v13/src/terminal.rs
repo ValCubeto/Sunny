@@ -86,6 +86,18 @@ pub trait Stylize: Display {
     fn bg_bright_magenta() => (BG_BRIGHT_MAGENTA, BG_END);
     fn bg_bright_cyan() => (BG_BRIGHT_CYAN, BG_END);
   }
+  fn error(&self) -> String {
+    self.red().bold()
+  }
+  fn warning(&self) -> String {
+    self.yellow().bold()
+  }
+  fn info(&self) -> String {
+    self.cyan().bold()
+  }
+  fn success(&self) -> String {
+    self.green().bold()
+  }
 }
 impl<T: Display> Stylize for T {}
 
@@ -115,7 +127,7 @@ macro_rules! debug_msg {
     #[allow(unused_imports)]
     use $crate::terminal::Stylize;
     use chrono::Local;
-    let path = format!("{}:{:03}:{:03}", file!(), line!(), column!());
+    let path = format!("{}:{}:{}", file!(), line!(), column!());
     let date = Local::now().format("%d-%m-%y %H:%M:%S");
     let out = format!($($arg),*);
     println!("[{} at {}, {}]", "Debug".cyan().bold(), path.bold(), date.bold());

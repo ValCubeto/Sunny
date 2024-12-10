@@ -61,5 +61,8 @@ pub fn parse() -> ParsedArgs {
     }
     args.push(arg);
   }
+  for arg in argv {
+    args.push(arg);
+  }
   ParsedArgs::new(this, command, input, flags, args)
 }
