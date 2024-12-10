@@ -11,7 +11,7 @@ pub fn run(args: ParsedArgs) {
   debug!(file_path);
 }
 
-// TODO: if current_dir() errors, get the path from args.this
+// TODO: if current_dir() errors, get the path from args.this.parent()
 fn parse_file_path(input: String) -> PathBuf {
   if input.is_empty() {
     // TODO: read from Sunny.toml
