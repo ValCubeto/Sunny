@@ -2,7 +2,7 @@ mod keywords;
 mod tokens;
 use tokens::Token::{self, *};
 
-/// ```sny
+/// ```rs
 /// fun main() {
 ///   println("Hello, world!")
 /// }
