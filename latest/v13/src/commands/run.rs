@@ -1,18 +1,24 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::env::current_dir;
 use std::process::exit;
 use crate::args::ParsedArgs;
+use crate::ctx::Ctx;
 use crate::strings::EXTENSION;
-use crate::debug;
+use crate::{ debug, debug_msg };
+use crate::eval::eval;
 use crate::terminal::Stylize;
 
 pub fn run(args: ParsedArgs) {
-  let file_path = parse_file_path(args.input);
-  debug!(file_path);
+  let cwd = current_dir().unwrap();
+  let file_path = parse_file_path(&cwd, &args.input);
+  debug_msg!("Working with {}", cwd.join(&file_path).display());
+  let ctx = Ctx::new(cwd, args);
+  let contents = std::fs::read_to_string(file_path).unwrap();
+  debug!(contents);
+  eval(contents, ctx);
 }
 
-// TODO: if current_dir() errors, get the path from args.this.parent()
-fn parse_file_path(input: String) -> PathBuf {
+fn parse_file_path(cwd: &Path, input: &str) -> PathBuf {
   if input.is_empty() {
     // TODO: read from Sunny.toml
     eprintln!("{}: No input file specified", "Argument error".error());
@@ -25,13 +31,13 @@ fn parse_file_path(input: String) -> PathBuf {
     let mut path2 = path.clone();
     path2.set_extension(EXTENSION);
     if !path2.exists() {
-      eprintln!("{}: File \"{}\" does not exist", "Argument error".error(), current_dir().unwrap().join(path).display());
+      eprintln!("{}: File \"{}\" does not exist", "Argument error".error(), cwd.join(path).display());
       exit(1);
     }
     path.set_extension(EXTENSION);
   }
   if !path.is_file() {
-    eprintln!("{}: \"{}\" is not a file", "Argument error".error(), current_dir().unwrap().join(path).display());
+    eprintln!("{}: \"{}\" is not a file", "Argument error".error(), cwd.join(path).display());
     exit(1);
   }
   path
