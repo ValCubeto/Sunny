@@ -1,6 +1,7 @@
+// single-line comments
+/*
+  multi-line comments
+*/
+"\tSome \e32m\\\"\u{65}scape\e39m sequences\\\"\r\n\0"
 
-
-
-fun main() {
-  println("Hello, world!")
-}
+const MSG: String = "Hello, world!"

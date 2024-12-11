@@ -1,8 +1,10 @@
+#[macro_use]
+mod imports;
+#[macro_use]
+mod terminal;
 mod strings;
 mod args;
 mod commands;
-mod imports;
-mod terminal;
 mod eval;
 mod ctx;
 

@@ -1,8 +1,7 @@
 use crate::args::ParsedArgs;
 use crate::terminal::Stylize;
-use crate::use_fn;
 
-use_fn!(help, version, run, init);
+use_item!(help, version, run, init);
 
 pub fn run_cmd(args: ParsedArgs) {
   match args.command.as_str() {

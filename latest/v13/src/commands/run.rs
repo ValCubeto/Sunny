@@ -1,10 +1,9 @@
-use std::path::{Path, PathBuf};
+use std::path::{ Path, PathBuf };
 use std::env::current_dir;
 use std::process::exit;
 use crate::args::ParsedArgs;
 use crate::ctx::Ctx;
 use crate::strings::EXTENSION;
-use crate::{ debug, debug_msg };
 use crate::eval::eval;
 use crate::terminal::Stylize;
 

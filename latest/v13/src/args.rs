@@ -1,4 +1,3 @@
-extern crate hashbrown;
 use hashbrown::HashMap;
 use std::env;
 

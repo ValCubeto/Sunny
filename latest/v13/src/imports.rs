@@ -1,6 +1,5 @@
-
 #[macro_export]
-macro_rules! use_fn {
+macro_rules! use_item {
   ($($cmd:ident),*) => {
     $(
       mod $cmd;

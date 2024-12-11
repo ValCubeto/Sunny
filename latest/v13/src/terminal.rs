@@ -134,3 +134,19 @@ macro_rules! debug_msg {
     println!("{}", out);
   }};
 }
+
+#[macro_export]
+macro_rules! syntax_err {
+  ($($arg:expr),*) => {{
+    $crate::quit!("Syntax error", $($arg),*);
+  }};
+}
+
+#[macro_export]
+macro_rules! quit {
+  ($ename:expr, $($arg:expr),*) => {{
+    use $crate::terminal::Stylize;
+    eprintln!("{}: {}", $ename.error(), format!($($arg),*));
+    std::process::exit(1);
+  }};
+}
