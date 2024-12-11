@@ -1,7 +1,11 @@
 // single-line comments
+
 /*
   multi-line comments
 */
-"\tSome \e32m\\\"\u{65}scape\e39m sequences\\\"\r\n\0"
+
+use std::env::args as get_args; ;
+
+"\tSome \e[32m\\\"\u{65}scape\e[39m sequences\\\"\r\n\0"
 
 const MSG: String = "Hello, world!"

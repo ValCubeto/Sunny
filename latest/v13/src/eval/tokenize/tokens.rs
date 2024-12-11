@@ -52,6 +52,8 @@ pub enum Token {
   /// `!`
   Bang,
 
+  /// `**`
+  DoubleStar,
   /// `..`
   DoubleDot,
   /// `...`

@@ -31,7 +31,10 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           chars.next();
         }
         debug_msg!("Skipped: {skipped:?}");
-        tokens.push(Tk::NewLine)
+        // Idk how to negate this condition
+        if let Some(Tk::NewLine) = tokens.last() {} else {
+          tokens.push(Tk::NewLine);
+        }
       }
       '<' => {
         if chars.peek() == Some(&'=') {
@@ -77,8 +80,11 @@ pub fn tokenize(input: String) -> Vec<Tk> {
             break;
           }
           chars.next();
+          skip_spaces(&mut chars);
         }
-        tokens.push(Tk::Semicolon);
+        if let Some(Tk::Semicolon) = tokens.last() {} else {
+          tokens.push(Tk::Semicolon);
+        }
       }
       '+' => {
         if chars.peek() == Some(&'=') {
@@ -96,13 +102,16 @@ pub fn tokenize(input: String) -> Vec<Tk> {
         }
         tokens.push(Tk::Minus);
       }
-      '*' => {
-        if chars.peek() == Some(&'=') {
+      '*' => match chars.peek() {
+        Some('=') => {
           chars.next();
           tokens.push(Tk::MulAssign);
-          continue;
         }
-        tokens.push(Tk::Star);
+        Some('*') => {
+          chars.next();
+          tokens.push(Tk::DoubleStar);
+        }
+        _ => tokens.push(Tk::Star)
       }
       '/' => match chars.peek() {
         Some('=') => {
@@ -117,7 +126,6 @@ pub fn tokenize(input: String) -> Vec<Tk> {
             }
             chars.next();
           }
-          // tokens.push(Tk::Comment);
         }
         Some('*') => {
           chars.next();
@@ -133,10 +141,8 @@ pub fn tokenize(input: String) -> Vec<Tk> {
             chars.next();
           }
           if chars.peek().is_none() {
-            eprintln!("Unclosed comment!!");
-            std::process::exit(1);
+            syntax_err!("Unclosed comment!!");
           }
-          // tokens.push(Tk::Comment);
         }
         _ => tokens.push(Tk::Slash)
       }
@@ -210,6 +216,22 @@ pub fn tokenize(input: String) -> Vec<Tk> {
         }
         tokens.push(Tk::Equal);
       }
+      '0' => match chars.peek() {
+        Some('x') => {
+          chars.next();
+          tokens.push(Tk::HexNumber(parse_hex(&mut chars)));
+        }
+        Some('b') => {
+          chars.next();
+          tokens.push(Tk::BinNumber(parse_bin(&mut chars)));
+        }
+        Some(&d) if d.is_ascii_digit() => {
+          tokens.push(Tk::Int(parse_int(&mut chars, d)));
+          chars.next();
+        }
+        _ => tokens.push(Tk::Int("0".to_owned()))
+      }
+      d @ '1'..='9' => tokens.push(Tk::Int(parse_int(&mut chars, d))),
       'a'..='z' | 'A'..='Z' | '_' => {
         let mut word = String::from(ch);
         while let Some(&ch) = chars.peek() {
@@ -258,7 +280,7 @@ pub fn parse_string(chars: &mut Peekable<Chars>) -> String {
           Some('r') => string.push('\r'),
           Some('t') => string.push('\t'),
           Some('0') => string.push('\0'),
-          Some('e') => string.push_str("\x1b["),
+          Some('e') => string.push('\x1b'),
           Some('u') => {
             if chars.next() != Some('{') {
               syntax_err!("expected '{{' after '\\u'");
@@ -301,4 +323,40 @@ pub fn parse_string(chars: &mut Peekable<Chars>) -> String {
     syntax_err!("unterminated string");
   }
   string
+}
+
+pub fn parse_int(chars: &mut Peekable<Chars>, digit: char) -> String {
+  let mut int = String::from(digit);
+  while let Some(&ch) = chars.peek() {
+    if !ch.is_ascii_digit() {
+      break;
+    }
+    int.push(ch);
+    chars.next();
+  }
+  int
+}
+
+pub fn parse_hex(chars: &mut Peekable<Chars>) -> String {
+  let mut hex = String::new();
+  while let Some(&ch) = chars.peek() {
+    if !ch.is_ascii_hexdigit() {
+      break;
+    }
+    chars.next();
+    hex.push(ch);
+  }
+  hex
+}
+
+pub fn parse_bin(chars: &mut Peekable<Chars>) -> String {
+  let mut bin = String::new();
+  while let Some(&ch) = chars.peek() {
+    if !matches!(ch, '0' | '1') {
+      break;
+    }
+    chars.next();
+    bin.push(ch);
+  }
+  bin
 }
