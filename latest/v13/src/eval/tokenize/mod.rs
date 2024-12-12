@@ -1,5 +1,5 @@
-mod keywords;
-mod tokens;
+pub mod keywords;
+pub mod tokens;
 use std::iter::Peekable;
 use std::str::Chars;
 use keywords::Keyword;

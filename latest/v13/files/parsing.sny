@@ -1,0 +1,44 @@
+const MSG: String = "Hello, world!"
+state COUNT: Int32 = 0
+
+struct Color {
+  |r, g, b|: UInt8
+}
+
+enum Gender {
+  Male
+  Female
+}
+
+bitset Stats {
+  alive = True
+  gender: Gender
+  friendly
+}
+
+class Cat {
+  struct {
+    name: String
+    color: Color,
+    stats: Stats
+  }
+  argstruct (String, Color, Stats):
+  fun new(name, color, stats) -> Self {
+    return Cat { name, color, stats }
+  }
+}
+
+fun main() {
+  println({ msg: MSG })
+  println({ count: COUNT })
+  COUNT += 1
+  println({ count: COUNT })
+
+  let color = Color { r: 200, g: 150, b: 50 }
+  let stats = Stats { gender: Male, friendly: True }
+  var cat = Cat::new("Tom", color, stats)
+  println({ cat })
+  cat.stats.alive = False
+  println("Tom died...")
+  println({ cat })
+}

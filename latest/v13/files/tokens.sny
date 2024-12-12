@@ -11,7 +11,8 @@
 
 use as
 pub priv
-const var let
+const state
+let var
 typedef
 struct enum bitset idea 
 class extends where impl

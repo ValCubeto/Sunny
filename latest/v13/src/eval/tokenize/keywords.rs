@@ -8,8 +8,9 @@ pub enum Keyword {
   Private,
 
   Const,
-  Var,
+  State,
   Let,
+  Var,
 
   TypeDef,
 
