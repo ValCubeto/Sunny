@@ -20,6 +20,15 @@ pub fn tokenize(input: String) -> Vec<Tk> {
       '[' => tokens.push(Tk::LeftBracket),
       ']' => tokens.push(Tk::RightBracket),
       ',' => tokens.push(Tk::Comma),
+      '?' => tokens.push(Tk::Question),
+      '!' => match chars.peek() {
+        Some('=') => {
+          chars.next();
+          tokens.push(Tk::NotEqual);
+          continue;
+        }
+        _ => tokens.push(Tk::Bang)
+      }
       '\n' | '\r' => {
         let mut skipped = String::from(ch);
         // Collect all the new line characters
@@ -36,21 +45,41 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           tokens.push(Tk::NewLine);
         }
       }
-      '<' => {
-        if chars.peek() == Some(&'=') {
+      '<' => match chars.peek() {
+        Some('>') => {
+          chars.next();
+          tokens.push(Tk::Diamond);
+        }
+        Some('=') => {
           chars.next();
           tokens.push(Tk::LessEqual);
-          continue;
         }
-        tokens.push(Tk::LeftAngle);
+        Some('<') => {
+          chars.next();
+          if chars.peek() == Some(&'=') {
+            chars.next();
+            tokens.push(Tk::LeftShiftAssign);
+            continue;
+          }
+          tokens.push(Tk::LeftShift);
+        }
+        _ => tokens.push(Tk::LeftAngle)
       }
-      '>' => {
-        if chars.peek() == Some(&'=') {
+      '>' => match chars.peek() {
+        Some('=') => {
           chars.next();
           tokens.push(Tk::GreaterEqual);
-          continue;
         }
-        tokens.push(Tk::RightAngle);
+        Some('>') => {
+          chars.next();
+          if chars.peek() == Some(&'=') {
+            chars.next();
+            tokens.push(Tk::RightShiftAssign);
+            continue;
+          }
+          tokens.push(Tk::RightShift);
+        }
+        _ => tokens.push(Tk::RightAngle)
       }
       '.' => {
         if chars.peek() == Some(&'.') {
@@ -109,6 +138,11 @@ pub fn tokenize(input: String) -> Vec<Tk> {
         }
         Some('*') => {
           chars.next();
+          if chars.peek() == Some(&'=') {
+            chars.next();
+            tokens.push(Tk::PowAssign);
+            continue;
+          }
           tokens.push(Tk::DoubleStar);
         }
         _ => tokens.push(Tk::Star)
@@ -162,60 +196,57 @@ pub fn tokenize(input: String) -> Vec<Tk> {
         }
         tokens.push(Tk::Xor);
       }
-      '&' => {
-        match chars.peek() {
-          // `&&`
-          Some(&'&') => {
+      '&' => match chars.peek() {
+        // `&&`
+        Some(&'&') => {
+          chars.next();
+          // `&&=`
+          if chars.peek() == Some(&'=') {
             chars.next();
-            // `&&=`
-            if chars.peek() == Some(&'=') {
-              chars.next();
-              tokens.push(Tk::LogicalAndAssign);
-              continue;
-            }
-            tokens.push(Tk::LogicalAnd);
+            tokens.push(Tk::LogicalAndAssign);
             continue;
           }
-          // `&=`
-          Some(&'=') => {
-            tokens.push(Tk::AndAssign);
-            continue;
-          }
-          _ => {}
+          tokens.push(Tk::LogicalAnd);
         }
-        tokens.push(Tk::And);
+        // `&=`
+        Some(&'=') => {
+          chars.next();
+          tokens.push(Tk::AndAssign);
+        }
+        _ => tokens.push(Tk::And)
       }
-      '|' => {
-        match chars.peek() {
-          // `||`
-          Some(&'|') => {
+      '|' => match chars.peek() {
+        // `||`
+        Some(&'|') => {
+          chars.next();
+          // `||=`
+          if chars.peek() == Some(&'=') {
             chars.next();
-            // `||=`
-            if chars.peek() == Some(&'=') {
-              chars.next();
-              tokens.push(Tk::LogicalOrAssign);
-              continue;
-            }
-            tokens.push(Tk::LogicalOr);
+            tokens.push(Tk::LogicalOrAssign);
             continue;
           }
-          // `|=`
-          Some(&'=') => {
-            tokens.push(Tk::OrAssign);
-            continue;
-          }
-          _ => {}
+          tokens.push(Tk::LogicalOr);
         }
-        tokens.push(Tk::Or);
+        // `|=`
+        Some(&'=') => {
+          chars.next();
+          tokens.push(Tk::OrAssign);
+        }
+        _ => tokens.push(Tk::Or)
       }
-      '=' => {
-        if chars.peek() == Some(&'=') {
+      '=' => match chars.peek() {
+        Some('=') => {
           chars.next();
           tokens.push(Tk::DoubleEqual);
           continue;
         }
-        tokens.push(Tk::Equal);
-      }
+        Some('>') => {
+          chars.next();
+          tokens.push(Tk::Arrow);
+          continue;
+        }
+        _ => tokens.push(Tk::Equal)
+      },
       '0' => match chars.peek() {
         Some('x') => {
           chars.next();

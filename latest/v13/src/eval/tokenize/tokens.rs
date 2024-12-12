@@ -64,6 +64,12 @@ pub enum Token {
   DoubleEqual,
   /// `!=`
   NotEqual,
+  /// `<>`
+  Diamond,
+  /// `<<`
+  LeftShift,
+  /// `>>`
+  RightShift,
   /// `<=`
   LessEqual,
   /// `>=`
@@ -95,6 +101,12 @@ pub enum Token {
   LogicalAndAssign,
   /// `||=`
   LogicalOrAssign,
+  /// `<<=`
+  LeftShiftAssign,
+  /// `>>=`
+  RightShiftAssign,
+  /// `**=`
+  PowAssign,
 
   /// `if`, `fun`, `for`, etc
   Keyword(Keyword),

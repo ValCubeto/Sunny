@@ -3,24 +3,35 @@
 pub enum Keyword {
   Use,
   As,
-  From,
+
+  Public,
+  Private,
 
   Const,
   Var,
   Let,
 
-  Class,
-  Extends,
+  TypeDef,
+
   Struct,
   Enum,
   BitSet,
   Idea,
+
+  Class,
+  Extends,
+  Where,
   Impl,
 
   ArgStruct,
-  Where,
   Fun,
+  Defer,
   Return,
+
+  Unsafe,
+
+  Async,
+  Await,
 
   Loop,
   While,
@@ -36,6 +47,7 @@ pub enum Keyword {
   Is,
 
   Macro,
+  Case,
 }
 
 impl Keyword {
@@ -45,7 +57,6 @@ impl Keyword {
     let keyword = match input {
       "use" => Use,
       "as" => As,
-      "from" => From,
       "const" => Const,
       "var" => Var,
       "let" => Let,
@@ -71,6 +82,14 @@ impl Keyword {
       "macro" => Macro,
       "extends" => Extends,
       "bitset" => BitSet,
+      "defer" => Defer,
+      "unsafe" => Unsafe,
+      "async" => Async,
+      "await" => Await,
+      "case" => Case,
+      "pub" => Public,
+      "priv" => Private,
+      "typedef" => TypeDef,
       _ => return None,
     };
     Some(keyword)
