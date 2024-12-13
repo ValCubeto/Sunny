@@ -29,16 +29,22 @@ class Cat {
 }
 
 fun main() {
-  println({ msg: MSG })
-  println({ count: COUNT })
+  println({{ msg: MSG }})
+  println({{ count: COUNT }})
   COUNT += 1
-  println({ count: COUNT })
+  println({{ count: COUNT }})
 
   let color = Color { r: 200, g: 150, b: 50 }
   let stats = Stats { gender: Male, friendly: True }
   var cat = Cat::new("Tom", color, stats)
-  println({ cat })
+  println({{ cat }})
   cat.stats.alive = False
   println("Tom died...")
-  println({ cat })
+  println({{ cat }})
+
+  let map = {{
+    key: "value",
+    "key2" => "value2",
+    MSG
+  }}
 }

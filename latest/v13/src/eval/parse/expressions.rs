@@ -1,4 +1,8 @@
+use super::values::Value;
+
+#[derive(Debug)]
 pub enum Expr {
+  Single(Value),
   Add,
   Sub,
   Mul,
@@ -10,5 +14,5 @@ pub enum Expr {
   For,
 
   Let,
-  Var
+  Var,
 }

@@ -51,6 +51,12 @@ pub enum Keyword {
   Case,
 }
 
+impl std::fmt::Display for Keyword {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", format!("{self:?}").to_lowercase())
+  }
+}
+
 impl Keyword {
   // march parse(&word) { Some(k) => Keyword(k), None => Ident(word) }
   pub fn parse(input: &str) -> Option<Self> {
