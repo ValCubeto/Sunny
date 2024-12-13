@@ -24,6 +24,7 @@ pub fn parse_static(mutable: bool, tokens: &mut Iter<'_, Token>) -> Entity {
     syntax_err!("expected `=`");
   };
   // let value: parse_expr(tokens);
+  todo!();
   Entity {
     metadata: Metadata::new().set_mutable(mutable as u8),
     item: Item::Const(Variable {

@@ -1,4 +1,8 @@
+use std::slice::Iter;
+
 use super::keywords::Keyword;
+
+pub type Tokens<'a> = Iter<'a, Token>;
 
 #[allow(unused)]
 #[derive(Debug)]

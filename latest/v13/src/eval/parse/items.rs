@@ -1,4 +1,4 @@
-use super::constants::Const;
+use super::constants::Variable;
 
 #[allow(unused)]
 #[derive(Debug)]
@@ -14,6 +14,7 @@ pub enum Item {
   Macro,
 }
 
+#[derive(Debug)]
 pub struct Entity {
   pub metadata: Metadata,
   pub item: Item,
@@ -48,5 +49,13 @@ impl Metadata {
   pub fn set_mutable(mut self, is_mutable: M) -> Self {
     self.0 ^= is_mutable << Self::IS_MUTABLE;
     self
+  }
+}
+impl std::fmt::Debug for Metadata {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.debug_struct("Metadata")
+      .field("public", &self.public())
+      .field("mutable", &self.mutable())
+      .finish()
   }
 }
