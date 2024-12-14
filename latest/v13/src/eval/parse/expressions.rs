@@ -22,21 +22,24 @@ fn expect_value(value: &Token) -> Expr {
   })
 }
 
+type E = Box<Expr>;
+
+#[allow(unused)]
 #[derive(Debug)]
 pub enum Expr {
   Single(Value),
-  Add(Box<Expr>, Box<Expr>),
-  Sub,
-  Mul,
-  Div,
-  Mod,
-  Pow,
+  Add(E, E),
+  Sub(E, E),
+  Mul(E, E),
+  Div(E, E),
+  Mod(E, E),
+  Pow(E, E),
 
-  If,
-  For,
+  // If(E, E),
+  // For(E, E),
 
-  Let,
-  Var,
+  // Let(E, E),
+  // Var(E, E),
 }
 
 impl Expr {

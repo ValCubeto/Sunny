@@ -128,6 +128,8 @@ pub enum Token {
   /// `0b` + `0`-`1`
   BinNumber(String),
 }
+
+#[allow(unused)]
 impl Token {
   #[inline]
   pub fn ptr(self) -> Box<Token> {

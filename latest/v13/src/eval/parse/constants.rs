@@ -3,7 +3,6 @@ use crate::eval::tokenize::tokens::{ Token, Tokens };
 use super::expressions::{ Expr, parse_expr };
 use super::items::{ Entity, Item, Metadata };
 use super::types::Type;
-use super::values::Value;
 
 // Parse const and state in one function
 pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
@@ -36,6 +35,7 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
   }
 }
 
+#[allow(unused)]
 #[derive(Debug)]
 /// Any const, state, let, or var
 pub struct Variable {

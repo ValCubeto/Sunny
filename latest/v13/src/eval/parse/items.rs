@@ -14,6 +14,7 @@ pub enum Item {
   Macro,
 }
 
+#[allow(unused)]
 #[derive(Debug)]
 pub struct Entity {
   pub metadata: Metadata,
@@ -23,6 +24,7 @@ pub struct Entity {
 // This is a bit set btw
 type M = u8;
 pub struct Metadata(M);
+#[allow(unused)]
 impl Metadata {
   pub const TRUE:  M = 1;
   pub const FALSE: M = 0;

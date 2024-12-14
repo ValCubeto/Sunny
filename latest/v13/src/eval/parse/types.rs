@@ -1,9 +1,10 @@
 use hashbrown::HashMap;
-use crate::eval::tokenize::tokens::{Token, Tokens};
+use crate::eval::tokenize::tokens::{ Token, Tokens };
 
 // TODO: `I for T`, `<T>`
 
 // T<A, B: C>
+#[allow(unused)]
 #[derive(Debug)]
 pub struct Type {
   pub name: String,
@@ -11,7 +12,7 @@ pub struct Type {
 }
 
 pub fn parse_type(tokens: &mut Tokens) -> Option<Type> {
-  let mut generics = HashMap::new();
+  let generics = HashMap::new();
   let name = match tokens.next()? {
     Token::Ident(ident) => ident.clone(),
     Token::LeftAngle => todo!(),
