@@ -44,7 +44,7 @@ impl Metadata {
     self
   }
   pub fn mutable(&self) -> bool {
-    self.0 & Self::IS_MUTABLE != 0
+    self.0 & (1 << Self::IS_MUTABLE) != 0
   }
   pub fn set_mutable(mut self, is_mutable: M) -> Self {
     self.0 ^= is_mutable << Self::IS_MUTABLE;

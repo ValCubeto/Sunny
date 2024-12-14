@@ -10,7 +10,7 @@ use super::tokenize::keywords::Keyword as Kw;
 
 pub fn parse(tokens: Vec<Tk>) -> Vec<Entity> {
   let mut items = Vec::new();
-  let mut tokens = tokens.iter();
+  let mut tokens = tokens.iter().peekable();
   while let Some(token) = tokens.next() {
     let item = match token {
       Tk::NewLine | Tk::Semicolon => continue,
@@ -38,5 +38,6 @@ pub fn parse(tokens: Vec<Tk>) -> Vec<Entity> {
     };
     items.push(item);
   }
+  debug!(items);
   items
 }

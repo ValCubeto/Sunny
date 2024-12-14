@@ -1,36 +1,37 @@
-use std::slice::Iter;
-use hashbrown::HashMap;
-
-use crate::eval::tokenize::tokens::Token;
-use super::expressions::Expr;
-use super::items::{Entity, Item, Metadata};
+use crate::eval::parse::types::parse_type;
+use crate::eval::tokenize::tokens::{ Token, Tokens };
+use super::expressions::{ Expr, parse_expr };
+use super::items::{ Entity, Item, Metadata };
 use super::types::Type;
 use super::values::Value;
 
 // Parse const and state in one function
-pub fn parse_static(mutable: bool, tokens: &mut Iter<'_, Token>) -> Entity {
+pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
   // skip non-relevant tokens
-  while let Some(Token::NewLine | Token::Semicolon) = tokens.next() {};
-  let Some(ident) = tokens.next() else {
+  while let Some(Token::NewLine | Token::Semicolon) = tokens.peek() {
+    tokens.next();
+  };
+  let Some(Token::Ident(ident)) = tokens.next() else {
     syntax_err!("expected identifier");
   };
   let Some(Token::Colon) = tokens.next() else {
     syntax_err!("expected `:`");
   };
-  let Some(Token::Ident(typing)) = tokens.next() else {
+  let Some(typing) = parse_type(tokens) else {
     syntax_err!("expected type");
   };
   let Some(Token::Equal) = tokens.next() else {
     syntax_err!("expected `=`");
   };
-  // let value: parse_expr(tokens);
-  todo!();
+  let Some(value) = parse_expr(tokens) else {
+    syntax_err!("expected expression");
+  };
   Entity {
     metadata: Metadata::new().set_mutable(mutable as u8),
     item: Item::Const(Variable {
-      name: "placeholder".to_owned(),
-      typing: Type { name: "String".to_owned(), generics: HashMap::new() },
-      value: Expr::Single(Value::String("value".to_owned()))
+      name: ident.clone(),
+      typing,
+      value
     })
   }
 }

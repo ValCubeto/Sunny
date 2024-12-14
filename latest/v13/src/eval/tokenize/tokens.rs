@@ -1,8 +1,8 @@
+use std::iter::Peekable;
 use std::slice::Iter;
-
 use super::keywords::Keyword;
 
-pub type Tokens<'a> = Iter<'a, Token>;
+pub type Tokens<'a> = Peekable<Iter<'a, Token>>;
 
 #[allow(unused)]
 #[derive(Debug)]
@@ -127,4 +127,10 @@ pub enum Token {
   HexNumber(String),
   /// `0b` + `0`-`1`
   BinNumber(String),
+}
+impl Token {
+  #[inline]
+  pub fn ptr(self) -> Box<Token> {
+    Box::new(self)
+  }
 }

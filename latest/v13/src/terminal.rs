@@ -147,6 +147,7 @@ macro_rules! quit {
   ($ename:expr, $($arg:expr),*) => {{
     use $crate::terminal::Stylize;
     eprintln!("{}: {}", $ename.error(), format!($($arg),*));
+    eprintln!("  at {}:{}:{}", file!(), line!(), column!());
     std::process::exit(1);
   }};
 }
