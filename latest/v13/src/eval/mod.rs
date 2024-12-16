@@ -7,5 +7,5 @@ pub fn eval(input: String, _ctx: Ctx) {
   debug!(tokens);
   let items = parse::parse(tokens);
   debug!(items);
-  todo!();
+  internal_err!("parsed all items. What's next?");
 }

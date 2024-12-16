@@ -143,6 +143,13 @@ macro_rules! syntax_err {
 }
 
 #[macro_export]
+macro_rules! internal_err {
+  ($($arg:expr),*) => {{
+    $crate::quit!("Internal error", $($arg),*);
+  }};
+}
+
+#[macro_export]
 macro_rules! quit {
   ($ename:expr, $($arg:expr),*) => {{
     use $crate::terminal::Stylize;
