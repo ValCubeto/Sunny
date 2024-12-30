@@ -4,6 +4,14 @@ use super::expressions::{ Expr, parse_expr };
 use super::items::{ Entity, Item, Metadata };
 use super::types::Type;
 
+/* Valid syntax:
+const <ident>: <type> <end>
+const <ident>: <type> = <expr> <end>
+const { <ident>, ... }: <type> = <expr> <end>
+const [ <ident>, ... ]: <type> = <expr> <end>
+const ( <ident>, ... ): <type> = <expr> <end>
+*/
+
 // Parse const and state in one function
 pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
   // skip non-relevant tokens

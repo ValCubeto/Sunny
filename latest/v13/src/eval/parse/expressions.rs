@@ -62,10 +62,10 @@ pub enum Expr {
   RightShift(E, E),
 
   /// `a .. b`
-  InclusiveRange(E, E),
-  /// `a ... b`
   ExclusiveRange(E, E),
-  
+  /// `a ... b`
+  InclusiveRange(E, E),
+
   /// `a = b`
   Assign(E, E),
   /// `a += b`
@@ -81,14 +81,19 @@ pub enum Expr {
   /// `a **= b`
   PowAssign(E, E),
   /// `a &&= b`
+  LogicalAndAssign(E, E),
   /// `a &= b`
+  AndAssign(E, E),
   /// `a ||= b`
+  LogicalOrAssign(E, E),
   /// `a |= b`
+  OrAssign(E, E),
   /// `a ^= b`
+  XorAssign(E, E),
 
-  /// `a::b`
+  /// `a :: b`
   GetItem(E, String),
-  /// `a.b`
+  /// `a . b`
   GetProp(E, String),
 
   // Call(ident, generics, args),
@@ -98,7 +103,7 @@ pub enum Expr {
   Loop(Vec<Expr>),
   While(E, Vec<Expr>),
   If(E, Vec<Expr>, Vec<Expr>),
-  // ForIn(ident, iterable, body),
+  ForIn(E, E, Vec<Expr>),
 }
 
 impl Expr {
@@ -107,6 +112,40 @@ impl Expr {
   }
 }
 
+/*
+in = [Num1, Plus, Num2, Star, Num3, Plus, Num4]
+out = Sum(Sum(Num1, Mul(Num2, Num3)), Num4)
+
+
+var left_side = []
+var cand = {
+  left: tokens[0],
+  op: tokens[1],
+  right: tokens[2],
+}
+## cand = { left: Num1, op: Plus, right: Num2 }
+
+* encontrar el primero con alta prioridad, separando la lista donde este se encuentre
+var token = tokens.next()
+while token.prec() < cand.op.prec() {
+  left_side.push(cands.left, cands.op)
+  cand.left = cands.right
+  cand.op = token
+  token = tokens.next()
+  cand.right = token
+}
+## left_side = [Num1, Plus]
+## cand = { left: Num2, op: Star, right: Num3 }
+
+* crear una expresion con el candidato
+let expr = make_expr(cand)
+## expr = Mul(Num2, Num3)
+
+* encontrar el siguiente con alta prioridad
+while left_side.next().prec() < expr.prec() {
+*/
+
+/// None if there are no tokens
 pub fn parse_expr(tokens: &mut Tokens) -> Option<Expr> {
   todo!("list and sort tokens");
   let token = tokens.next()?;
