@@ -1,6 +1,5 @@
 use std::fmt::Display;
-
-use crate::eval::tokenize::tokens::{ Token, Tokens };
+use crate::eval::tokenize::tokens::{ Token as Tk, Tokens };
 use super::constants::Variable;
 use super::values::Value;
 
@@ -96,9 +95,9 @@ pub enum Expr {
   XorAssign(E, E),
 
   /// `a :: b`
-  GetItem(E, String),
+  GetItem(E, E),
   /// `a . b`
-  GetProp(E, String),
+  GetField(E, E),
 
   // Call(ident, generics, args),
   Let(Box<Variable>),
@@ -132,6 +131,7 @@ impl Display for Expr {
       Expr::Mul(lhs, rhs) => write!(f, "({lhs} * {rhs})"),
       Expr::Div(lhs, rhs) => write!(f, "({lhs} / {rhs})"),
       Expr::Mod(lhs, rhs) => write!(f, "({lhs} % {rhs})"),
+      Expr::GetField(lhs, rhs) => write!(f, "({lhs}.{rhs})"),
       _ => unimplemented!()
     }
   }
@@ -147,16 +147,18 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
   // left-hand side
   let mut lhs = match tokens.next() {
     None => syntax_err!("unexpected end of file"),
-    Some(Token::String(string)) => Expr::Single(Value::String(string.clone())),
-    Some(Token::LeftParen) => {
+    Some(Tk::Ident(ident)) => Expr::Single(Value::Ident(ident.clone())),
+    Some(Tk::String(string)) => Expr::Single(Value::String(string.clone())),
+    Some(Tk::Number(number)) => Expr::Single(Value::Number(number.clone())),
+    Some(Tk::LeftParen) => {
       let lhs = parse_expr_bp(tokens, 0);
-      if let Some(Token::RightParen) = tokens.next() {} else {
+      if let Some(Tk::RightParen) = tokens.next() {} else {
         syntax_err!("unclosed parenthesis");
       }
       lhs
     }
-    Some(op) if op.is_op() => {
-      let right_bp = prefix_bp(op);
+    Some(Tk::Op(op)) => {
+      let right_bp = op.prefix_bp();
       let rhs = parse_expr_bp(tokens, right_bp);
       op.prefix_expr(rhs)
     }
@@ -165,10 +167,10 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
   loop {
     let op = match tokens.peek() {
       None => break,
-      Some(&op) if op.is_op() => op,
+      Some(Tk::Op(op)) => op,
       Some(_token) => return lhs
     };
-    if let Some(left_bp) = postfix_bp(op) {
+    if let Some(left_bp) = op.postfix_bp() {
       if left_bp < min_bp {
         break;
       }
@@ -176,7 +178,7 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
       lhs = op.postfix_expr(lhs);
       continue;
     }
-    if let Some((left_bp, right_bp)) = infix_bp(op) {
+    if let Some((left_bp, right_bp)) = op.infix_bp() {
       if left_bp < min_bp {
         break;
       }
@@ -188,40 +190,4 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
     break;
   }
   lhs
-}
-
-// It's an inferno to manually write all binding powers
-
-fn prefix_bp(op: &Token) -> u8 {
-  match op {
-    | Token::Plus
-    | Token::Minus => 9,
-    _ => syntax_err!("unexpected {op}")
-  }
-}
-
-// They usually use dummies
-/// `Option<(u8, ())>`
-fn postfix_bp(op: &Token) -> Option<u8> {
-  match op {
-    | Token::Question => Some(11),
-    _ => None
-  }
-}
-
-fn infix_bp(op: &Token) -> Option<(u8, u8)> {
-  match op {
-    | Token::Equal => Some((2, 1)),
-
-    | Token::Plus
-    | Token::Minus => Some((5, 6)),
-
-    | Token::Star
-    | Token::Slash
-    | Token::Percent => Some((7, 8)),
-
-    | Token::Dot => Some((14, 13)),
-
-    _ => None
-  }
 }

@@ -1,5 +1,5 @@
 use hashbrown::HashMap;
-use crate::eval::tokenize::tokens::{ Token, Tokens };
+use crate::eval::tokenize::tokens::{ Operator, Token, Tokens };
 
 // TODO: `I for T`, `<T>`
 
@@ -15,7 +15,7 @@ pub fn parse_type(tokens: &mut Tokens) -> Option<Type> {
   let generics = HashMap::new();
   let name = match tokens.next()? {
     Token::Ident(ident) => ident.clone(),
-    Token::LeftAngle => todo!(),
+    Token::Op(Operator::LeftAngle) => todo!(),
     _ => syntax_err!("unexpected token"),
   };
   Some(Type { name, generics })

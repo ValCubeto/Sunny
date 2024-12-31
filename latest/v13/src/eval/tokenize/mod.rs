@@ -1,16 +1,17 @@
 pub mod keywords;
 pub mod tokens;
 pub mod number;
-use std::iter::Peekable;
 use std::str::Chars;
 use keywords::Keyword;
 use number::Number;
-use peekmore::PeekMore;
-use tokens::Token as Tk;
+use peekmore::{ PeekMore, PeekMoreIterator };
+use tokens::{ Operator as Op, Token as Tk };
+
+type CharsIter<'a> = PeekMoreIterator<Chars<'a>>;
 
 pub fn tokenize(input: String) -> Vec<Tk> {
   let mut tokens = Vec::new();
-  let mut chars = input.chars().peekable();
+  let mut chars: CharsIter = input.chars().peekmore();
   while let Some(ch) = chars.next() {
     match ch {
       ' ' | '\t' => skip_spaces(&mut chars),
@@ -21,14 +22,14 @@ pub fn tokenize(input: String) -> Vec<Tk> {
       '[' => tokens.push(Tk::LeftBracket),
       ']' => tokens.push(Tk::RightBracket),
       ',' => tokens.push(Tk::Comma),
-      '?' => tokens.push(Tk::Question),
+      '?' => tokens.push(Tk::Op(Op::Question)),
       '!' => match chars.peek() {
         Some('=') => {
           chars.next();
-          tokens.push(Tk::NotEqual);
+          tokens.push(Tk::Op(Op::NotEqual));
           continue;
         }
-        _ => tokens.push(Tk::Bang)
+        _ => tokens.push(Tk::Op(Op::Bang))
       }
       '\n' | '\r' => {
         let mut skipped = String::from(ch);
@@ -48,56 +49,56 @@ pub fn tokenize(input: String) -> Vec<Tk> {
       '<' => match chars.peek() {
         Some('>') => {
           chars.next();
-          tokens.push(Tk::Diamond);
+          tokens.push(Tk::Op(Op::Diamond));
         }
         Some('=') => {
           chars.next();
-          tokens.push(Tk::LessEqual);
+          tokens.push(Tk::Op(Op::LessEqual));
         }
         Some('<') => {
           chars.next();
           if chars.peek() == Some(&'=') {
             chars.next();
-            tokens.push(Tk::LeftShiftAssign);
+            tokens.push(Tk::Op(Op::LeftShiftAssign));
             continue;
           }
-          tokens.push(Tk::LeftShift);
+          tokens.push(Tk::Op(Op::LeftShift));
         }
-        _ => tokens.push(Tk::LeftAngle)
+        _ => tokens.push(Tk::Op(Op::LeftAngle))
       }
       '>' => match chars.peek() {
         Some('=') => {
           chars.next();
-          tokens.push(Tk::GreaterEqual);
+          tokens.push(Tk::Op(Op::GreaterEqual));
         }
         Some('>') => {
           chars.next();
           if chars.peek() == Some(&'=') {
             chars.next();
-            tokens.push(Tk::RightShiftAssign);
+            tokens.push(Tk::Op(Op::RightShiftAssign));
             continue;
           }
-          tokens.push(Tk::RightShift);
+          tokens.push(Tk::Op(Op::RightShift));
         }
-        _ => tokens.push(Tk::RightAngle)
+        _ => tokens.push(Tk::Op(Op::RightAngle))
       }
       '.' => {
         if chars.peek() == Some(&'.') {
           chars.next();
           if chars.peek() == Some(&'.') {
             chars.next();
-            tokens.push(Tk::TripleDot);
+            tokens.push(Tk::Op(Op::TripleDot));
             continue;
           }
-          tokens.push(Tk::DoubleDot);
+          tokens.push(Tk::Op(Op::DoubleDot));
           continue;
         }
-        tokens.push(Tk::Dot);
+        tokens.push(Tk::Op(Op::Dot));
       }
       ':' => {
         if chars.peek() == Some(&':') {
           chars.next();
-          tokens.push(Tk::DoubleColon);
+          tokens.push(Tk::Op(Op::DoubleColon));
           continue;
         }
         tokens.push(Tk::Colon);
@@ -118,30 +119,30 @@ pub fn tokenize(input: String) -> Vec<Tk> {
       '+' => {
         if chars.peek() == Some(&'=') {
           chars.next();
-          tokens.push(Tk::AddAssign);
+          tokens.push(Tk::Op(Op::AddAssign));
           continue;
         }
-        tokens.push(Tk::Plus);
+        tokens.push(Tk::Op(Op::Plus));
       }
       '-' => {
         if chars.peek() == Some(&'=') {
           chars.next();
-          tokens.push(Tk::SubAssign);
+          tokens.push(Tk::Op(Op::SubAssign));
           continue;
         }
-        tokens.push(Tk::Minus);
+        tokens.push(Tk::Op(Op::Minus));
       }
       '*' => match chars.peek() {
         Some('=') => {
           chars.next();
-          tokens.push(Tk::MulAssign);
+          tokens.push(Tk::Op(Op::MulAssign));
         }
-        _ => tokens.push(Tk::Star)
+        _ => tokens.push(Tk::Op(Op::Star))
       }
       '/' => match chars.peek() {
         Some('=') => {
           chars.next();
-          tokens.push(Tk::DivAssign);
+          tokens.push(Tk::Op(Op::DivAssign));
         }
         Some('/') => {
           chars.next();
@@ -169,23 +170,23 @@ pub fn tokenize(input: String) -> Vec<Tk> {
             syntax_err!("Unclosed comment!!");
           }
         }
-        _ => tokens.push(Tk::Slash)
+        _ => tokens.push(Tk::Op(Op::Slash))
       }
       '%' => {
         if chars.peek() == Some(&'=') {
           chars.next();
-          tokens.push(Tk::ModAssign);
+          tokens.push(Tk::Op(Op::ModAssign));
           continue;
         }
-        tokens.push(Tk::Percent);
+        tokens.push(Tk::Op(Op::Percent));
       }
       '^' => {
         if chars.peek() == Some(&'=') {
           chars.next();
-          tokens.push(Tk::XorAssign);
+          tokens.push(Tk::Op(Op::XorAssign));
           continue;
         }
-        tokens.push(Tk::Xor);
+        tokens.push(Tk::Op(Op::Xor));
       }
       '&' => match chars.peek() {
         // `&&`
@@ -194,17 +195,17 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           // `&&=`
           if chars.peek() == Some(&'=') {
             chars.next();
-            tokens.push(Tk::LogicalAndAssign);
+            tokens.push(Tk::Op(Op::LogicalAndAssign));
             continue;
           }
-          tokens.push(Tk::DoubleAmpersand);
+          tokens.push(Tk::Op(Op::DoubleAmpersand));
         }
         // `&=`
         Some(&'=') => {
           chars.next();
-          tokens.push(Tk::AndAssign);
+          tokens.push(Tk::Op(Op::AndAssign));
         }
-        _ => tokens.push(Tk::Ampersand)
+        _ => tokens.push(Tk::Op(Op::Ampersand))
       }
       '|' => match chars.peek() {
         // `||`
@@ -213,22 +214,22 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           // `||=`
           if chars.peek() == Some(&'=') {
             chars.next();
-            tokens.push(Tk::LogicalOrAssign);
+            tokens.push(Tk::Op(Op::LogicalOrAssign));
             continue;
           }
-          tokens.push(Tk::DoublePipe);
+          tokens.push(Tk::Op(Op::DoublePipe));
         }
         // `|=`
         Some(&'=') => {
           chars.next();
-          tokens.push(Tk::OrAssign);
+          tokens.push(Tk::Op(Op::OrAssign));
         }
-        _ => tokens.push(Tk::Pipe)
+        _ => tokens.push(Tk::Op(Op::Pipe))
       }
       '=' => match chars.peek() {
         Some('=') => {
           chars.next();
-          tokens.push(Tk::DoubleEqual);
+          tokens.push(Tk::Op(Op::DoubleEqual));
           continue;
         }
         Some('>') => {
@@ -236,7 +237,7 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           tokens.push(Tk::Arrow);
           continue;
         }
-        _ => tokens.push(Tk::Equal)
+        _ => tokens.push(Tk::Op(Op::Equal))
       },
       '0' => match chars.peek() {
         Some('x') => {
@@ -279,7 +280,7 @@ pub fn tokenize(input: String) -> Vec<Tk> {
   tokens
 }
 
-pub fn skip_spaces(chars: &mut Peekable<Chars>) {
+pub fn skip_spaces(chars: &mut CharsIter) {
   while let Some(&ch) = chars.peek() {
     if !matches!(ch, ' ' | '\t') {
       break;
@@ -288,7 +289,7 @@ pub fn skip_spaces(chars: &mut Peekable<Chars>) {
   }
 }
 
-pub fn parse_string(chars: &mut Peekable<Chars>) -> String {
+pub fn parse_string(chars: &mut CharsIter) -> String {
   let mut string = String::new();
   while let Some(ch) = chars.next() {
     match ch {
@@ -348,11 +349,25 @@ pub fn parse_string(chars: &mut Peekable<Chars>) -> String {
   string
 }
 
-/// `Float` is constructed by `parse_expr`
-pub fn parse_number(chars: &mut Peekable<Chars>, digit: char) -> Number {
+pub fn parse_number(chars: &mut CharsIter, digit: char) -> Number {
   let mut int = String::from(digit);
   while let Some(&ch) = chars.peek() {
-    // chars.peekmore().peek_amount(2)
+    match chars.peek_amount(2) {
+      [Some('.'), Some(d)] if d.is_ascii_digit() => {
+        let mut frac = d.to_string();
+        chars.next();
+        chars.next();
+        while let Some(&ch) = chars.peek() {
+          if !ch.is_ascii_digit() {
+            return Number::Float(int, frac);
+          }
+          debug_msg!("frac: {ch:?}");
+          frac.push(ch);
+          chars.next();
+        }
+      }
+      _ => {}
+    }
     if ch == '_' {
       chars.next();
       continue;
@@ -366,7 +381,7 @@ pub fn parse_number(chars: &mut Peekable<Chars>, digit: char) -> Number {
   Number::Int(int)
 }
 
-pub fn parse_hex(chars: &mut Peekable<Chars>) -> Number {
+pub fn parse_hex(chars: &mut CharsIter) -> Number {
   let mut hex = String::new();
   while let Some(&ch) = chars.peek() {
     if !ch.is_ascii_hexdigit() {
@@ -378,7 +393,7 @@ pub fn parse_hex(chars: &mut Peekable<Chars>) -> Number {
   Number::Hex(hex)
 }
 
-pub fn parse_bin(chars: &mut Peekable<Chars>) -> Number {
+pub fn parse_bin(chars: &mut CharsIter) -> Number {
   let mut bin = String::new();
   while let Some(&ch) = chars.peek() {
     if !matches!(ch, '0' | '1') {

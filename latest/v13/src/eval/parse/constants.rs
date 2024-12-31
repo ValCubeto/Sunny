@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use crate::eval::parse::types::parse_type;
-use crate::eval::tokenize::tokens::{ Token, Tokens };
+use crate::eval::tokenize::tokens::{ Operator, Token, Tokens };
 use super::expressions::{ Expr, parse_expr };
 use super::items::{ Entity, Item, Metadata };
 use super::types::Type;
@@ -14,7 +14,7 @@ const [ <ident>, ... ]: <type> = <expr> <end>
 const ( <ident>, ... ): <type> = <expr> <end>
 */
 
-// Parse const and state in one function
+/// Parse `const` or `state` items
 pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
   // skip non-relevant tokens
   while let Some(Token::NewLine | Token::Semicolon) = tokens.peek() {
@@ -29,8 +29,8 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
   let Some(typing) = parse_type(tokens) else {
     syntax_err!("expected type");
   };
-  let Some(Token::Equal) = tokens.next() else {
-    syntax_err!("expected `=`");
+  let Some(Token::Op(Operator::Equal)) = tokens.next() else {
+    syntax_err!("expected equal sign");
   };
   let value = parse_expr(tokens);
   Entity {

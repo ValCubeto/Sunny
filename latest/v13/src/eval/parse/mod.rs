@@ -32,9 +32,7 @@ pub fn parse(tokens: Vec<Tk>) -> Vec<Entity> {
       Tk::Keyword(Kw::Async) => todo!(),
       Tk::Keyword(Kw::If) => todo!(),
       Tk::Keyword(Kw::Macro) => todo!(),
-      Tk::Keyword(keyword) => syntax_err!("unexpected keyword \"{keyword}\" here"),
-      Tk::Ident(ident) => syntax_err!("unexpected identifier \"{ident}\" here"),
-      _ => syntax_err!("unexpected token {token:?} here"),
+      _ => syntax_err!("unexpected {token}"),
     };
     items.push(item);
   }
