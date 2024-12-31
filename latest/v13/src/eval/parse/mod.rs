@@ -36,6 +36,5 @@ pub fn parse(tokens: Vec<Tk>) -> Vec<Entity> {
     };
     items.push(item);
   }
-  debug!(items);
   items
 }

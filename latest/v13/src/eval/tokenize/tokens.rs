@@ -206,7 +206,7 @@ impl Operator {
   /// `Option<(u8, ())>`
   pub fn postfix_bp(&self) -> Option<u8> {
     match self {
-      | Self::Question => Some(11),
+      Self::Question => Some(11),
       _ => None
     }
   }

@@ -1,13 +1,13 @@
 use hashbrown::HashMap;
 use crate::eval::tokenize::tokens::{ Operator, Token, Tokens };
 
-// TODO: `I for T`, `<T>`
-
 // T<A, B: C>
 #[allow(unused)]
 #[derive(Debug)]
 pub struct Type {
   pub name: String,
+  // /// `I for T`
+  // pub impl_for: String,
   pub generics: HashMap<String, Type>,
 }
 

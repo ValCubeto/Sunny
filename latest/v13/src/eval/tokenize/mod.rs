@@ -270,7 +270,6 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           Some(kw) => Tk::Keyword(kw),
           None => Tk::Ident(word),
         };
-        debug_msg!("Word: {token:?}");
         tokens.push(token);
       }
       '"' => tokens.push(Tk::String(parse_string(&mut chars))),

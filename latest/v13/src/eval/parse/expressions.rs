@@ -118,7 +118,7 @@ impl Expr {
 impl Display for Expr {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     match self {
-      Expr::Single(value) => write!(f, "{value:?}"),
+      Expr::Single(value) => write!(f, "{value}"),
       Expr::Not(expr) => write!(f, "(!{expr})"),
       Expr::Neg(expr) => write!(f, "(-{expr})"),
       Expr::Pos(expr) => write!(f, "(+{expr})"),
