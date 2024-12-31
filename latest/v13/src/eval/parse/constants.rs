@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::eval::parse::types::parse_type;
 use crate::eval::tokenize::tokens::{ Token, Tokens };
 use super::expressions::{ Expr, parse_expr };
@@ -30,9 +32,7 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
   let Some(Token::Equal) = tokens.next() else {
     syntax_err!("expected `=`");
   };
-  let Some(value) = parse_expr(tokens) else {
-    syntax_err!("expected expression");
-  };
+  let value = parse_expr(tokens);
   Entity {
     metadata: Metadata::new().set_mutable(mutable as u8),
     item: Item::Const(Variable {
@@ -45,9 +45,15 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
 
 #[allow(unused)]
 #[derive(Debug)]
-/// Any const, state, let, or var
+/// **Any `const`, `state`, `let`, or `var`**
 pub struct Variable {
   name: String,
   typing: Type,
   value: Expr,
+}
+
+impl Display for Variable {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "var {}: {:?} = {}", self.name, self.typing, self.value)
+  }
 }

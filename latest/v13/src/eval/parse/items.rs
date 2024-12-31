@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use super::constants::Variable;
 
 #[allow(unused)]
@@ -5,13 +6,14 @@ use super::constants::Variable;
 /// Any statement
 pub enum Item {
   Const(Variable),
-  Struct,
-  Enum,
-  BitSet,
-  Idea,
-  TypeDef,
-  Import,
-  Macro,
+  // Struct,
+  // Enum,
+  // BitSet,
+  // Idea,
+  // TypeDef,
+  // Import,
+  // Macro,
+  A
 }
 
 #[allow(unused)]
@@ -19,6 +21,34 @@ pub enum Item {
 pub struct Entity {
   pub metadata: Metadata,
   pub item: Item,
+}
+
+impl Display for Item {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    match self {
+      Item::Const(variable) => write!(f, "const {}", variable),
+      // Item::Struct => write!(f, "struct"),
+      // Item::Enum => write!(f, "enum"),
+      // Item::BitSet => write!(f, "bitset"),
+      // Item::Idea => write!(f, "idea"),
+      // Item::TypeDef => write!(f, "typedef"),
+      // Item::Import => write!(f, "import"),
+      // Item::Macro => write!(f, "macro"),
+      _ => unimplemented!()
+    }
+  }
+}
+
+impl Display for Entity {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    if self.metadata.public() {
+      write!(f, "pub ")?;
+    }
+    if self.metadata.mutable() {
+      write!(f, "mut ")?;
+    }
+    write!(f, "{}", self.item)
+  }
 }
 
 // This is a bit set btw

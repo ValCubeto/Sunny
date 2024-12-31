@@ -1,16 +1,17 @@
 pub mod keywords;
 pub mod tokens;
+pub mod number;
 use std::iter::Peekable;
 use std::str::Chars;
 use keywords::Keyword;
+use number::Number;
+use peekmore::PeekMore;
 use tokens::Token as Tk;
 
 pub fn tokenize(input: String) -> Vec<Tk> {
   let mut tokens = Vec::new();
   let mut chars = input.chars().peekable();
   while let Some(ch) = chars.next() {
-    println!();
-    debug_msg!("Current char: {ch:?}");
     match ch {
       ' ' | '\t' => skip_spaces(&mut chars),
       '(' => tokens.push(Tk::LeftParen),
@@ -39,9 +40,8 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           skipped.push(ch);
           chars.next();
         }
-        debug_msg!("Skipped: {skipped:?}");
         // Idk how to negate this condition
-        if let Some(Tk::NewLine) = tokens.last() {} else {
+        if !matches!(tokens.last(), Some(Tk::NewLine)) {
           tokens.push(Tk::NewLine);
         }
       }
@@ -136,15 +136,6 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           chars.next();
           tokens.push(Tk::MulAssign);
         }
-        Some('*') => {
-          chars.next();
-          if chars.peek() == Some(&'=') {
-            chars.next();
-            tokens.push(Tk::PowAssign);
-            continue;
-          }
-          tokens.push(Tk::DoubleStar);
-        }
         _ => tokens.push(Tk::Star)
       }
       '/' => match chars.peek() {
@@ -206,14 +197,14 @@ pub fn tokenize(input: String) -> Vec<Tk> {
             tokens.push(Tk::LogicalAndAssign);
             continue;
           }
-          tokens.push(Tk::LogicalAnd);
+          tokens.push(Tk::DoubleAmpersand);
         }
         // `&=`
         Some(&'=') => {
           chars.next();
           tokens.push(Tk::AndAssign);
         }
-        _ => tokens.push(Tk::And)
+        _ => tokens.push(Tk::Ampersand)
       }
       '|' => match chars.peek() {
         // `||`
@@ -225,14 +216,14 @@ pub fn tokenize(input: String) -> Vec<Tk> {
             tokens.push(Tk::LogicalOrAssign);
             continue;
           }
-          tokens.push(Tk::LogicalOr);
+          tokens.push(Tk::DoublePipe);
         }
         // `|=`
         Some(&'=') => {
           chars.next();
           tokens.push(Tk::OrAssign);
         }
-        _ => tokens.push(Tk::Or)
+        _ => tokens.push(Tk::Pipe)
       }
       '=' => match chars.peek() {
         Some('=') => {
@@ -250,19 +241,20 @@ pub fn tokenize(input: String) -> Vec<Tk> {
       '0' => match chars.peek() {
         Some('x') => {
           chars.next();
-          tokens.push(Tk::HexNumber(parse_hex(&mut chars)));
+          tokens.push(Tk::Number(parse_hex(&mut chars)));
         }
         Some('b') => {
           chars.next();
-          tokens.push(Tk::BinNumber(parse_bin(&mut chars)));
+          tokens.push(Tk::Number(parse_bin(&mut chars)));
         }
         Some(&d) if d.is_ascii_digit() => {
-          tokens.push(Tk::Int(parse_int(&mut chars, d)));
-          chars.next();
+          tokens.push(Tk::Number(parse_number(&mut chars, d)));
+          // chars.next();
+          todo!();
         }
-        _ => tokens.push(Tk::Int("0".to_owned()))
+        _ => tokens.push(Tk::Number(Number::Int("0".to_owned())))
       }
-      d @ '1'..='9' => tokens.push(Tk::Int(parse_int(&mut chars, d))),
+      d @ '1'..='9' => tokens.push(Tk::Number(parse_number(&mut chars, d))),
       'a'..='z' | 'A'..='Z' | '_' => {
         let mut word = String::from(ch);
         while let Some(&ch) = chars.peek() {
@@ -356,19 +348,25 @@ pub fn parse_string(chars: &mut Peekable<Chars>) -> String {
   string
 }
 
-pub fn parse_int(chars: &mut Peekable<Chars>, digit: char) -> String {
+/// `Float` is constructed by `parse_expr`
+pub fn parse_number(chars: &mut Peekable<Chars>, digit: char) -> Number {
   let mut int = String::from(digit);
   while let Some(&ch) = chars.peek() {
+    // chars.peekmore().peek_amount(2)
+    if ch == '_' {
+      chars.next();
+      continue;
+    }
     if !ch.is_ascii_digit() {
       break;
     }
     int.push(ch);
     chars.next();
   }
-  int
+  Number::Int(int)
 }
 
-pub fn parse_hex(chars: &mut Peekable<Chars>) -> String {
+pub fn parse_hex(chars: &mut Peekable<Chars>) -> Number {
   let mut hex = String::new();
   while let Some(&ch) = chars.peek() {
     if !ch.is_ascii_hexdigit() {
@@ -377,10 +375,10 @@ pub fn parse_hex(chars: &mut Peekable<Chars>) -> String {
     chars.next();
     hex.push(ch);
   }
-  hex
+  Number::Hex(hex)
 }
 
-pub fn parse_bin(chars: &mut Peekable<Chars>) -> String {
+pub fn parse_bin(chars: &mut Peekable<Chars>) -> Number {
   let mut bin = String::new();
   while let Some(&ch) = chars.peek() {
     if !matches!(ch, '0' | '1') {
@@ -389,5 +387,5 @@ pub fn parse_bin(chars: &mut Peekable<Chars>) -> String {
     chars.next();
     bin.push(ch);
   }
-  bin
+  Number::Bin(bin)
 }
