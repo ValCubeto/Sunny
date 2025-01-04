@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt;
 use crate::eval::tokenize::tokens::{ Token as Tk, Tokens };
 use super::constants::Variable;
 use super::values::Value;
@@ -115,8 +115,8 @@ impl Expr {
   }
 }
 
-impl Display for Expr {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Expr {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
       Expr::Single(value) => write!(f, "{value}"),
       Expr::Not(expr) => write!(f, "(!{expr})"),
@@ -165,10 +165,22 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
     Some(token) => syntax_err!("unexpected {token}")
   };
   loop {
-    let op = match tokens.peek() {
-      None => break,
-      Some(Tk::Op(op)) => op,
-      Some(_token) => return lhs
+    let op = match tokens.peek_amount(2) {
+      [None, None] => break,
+      [Some(Tk::NewLine), Some(Tk::Op(op))] => {
+        tokens.next();
+        op
+      },
+      [Some(Tk::NewLine), Some(Tk::NewLine)] => {
+        tokens.next();
+        tokens.next();
+        while let Some(Tk::NewLine) = tokens.peek() {
+          tokens.next();
+        }
+        continue;
+      }
+      [Some(Tk::Op(op)), _] => op,
+      _ => return lhs
     };
     if let Some(left_bp) = op.postfix_bp() {
       if left_bp < min_bp {

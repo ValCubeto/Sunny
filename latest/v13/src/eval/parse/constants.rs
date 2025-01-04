@@ -32,8 +32,13 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
     syntax_err!("expected equal sign");
   };
   let value = parse_expr(tokens);
+  debug_display!(value);
+  let t = tokens.peek();
+  if !matches!(t, Some(Token::NewLine | Token::Semicolon)) {
+    syntax_err!("expected new line or semicolon, found {t:?}");
+  }
+
   let mut metadata = Metadata::new();
-  crate::eval::parse::items::Metadata::set_mutable(&mut metadata, mutable);
   metadata.set_mutable(mutable);
   Entity {
     metadata,
