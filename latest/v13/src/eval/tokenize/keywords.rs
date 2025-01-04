@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[allow(unused)]
 #[derive(Debug)]
 pub enum Keyword {
@@ -51,52 +53,88 @@ pub enum Keyword {
   Case,
 }
 
-impl std::fmt::Display for Keyword {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    write!(f, "{}", format!("{self:?}").to_lowercase())
+impl fmt::Display for Keyword {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    debug_todo!("use some kind of sorted list");
+    write!(f, "{:?}", match self {
+      Self::Use => "use",
+      Self::As => "as",
+      Self::Const => "const",
+      Self::State => "state",
+      Self::Let => "let",
+      Self::Var => "var",
+      Self::TypeDef => "typedef",
+      Self::Struct => "struct",
+      Self::Enum => "enum",
+      Self::BitSet => "bitset",
+      Self::Idea => "idea",
+      Self::Class => "class",
+      Self::Extends => "extends",
+      Self::Where => "where",
+      Self::Impl => "impl",
+      Self::ArgStruct => "argstruct",
+      Self::Fun => "fun",
+      Self::Defer => "defer",
+      Self::Return => "return",
+      Self::Unsafe => "unsafe",
+      Self::Async => "async",
+      Self::Await => "await",
+      Self::Loop => "loop",
+      Self::While => "while",
+      Self::For => "for",
+      Self::In => "in",
+      Self::Break => "break",
+      Self::Continue => "continue",
+      Self::If => "if",
+      Self::Else => "else",
+      Self::Match => "match",
+      Self::Is => "is",
+      Self::Macro => "macro",
+      Self::Case => "case",
+      Self::Public => "pub",
+      Self::Private => "priv",
+    })
   }
 }
 
 impl Keyword {
-  // march parse(&word) { Some(k) => Keyword(k), None => Ident(word) }
   pub fn parse(input: &str) -> Option<Self> {
-    use Keyword::*;
     let keyword = match input {
-      "use" => Use,
-      "as" => As,
-      "const" => Const,
-      "var" => Var,
-      "let" => Let,
-      "class" => Class,
-      "struct" => Struct,
-      "enum" => Enum,
-      "idea" => Idea,
-      "impl" => Impl,
-      "argstruct" => ArgStruct,
-      "where" => Where,
-      "fun" => Fun,
-      "return" => Return,
-      "loop" => Loop,
-      "while" => While,
-      "for" => For,
-      "in" => In,
-      "break" => Break,
-      "continue" => Continue,
-      "if" => If,
-      "else" => Else,
-      "match" => Match,
-      "is" => Is,
-      "macro" => Macro,
-      "extends" => Extends,
-      "bitset" => BitSet,
-      "defer" => Defer,
-      "unsafe" => Unsafe,
-      "async" => Async,
-      "await" => Await,
-      "case" => Case,
-      "pub" => Public,
-      "priv" => Private,
-      "typedef" => TypeDef,
+      "use" => Self::Use,
+      "as" => Self::As,
+      "const" => Self::Const,
+      "var" => Self::Var,
+      "let" => Self::Let,
+      "class" => Self::Class,
+      "struct" => Self::Struct,
+      "enum" => Self::Enum,
+      "idea" => Self::Idea,
+      "impl" => Self::Impl,
+      "argstruct" => Self::ArgStruct,
+      "where" => Self::Where,
+      "fun" => Self::Fun,
+      "return" => Self::Return,
+      "loop" => Self::Loop,
+      "while" => Self::While,
+      "for" => Self::For,
+      "in" => Self::In,
+      "break" => Self::Break,
+      "continue" => Self::Continue,
+      "if" => Self::If,
+      "else" => Self::Else,
+      "match" => Self::Match,
+      "is" => Self::Is,
+      "macro" => Self::Macro,
+      "extends" => Self::Extends,
+      "bitset" => Self::BitSet,
+      "defer" => Self::Defer,
+      "unsafe" => Self::Unsafe,
+      "async" => Self::Async,
+      "await" => Self::Await,
+      "case" => Self::Case,
+      "pub" => Self::Public,
+      "priv" => Self::Private,
+      "typedef" => Self::TypeDef,
       _ => return None,
     };
     Some(keyword)

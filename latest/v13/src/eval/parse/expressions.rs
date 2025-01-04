@@ -152,8 +152,10 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
     Some(Tk::Number(number)) => Expr::Single(Value::Number(number.clone())),
     Some(Tk::LeftParen) => {
       let lhs = parse_expr_bp(tokens, 0);
-      if let Some(Tk::RightParen) = tokens.next() {} else {
-        syntax_err!("unclosed parenthesis");
+      match tokens.next() {
+        Some(Tk::RightParen) => {}
+        Some(other) => syntax_err!("expected parenthesis, found {other}"),
+        None => syntax_err!("unclosed parenthesis")
       }
       lhs
     }
@@ -162,6 +164,7 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
       let rhs = parse_expr_bp(tokens, right_bp);
       op.prefix_expr(rhs)
     }
+    Some(Tk::NewLine) => return parse_expr_bp(tokens, min_bp),
     Some(token) => syntax_err!("unexpected {token}")
   };
   loop {

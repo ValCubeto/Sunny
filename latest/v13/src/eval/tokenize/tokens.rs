@@ -89,46 +89,46 @@ pub enum Operator {
 
 impl fmt::Display for Operator {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    match self {
-      Self::Plus => write!(f, "plus sign"),
-      Self::Minus => write!(f, "minus sign"),
-      Self::Star => write!(f, "star"),
-      Self::Slash => write!(f, "slash"),
-      Self::Percent => write!(f, "percent"),
-      Self::Equal => write!(f, "equal"),
-      Self::Xor => write!(f, "xor"),
-      Self::Ampersand => write!(f, "ampersand"),
-      Self::Pipe => write!(f, "pipe"),
-      Self::Question => write!(f, "question mark"),
-      Self::Bang => write!(f, "bang"),
-      Self::DoubleDot => write!(f, "double dot"),
-      Self::TripleDot => write!(f, "triple dot"),
-      Self::DoubleColon => write!(f, "double colon"),
-      Self::DoubleEqual => write!(f, "double equal"),
-      Self::NotEqual => write!(f, "not equal"),
-      Self::LessEqual => write!(f, "less equal"),
-      Self::GreaterEqual => write!(f, "greater equal"),
-      Self::DoubleAmpersand => write!(f, "double ampersand"),
-      Self::DoublePipe => write!(f, "double pipe"),
-      Self::AddAssign => write!(f, "add-assign operator"),
-      Self::SubAssign => write!(f, "sub-assign operator"),
-      Self::MulAssign => write!(f, "mul-assign operator"),
-      Self::DivAssign => write!(f, "div-assign operator"),
-      Self::ModAssign => write!(f, "mod-assign operator"),
-      Self::XorAssign => write!(f, "xor-assign operator"),
-      Self::AndAssign => write!(f, "and-assign operator"),
-      Self::OrAssign => write!(f, "or-assign operator"),
-      Self::LogicalAndAssign => write!(f, "logical-and-assign operator"),
-      Self::LogicalOrAssign => write!(f, "logical-or-assign operator"),
-      Self::LeftShiftAssign => write!(f, "left-shift-assign operator"),
-      Self::RightShiftAssign => write!(f, "right-shift-assign operator"),
-      Self::LeftShift => write!(f, "left shift"),
-      Self::RightShift => write!(f, "right shift"),
-      Self::LeftAngle => write!(f, "left angle"),
-      Self::RightAngle => write!(f, "right angle"),
-      Self::Dot => write!(f, "dot"),
-      Self::Diamond => write!(f, "diamond"),
-    }
+    f.write_str(match self {
+      Self::Plus => "plus sign",
+      Self::Minus => "minus sign",
+      Self::Star => "star",
+      Self::Slash => "slash",
+      Self::Percent => "percent",
+      Self::Equal => "equal",
+      Self::Xor => "xor",
+      Self::Ampersand => "ampersand",
+      Self::Pipe => "pipe",
+      Self::Question => "question mark",
+      Self::Bang => "bang",
+      Self::DoubleDot => "double dot",
+      Self::TripleDot => "triple dot",
+      Self::DoubleColon => "double colon",
+      Self::DoubleEqual => "double equal",
+      Self::NotEqual => "not equal",
+      Self::LessEqual => "less equal",
+      Self::GreaterEqual => "greater equal",
+      Self::DoubleAmpersand => "double ampersand",
+      Self::DoublePipe => "double pipe",
+      Self::AddAssign => "add-assign operator",
+      Self::SubAssign => "sub-assign operator",
+      Self::MulAssign => "mul-assign operator",
+      Self::DivAssign => "div-assign operator",
+      Self::ModAssign => "mod-assign operator",
+      Self::XorAssign => "xor-assign operator",
+      Self::AndAssign => "and-assign operator",
+      Self::OrAssign => "or-assign operator",
+      Self::LogicalAndAssign => "logical-and-assign operator",
+      Self::LogicalOrAssign => "logical-or-assign operator",
+      Self::LeftShiftAssign => "left-shift-assign operator",
+      Self::RightShiftAssign => "right-shift-assign operator",
+      Self::LeftShift => "left shift",
+      Self::RightShift => "right shift",
+      Self::LeftAngle => "left angle",
+      Self::RightAngle => "right angle",
+      Self::Dot => "dot",
+      Self::Diamond => "diamond",
+    })
   }
 }
 
@@ -172,7 +172,7 @@ impl fmt::Display for Token {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     #[allow(unreachable_patterns, reason="Compile anyways even if I add more Token variants")]
     match self {
-      Token::Keyword(kw) => write!(f, "keyword {kw:?}"),
+      Token::Keyword(kw) => write!(f, "keyword {kw}"),
       Token::Ident(ident) => write!(f, "identifier {ident:?}"),
       Token::String(string) => write!(f, "string {string:?}"),
       Token::Number(n) => write!(f, "number {n}"),
@@ -207,7 +207,7 @@ impl Operator {
   /// `Option<(u8, ())>`
   pub fn postfix_bp(&self) -> Option<u8> {
     match self {
-      Self::Question | Self::Percent => Some(11),
+      Self::Question => Some(11),
       _ => None
     }
   }
@@ -220,7 +220,7 @@ impl Operator {
   }
   pub fn infix_bp(&self) -> Option<(u8, u8)> {
     Some(match self {
-      Self::Equal => (2, 1),
+      // Self::Equal => (2, 1),
       Self::Plus | Self::Minus => (5, 6),
       Self::Star | Self::Slash | Self::Percent => (7, 8),
       Self::Dot => (14, 13),

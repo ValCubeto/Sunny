@@ -1,5 +1,5 @@
-const NUM_EXPR: String = (1 + 2.003 - 00045 * 0xff - 0b1010)
-  .to_string
-const STRINGS: String = "t\u{65}st\e[32m\r\n\t\e[0m\0" + "abc" * ""
-  %
-const TEST: Int = 1
+// asd
+/*
+  asd
+*/
+const NUM_EXPR: String = 1e20.5

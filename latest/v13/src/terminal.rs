@@ -122,6 +122,16 @@ macro_rules! debug_display {
 }
 
 #[macro_export]
+macro_rules! debug_todo {
+  ($arg:expr) => {{
+    #[allow(unused_imports)]
+    use $crate::terminal::Stylize;
+    use $crate::debug_msg;
+    debug_msg!("{}: {}", "TODO".bold().yellow(), $arg);
+  }};
+}
+
+#[macro_export]
 macro_rules! debug_msg {
   ($($arg:expr),*) => {{
     #[allow(unused_imports)]

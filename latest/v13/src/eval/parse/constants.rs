@@ -32,10 +32,10 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
     syntax_err!("expected equal sign");
   };
   let value = parse_expr(tokens);
-  debug_display!(value);
-  let t = tokens.peek();
-  if !matches!(t, Some(Token::NewLine | Token::Semicolon)) {
-    syntax_err!("expected new line or semicolon, found {t:?}");
+
+  match tokens.peek() {
+    Some(Token::NewLine | Token::Semicolon) | None => {}
+    Some(&other) => syntax_err!("unexpected {other}")
   }
 
   let mut metadata = Metadata::new();
