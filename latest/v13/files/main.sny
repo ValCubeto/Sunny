@@ -2,4 +2,8 @@
 /*
   asd
 */
-const NUM_EXPR: String = 1e20.5
+const NUM_EXPR: Int = a + b * c - d / e % f
+state N: Int = 1
+
+shared
+hidden

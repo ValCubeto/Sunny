@@ -89,7 +89,7 @@ pub enum Operator {
 
 impl fmt::Display for Operator {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    f.write_str(match self {
+    let name = match self {
       Self::Plus => "plus sign",
       Self::Minus => "minus sign",
       Self::Star => "star",
@@ -128,7 +128,8 @@ impl fmt::Display for Operator {
       Self::RightAngle => "right angle",
       Self::Dot => "dot",
       Self::Diamond => "diamond",
-    })
+    };
+    f.write_str(name)
   }
 }
 

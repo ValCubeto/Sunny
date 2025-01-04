@@ -1,3 +1,4 @@
+use std::fmt;
 use crate::eval::tokenize::number::Number;
 
 #[allow(unused)]
@@ -13,8 +14,8 @@ pub enum Value {
   // CString,
 }
 
-impl std::fmt::Display for Value {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Value {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
       Value::Char(c) => write!(f, "{c:?}"),
       Value::String(s) => write!(f, "{s:?}"),

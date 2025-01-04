@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt;
 use crate::eval::parse::types::parse_type;
 use crate::eval::tokenize::tokens::{ Operator, Token, Tokens };
 use super::expressions::{ Expr, parse_expr };
@@ -59,8 +59,8 @@ pub struct Variable {
   value: Expr,
 }
 
-impl Display for Variable {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Variable {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     write!(f, "var {}: {:?} = {}", self.name, self.typing, self.value)
   }
 }

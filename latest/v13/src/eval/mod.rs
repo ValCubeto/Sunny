@@ -8,7 +8,7 @@ pub fn eval(input: String, _ctx: Ctx) {
   let items = parse::parse(tokens);
   // debug!(items);
   for item in items {
-    debug_msg!("{item}");
+    debug!(item);
   }
   internal_err!("parsed all items. What's next?");
 }

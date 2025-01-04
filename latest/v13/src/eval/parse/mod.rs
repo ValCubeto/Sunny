@@ -16,9 +16,9 @@ pub fn parse(tokens: Vec<Tk>) -> Vec<Entity> {
     let item = match token {
       Tk::NewLine | Tk::Semicolon => continue,
       Tk::Keyword(Kw::Const) => parse_static(false, &mut tokens),
-      Tk::Keyword(Kw::Private) => todo!(),
-      Tk::Keyword(Kw::Public) => todo!(),
-      Tk::Keyword(Kw::State) => todo!(),
+      Tk::Keyword(Kw::State) => parse_static(true, &mut tokens),
+      Tk::Keyword(Kw::Hidden) => todo!(),
+      Tk::Keyword(Kw::Shared) => todo!(),
       Tk::Keyword(Kw::Use) => todo!(),
       Tk::Keyword(Kw::Struct) => todo!(),
       Tk::Keyword(Kw::Enum) => todo!(),

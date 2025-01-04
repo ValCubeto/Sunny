@@ -12,11 +12,11 @@ pub struct Type {
 }
 
 pub fn parse_type(tokens: &mut Tokens) -> Option<Type> {
-  let generics = HashMap::new();
   let name = match tokens.next()? {
     Token::Ident(ident) => ident.clone(),
     Token::Op(Operator::LeftAngle) => todo!(),
-    _ => syntax_err!("unexpected token"),
+    other => syntax_err!("unexpected {other}"),
   };
+  let generics = HashMap::new();
   Some(Type { name, generics })
 }

@@ -3,7 +3,7 @@ pub mod tokens;
 pub mod number;
 use std::str::Chars;
 use keywords::Keyword;
-use number::Number;
+use number::{parse_bin, parse_hex, parse_number, Number};
 use peekmore::{ PeekMore, PeekMoreIterator };
 use tokens::{ Operator as Op, Token as Tk };
 
@@ -116,21 +116,26 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           tokens.push(Tk::Semicolon);
         }
       }
-      '+' => {
-        if chars.peek() == Some(&'=') {
+      '+' => match chars.peek() {
+        Some('=') => {
           chars.next();
           tokens.push(Tk::Op(Op::AddAssign));
-          continue;
         }
-        tokens.push(Tk::Op(Op::Plus));
+        Some(&d) if d.is_ascii_digit() => {
+          chars.next();
+          tokens.push(Tk::Number(parse_number(&mut chars, d)));
+        }
+        _ => tokens.push(Tk::Op(Op::Plus))
       }
-      '-' => {
-        if chars.peek() == Some(&'=') {
+      '-' => match chars.peek() {
+        Some('=') => {
           chars.next();
           tokens.push(Tk::Op(Op::SubAssign));
-          continue;
         }
-        tokens.push(Tk::Op(Op::Minus));
+        Some(&d) if d.is_ascii_digit() => {
+          tokens.push(Tk::Number(parse_number(&mut chars, '-')));
+        }
+        _ => tokens.push(Tk::Op(Op::Minus))
       }
       '*' => match chars.peek() {
         Some('=') => {
@@ -252,6 +257,7 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           chars.next(); // duplicated 'd'
           tokens.push(Tk::Number(parse_number(&mut chars, d)));
         }
+        Some(&c) if c.is_ascii_alphabetic() => syntax_err!("unexpected character {c:?}"),
         _ => tokens.push(Tk::Number(Number::Int("0".to_owned())))
       }
       d @ '1'..='9' => tokens.push(Tk::Number(parse_number(&mut chars, d))),
@@ -331,7 +337,7 @@ pub fn parse_string(chars: &mut CharsIter) -> String {
             string.push(char::from_u32(code).unwrap());
             skip_spaces(chars);
             if chars.next() != Some('}') {
-              syntax_err!("expected `}}` after escape sequence");
+              syntax_err!("expected right brace after escape sequence");
             }
           }
           Some(other) => syntax_err!("unknown escape sequence \\{other}")
@@ -341,65 +347,4 @@ pub fn parse_string(chars: &mut CharsIter) -> String {
     }
   }
   string
-}
-
-pub fn parse_number(chars: &mut CharsIter, digit: char) -> Number {
-  let mut int = match digit {
-    '0' => String::new(),
-    digit => String::from(digit)
-  };
-  while chars.peek() == Some(&'0') {
-    chars.next();
-  }
-  while let Some(&ch) = chars.peek() {
-    match chars.peek_amount(2) {
-      [Some('.'), Some(d)] if d.is_ascii_digit() => {
-        let mut frac = d.to_string();
-        chars.next();
-        chars.next();
-        while let Some(&ch) = chars.peek() {
-          if !ch.is_ascii_digit() {
-            return Number::Float(int, frac);
-          }
-          frac.push(ch);
-          chars.next();
-        }
-      }
-      _ => {}
-    }
-    if ch == '_' {
-      chars.next();
-      continue;
-    }
-    if !ch.is_ascii_digit() {
-      break;
-    }
-    int.push(ch);
-    chars.next();
-  }
-  Number::Int(int)
-}
-
-pub fn parse_hex(chars: &mut CharsIter) -> Number {
-  let mut hex = String::new();
-  while let Some(&ch) = chars.peek() {
-    if !ch.is_ascii_hexdigit() {
-      break;
-    }
-    chars.next();
-    hex.push(ch);
-  }
-  Number::Hex(hex)
-}
-
-pub fn parse_bin(chars: &mut CharsIter) -> Number {
-  let mut bin = String::new();
-  while let Some(&ch) = chars.peek() {
-    if !matches!(ch, '0' | '1') {
-      break;
-    }
-    chars.next();
-    bin.push(ch);
-  }
-  Number::Bin(bin)
 }

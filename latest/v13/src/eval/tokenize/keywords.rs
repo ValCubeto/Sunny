@@ -6,8 +6,8 @@ pub enum Keyword {
   Use,
   As,
 
-  Public,
-  Private,
+  Shared,
+  Hidden,
 
   Const,
   State,
@@ -56,7 +56,7 @@ pub enum Keyword {
 impl fmt::Display for Keyword {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     debug_todo!("use some kind of sorted list");
-    write!(f, "{:?}", match self {
+    let word = match self {
       Self::Use => "use",
       Self::As => "as",
       Self::Const => "const",
@@ -91,9 +91,10 @@ impl fmt::Display for Keyword {
       Self::Is => "is",
       Self::Macro => "macro",
       Self::Case => "case",
-      Self::Public => "pub",
-      Self::Private => "priv",
-    })
+      Self::Shared => "shared",
+      Self::Hidden=> "hidden",
+    };
+    write!(f, "{word:?}")
   }
 }
 
@@ -103,6 +104,7 @@ impl Keyword {
       "use" => Self::Use,
       "as" => Self::As,
       "const" => Self::Const,
+      "state" => Self::State,
       "var" => Self::Var,
       "let" => Self::Let,
       "class" => Self::Class,
@@ -132,8 +134,8 @@ impl Keyword {
       "async" => Self::Async,
       "await" => Self::Await,
       "case" => Self::Case,
-      "pub" => Self::Public,
-      "priv" => Self::Private,
+      "shared" => Self::Shared,
+      "hidden" => Self::Hidden,
       "typedef" => Self::TypeDef,
       _ => return None,
     };
