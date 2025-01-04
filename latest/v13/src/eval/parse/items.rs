@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt;
 use super::constants::Variable;
 
 #[allow(unused)]
@@ -13,7 +13,6 @@ pub enum Item {
   // TypeDef,
   // Import,
   // Macro,
-  A
 }
 
 #[allow(unused)]
@@ -23,10 +22,11 @@ pub struct Entity {
   pub item: Item,
 }
 
-impl Display for Item {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Item {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    #[allow(unreachable_patterns, reason="Not all variants are implemented yet")]
     match self {
-      Item::Const(variable) => write!(f, "const {}", variable),
+      Item::Const(variable) => write!(f, "{}", variable),
       // Item::Struct => write!(f, "struct"),
       // Item::Enum => write!(f, "enum"),
       // Item::BitSet => write!(f, "bitset"),
@@ -39,20 +39,17 @@ impl Display for Item {
   }
 }
 
-impl Display for Entity {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    if self.metadata.public() {
-      write!(f, "pub ")?;
-    }
-    if self.metadata.mutable() {
-      write!(f, "mut ")?;
-    }
+impl fmt::Display for Entity {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(f, "{} ", if self.metadata.public() { "pub" } else { "priv" })?;
+    write!(f, "{} ", if self.metadata.mutable() { "mut" } else { "const" })?;
     write!(f, "{}", self.item)
   }
 }
 
-// This is a bit set btw
 type M = u8;
+
+// This is a bit set btw
 pub struct Metadata(M);
 #[allow(unused)]
 impl Metadata {
@@ -64,27 +61,26 @@ impl Metadata {
 
   #[inline]
   pub fn new() -> Self {
-    Metadata(0).set_public(Self::TRUE)
+    Metadata(0)
   }
   pub fn public(&self) -> bool {
     self.0 & (1 << Self::IS_PUBLIC) != 0
   }
-  pub fn set_public(mut self, is_public: M) -> Self {
+  pub fn set_public(&mut self, is_public: bool) {
     // 0000_1010 ^ 0000_0001 = 0000_1011
     // 0000_1010 ^ 0000_0000 = 0000_1010
-    self.0 ^= is_public << Self::IS_PUBLIC;
-    self
+    self.0 ^= (is_public as M) << Self::IS_PUBLIC;
   }
   pub fn mutable(&self) -> bool {
     self.0 & (1 << Self::IS_MUTABLE) != 0
   }
-  pub fn set_mutable(mut self, is_mutable: M) -> Self {
-    self.0 ^= is_mutable << Self::IS_MUTABLE;
-    self
+  pub fn set_mutable(&mut self, is_mutable: bool) {
+    self.0 ^= (is_mutable as M) << Self::IS_MUTABLE;
   }
 }
-impl std::fmt::Debug for Metadata {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+
+impl fmt::Debug for Metadata {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     f.debug_struct("Metadata")
       .field("public", &self.public())
       .field("mutable", &self.mutable())

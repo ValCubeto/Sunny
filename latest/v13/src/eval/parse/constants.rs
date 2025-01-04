@@ -1,5 +1,4 @@
 use std::fmt::Display;
-
 use crate::eval::parse::types::parse_type;
 use crate::eval::tokenize::tokens::{ Operator, Token, Tokens };
 use super::expressions::{ Expr, parse_expr };
@@ -24,7 +23,7 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
     syntax_err!("expected identifier");
   };
   let Some(Token::Colon) = tokens.next() else {
-    syntax_err!("expected `:`");
+    syntax_err!("expected typing");
   };
   let Some(typing) = parse_type(tokens) else {
     syntax_err!("expected type");
@@ -33,8 +32,11 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
     syntax_err!("expected equal sign");
   };
   let value = parse_expr(tokens);
+  let mut metadata = Metadata::new();
+  crate::eval::parse::items::Metadata::set_mutable(&mut metadata, mutable);
+  metadata.set_mutable(mutable);
   Entity {
-    metadata: Metadata::new().set_mutable(mutable as u8),
+    metadata,
     item: Item::Const(Variable {
       name: ident.clone(),
       typing,

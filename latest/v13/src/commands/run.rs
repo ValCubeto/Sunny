@@ -10,7 +10,7 @@ use crate::terminal::Stylize;
 pub fn run(args: ParsedArgs) {
   let cwd = current_dir().unwrap();
   let file_path = parse_file_path(&cwd, &args.input);
-  debug_msg!("Working with {}", cwd.join(&file_path).display());
+  debug_msg!("Working with file {}", cwd.join(&file_path).display());
   let ctx = Ctx::new(cwd, args);
   let contents = std::fs::read_to_string(file_path).unwrap();
   debug!(contents);

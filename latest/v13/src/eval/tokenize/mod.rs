@@ -249,9 +249,8 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           tokens.push(Tk::Number(parse_bin(&mut chars)));
         }
         Some(&d) if d.is_ascii_digit() => {
+          chars.next(); // duplicated 'd'
           tokens.push(Tk::Number(parse_number(&mut chars, d)));
-          // chars.next();
-          todo!();
         }
         _ => tokens.push(Tk::Number(Number::Int("0".to_owned())))
       }
@@ -292,7 +291,7 @@ pub fn parse_string(chars: &mut CharsIter) -> String {
   let mut string = String::new();
   while let Some(ch) = chars.next() {
     match ch {
-      '"' => return string,
+      '"' => break,
       '\n' => syntax_err!("unterminated string"),
       '\\' => {
         match chars.next() {
@@ -314,6 +313,9 @@ pub fn parse_string(chars: &mut CharsIter) -> String {
             #[allow(clippy::while_let_on_iterator)]
             while let Some(&ch) = chars.peek() {
               if !ch.is_ascii_hexdigit() {
+                if !matches!(ch, '}' | ' ' | '\t') {
+                  syntax_err!("invalid hex in escape sequence");
+                }
                 break;
               }
               chars.next();
@@ -324,7 +326,7 @@ pub fn parse_string(chars: &mut CharsIter) -> String {
             }
             let code = match u32::from_str_radix(&hex, 16) {
               Ok(code) => code,
-              Err(why) => syntax_err!("invalid escape sequence ({hex:?}): {why}")
+              Err(why) => syntax_err!("invalid escape sequence {hex:?} ({why})")
             };
             string.push(char::from_u32(code).unwrap());
             skip_spaces(chars);
@@ -332,24 +334,23 @@ pub fn parse_string(chars: &mut CharsIter) -> String {
               syntax_err!("expected `}}` after escape sequence");
             }
           }
-          cc => {
-            debug!(string);
-            debug!(cc);
-            syntax_err!("unexpected escape sequence: {cc:?}")
-          }
-        } // match
+          Some(other) => syntax_err!("unknown escape sequence \\{other}")
+        }
       },
       _ => string.push(ch)
-    } // match
-  } // while
-  if chars.peek().is_none() {
-    syntax_err!("unterminated string");
+    }
   }
   string
 }
 
 pub fn parse_number(chars: &mut CharsIter, digit: char) -> Number {
-  let mut int = String::from(digit);
+  let mut int = match digit {
+    '0' => String::new(),
+    digit => String::from(digit)
+  };
+  while chars.peek() == Some(&'0') {
+    chars.next();
+  }
   while let Some(&ch) = chars.peek() {
     match chars.peek_amount(2) {
       [Some('.'), Some(d)] if d.is_ascii_digit() => {
@@ -360,7 +361,6 @@ pub fn parse_number(chars: &mut CharsIter, digit: char) -> Number {
           if !ch.is_ascii_digit() {
             return Number::Float(int, frac);
           }
-          debug_msg!("frac: {ch:?}");
           frac.push(ch);
           chars.next();
         }

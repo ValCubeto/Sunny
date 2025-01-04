@@ -1,10 +1,10 @@
-use std::iter::Peekable;
 use std::slice::Iter;
+use std::fmt;
+use peekmore::PeekMoreIterator;
 use crate::eval::parse::expressions::Expr;
-use std::fmt::{ Display, Formatter };
-use super::{keywords::Keyword, number::Number};
+use super::{ keywords::Keyword, number::Number };
 
-pub type Tokens<'a> = Peekable<Iter<'a, Token>>;
+pub type Tokens<'a> = PeekMoreIterator<Iter<'a, Token>>;
 
 #[allow(unused)]
 #[derive(Debug)]
@@ -87,47 +87,47 @@ pub enum Operator {
   RightShiftAssign,
 }
 
-impl Display for Operator {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Operator {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
-      Operator::Plus => write!(f, "plus sign"),
-      Operator::Minus => write!(f, "minus sign"),
-      Operator::Star => write!(f, "star"),
-      Operator::Slash => write!(f, "slash"),
-      Operator::Percent => write!(f, "percent"),
-      Operator::Equal => write!(f, "equal"),
-      Operator::Xor => write!(f, "xor"),
-      Operator::Ampersand => write!(f, "ampersand"),
-      Operator::Pipe => write!(f, "pipe"),
-      Operator::Question => write!(f, "question mark"),
-      Operator::Bang => write!(f, "bang"),
-      Operator::DoubleDot => write!(f, "double dot"),
-      Operator::TripleDot => write!(f, "triple dot"),
-      Operator::DoubleColon => write!(f, "double colon"),
-      Operator::DoubleEqual => write!(f, "double equal"),
-      Operator::NotEqual => write!(f, "not equal"),
-      Operator::LessEqual => write!(f, "less equal"),
-      Operator::GreaterEqual => write!(f, "greater equal"),
-      Operator::DoubleAmpersand => write!(f, "double ampersand"),
-      Operator::DoublePipe => write!(f, "double pipe"),
-      Operator::AddAssign => write!(f, "add-assign operator"),
-      Operator::SubAssign => write!(f, "sub-assign operator"),
-      Operator::MulAssign => write!(f, "mul-assign operator"),
-      Operator::DivAssign => write!(f, "div-assign operator"),
-      Operator::ModAssign => write!(f, "mod-assign operator"),
-      Operator::XorAssign => write!(f, "xor-assign operator"),
-      Operator::AndAssign => write!(f, "and-assign operator"),
-      Operator::OrAssign => write!(f, "or-assign operator"),
-      Operator::LogicalAndAssign => write!(f, "logical-and-assign operator"),
-      Operator::LogicalOrAssign => write!(f, "logical-or-assign operator"),
-      Operator::LeftShiftAssign => write!(f, "left-shift-assign operator"),
-      Operator::RightShiftAssign => write!(f, "right-shift-assign operator"),
-      Operator::LeftShift => write!(f, "left shift"),
-      Operator::RightShift => write!(f, "right shift"),
-      Operator::LeftAngle => write!(f, "left angle"),
-      Operator::RightAngle => write!(f, "right angle"),
-      Operator::Dot => write!(f, "dot"),
-      Operator::Diamond => write!(f, "diamond"),
+      Self::Plus => write!(f, "plus sign"),
+      Self::Minus => write!(f, "minus sign"),
+      Self::Star => write!(f, "star"),
+      Self::Slash => write!(f, "slash"),
+      Self::Percent => write!(f, "percent"),
+      Self::Equal => write!(f, "equal"),
+      Self::Xor => write!(f, "xor"),
+      Self::Ampersand => write!(f, "ampersand"),
+      Self::Pipe => write!(f, "pipe"),
+      Self::Question => write!(f, "question mark"),
+      Self::Bang => write!(f, "bang"),
+      Self::DoubleDot => write!(f, "double dot"),
+      Self::TripleDot => write!(f, "triple dot"),
+      Self::DoubleColon => write!(f, "double colon"),
+      Self::DoubleEqual => write!(f, "double equal"),
+      Self::NotEqual => write!(f, "not equal"),
+      Self::LessEqual => write!(f, "less equal"),
+      Self::GreaterEqual => write!(f, "greater equal"),
+      Self::DoubleAmpersand => write!(f, "double ampersand"),
+      Self::DoublePipe => write!(f, "double pipe"),
+      Self::AddAssign => write!(f, "add-assign operator"),
+      Self::SubAssign => write!(f, "sub-assign operator"),
+      Self::MulAssign => write!(f, "mul-assign operator"),
+      Self::DivAssign => write!(f, "div-assign operator"),
+      Self::ModAssign => write!(f, "mod-assign operator"),
+      Self::XorAssign => write!(f, "xor-assign operator"),
+      Self::AndAssign => write!(f, "and-assign operator"),
+      Self::OrAssign => write!(f, "or-assign operator"),
+      Self::LogicalAndAssign => write!(f, "logical-and-assign operator"),
+      Self::LogicalOrAssign => write!(f, "logical-or-assign operator"),
+      Self::LeftShiftAssign => write!(f, "left-shift-assign operator"),
+      Self::RightShiftAssign => write!(f, "right-shift-assign operator"),
+      Self::LeftShift => write!(f, "left shift"),
+      Self::RightShift => write!(f, "right shift"),
+      Self::LeftAngle => write!(f, "left angle"),
+      Self::RightAngle => write!(f, "right angle"),
+      Self::Dot => write!(f, "dot"),
+      Self::Diamond => write!(f, "diamond"),
     }
   }
 }
@@ -168,8 +168,9 @@ pub enum Token {
   Number(Number),
 }
 
-impl Display for Token {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Token {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    #[allow(unreachable_patterns, reason="Compile anyways even if I add more Token variants")]
     match self {
       Token::Keyword(kw) => write!(f, "keyword {kw:?}"),
       Token::Ident(ident) => write!(f, "identifier {ident:?}"),
@@ -187,7 +188,7 @@ impl Display for Token {
       Token::Semicolon => write!(f, "semicolon"),
       Token::Colon => write!(f, "colon"),
       Token::Arrow => write!(f, "arrow"),
-      // _ => unimplemented!()
+      _ => unimplemented!()
     }
   }
 }
@@ -206,7 +207,7 @@ impl Operator {
   /// `Option<(u8, ())>`
   pub fn postfix_bp(&self) -> Option<u8> {
     match self {
-      Self::Question => Some(11),
+      Self::Question | Self::Percent => Some(11),
       _ => None
     }
   }
@@ -242,6 +243,7 @@ impl Operator {
     let lhs = lhs.ptr();
     match self {
       Self::Question => Expr::Try(lhs),
+      Self::Percent => Expr::Percent(lhs),
       _ => syntax_err!("unexpected {self}")
     }
   }

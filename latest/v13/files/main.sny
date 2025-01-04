@@ -1,5 +1,3 @@
-const MSG: String = 1.5 + 2 + 1.e + 0xff * 0b1010 + 1
-
-// fun main() {
-//   println("Hello, world!")
-// }
+const NUM_EXPR: String = (1 + 2.003 - 00045 * 0xff - 0b1010)
+;
+const STRINGS: String = "t\u{65}st\e[32m\r\n\t\e[0m\0" + "abc" * "" %
