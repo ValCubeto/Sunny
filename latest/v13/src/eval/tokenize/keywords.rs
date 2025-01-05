@@ -134,9 +134,9 @@ impl Keyword {
       "async" => Self::Async,
       "await" => Self::Await,
       "case" => Self::Case,
+      "typedef" => Self::TypeDef,
       "shared" => Self::Shared,
       "hidden" => Self::Hidden,
-      "typedef" => Self::TypeDef,
       _ => return None,
     };
     Some(keyword)

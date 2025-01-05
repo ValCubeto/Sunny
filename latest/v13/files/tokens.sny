@@ -5,30 +5,45 @@
   This is a multiline comment
 */
 
-( ) { } < > [ ] , . ; : + - * / % = ^ & | ? !
-** .. ... :: == != <> << >> <= >= && || =>
-+= -= *= /= %= ^= &= |= &&= ||= >>= <<= **=
+// ( ) { } [ ]
+// < >
+// , ; :
+// + - * / % ^ & | ? ! << >>
+// .. ...
+// :: .
+// && ||
+// == != <> <= >=
+// = += -= *= /= %= ^= &= |= &&= ||= >>= <<=
+// =>
 
-use as
-pub priv
-const state
-let var
-typedef
-struct enum bitset idea 
-class extends where impl
-argstruct fun defer return
-unsafe
-async await
-loop while for in break continue
-if else
-match is
-macro case
+// use as
+// hidden shared
+// const state
+// let var
+// typedef
+// struct enum bitset idea 
+// class extends where impl
+// argstruct fun unsafe defer return
+// async await
+// loop while for in break continue
+// if else
+// match is
+// macro case
 
-identifier1 identifier2 identifier3
+// identifier
 
-"string\r\e\n\t\0\u{123}\\\""
+// "string\r\e\n\t\0\u{65}\\\""
 
-12345
-12345.67890
-0x123abc
-0b11110000
+// 123
+// 123_456
+// -123
+// 123.456
+// 123.456_789
+// -123.456
+// 123e456
+// 12.34e45.67
+// -12e-45
+// 0x123abc
+// 0x123_abc
+// 0b11110000
+// 0b1111_0000

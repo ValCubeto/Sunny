@@ -23,27 +23,43 @@ impl fmt::Display for Number {
 }
 
 pub fn parse_number(chars: &mut CharsIter, digit: char) -> Number {
-  let lhs = parse_single_number(chars, digit);
-  match chars.peek() {
-    Some('e' | 'E') => {
-      // input = 5e10
-      // this next() skips the 'e' but also skips the last '0' for some reason
+  let mut lhs = parse_int(chars, digit);
+  if let Number::Int(int) = &lhs {
+    if let Some('.') = chars.peek() {
       chars.next();
-      let d = match chars.next() {
-        Some(d) => {
-          debug!(d);
-          d
-        },
-        None => syntax_err!("expected exponent"),
+      let digit = match chars.next() {
+        Some(d) if d.is_ascii_digit() => d,
+        _ => syntax_err!("expected number after decimal point"),
       };
-      let rhs = parse_single_number(chars, d);
-      Number::Exp(Box::new(lhs), Box::new(rhs))
+      let frac = parse_int(chars, digit);
+      lhs = Number::Float(int.clone(), frac.to_string());
     }
-    _ => lhs
   }
+  if let Some('e' | 'E') = chars.peek() {
+    chars.next();
+    let digit = match chars.next() {
+      Some(d) => d,
+      None => syntax_err!("expected exponent"),
+    };
+    let mut rhs = parse_int(chars, digit);
+    if let Number::Int(int) = &rhs {
+      if let Some('.') = chars.peek() {
+        chars.next();
+        let digit = match chars.next() {
+          Some(d) if d.is_ascii_digit() => d,
+          _ => syntax_err!("expected number after decimal point"),
+        };
+        let frac = parse_int(chars, digit);
+        rhs = Number::Float(int.clone(), frac.to_string());
+      }
+    }
+    return Number::Exp(Box::new(lhs), Box::new(rhs));
+  }
+  lhs
 }
 
-fn parse_single_number(chars: &mut CharsIter, digit: char) -> Number {
+/// Parse only `'0'..='9'`, skipping leading zeroes and underscores
+fn parse_int(chars: &mut CharsIter, digit: char) -> Number {
   let mut int = match digit {
     '0' => {
       while chars.peek() == Some(&'0') {
@@ -54,25 +70,13 @@ fn parse_single_number(chars: &mut CharsIter, digit: char) -> Number {
     digit => String::from(digit)
   };
   while let [Some(a), b] = chars.peek_amount(2) {
-    debug_msg!("a = {a:?}; b = {b:?}");
     match (a, b) {
-      ('.', Some(d)) if d.is_ascii_digit() => {
-        let mut frac = d.to_string();
-        chars.next();
-        chars.next();
-        while let Some(&ch) = chars.peek() {
-          if !ch.is_ascii_digit() {
-            return Number::Float(int, frac);
-          }
-          frac.push(ch);
-          chars.next();
-        }
-      }
       ('e' | 'E', _) => break,
       (d, _) if d.is_ascii_alphabetic() => syntax_err!("unexpected character {d:?}"),
-      ('_', _) => {
+      ('_', Some(d)) if d.is_ascii_digit() => {
         chars.next();
       }
+      ('_', _) => syntax_err!("expected number after underscore"),
       (d, _) if d.is_ascii_digit() => {
         int.push(*d);
         chars.next();
@@ -80,30 +84,41 @@ fn parse_single_number(chars: &mut CharsIter, digit: char) -> Number {
       (_, _) => break
     }
   }
-  debug!(int);
   Number::Int(int)
 }
 
 pub fn parse_hex(chars: &mut CharsIter) -> Number {
   let mut hex = String::new();
-  while let Some(&ch) = chars.peek() {
-    if !ch.is_ascii_hexdigit() {
-      break;
+  while let [Some(a), b] = chars.peek_amount(2) {
+    match (a, b) {
+      ('_', Some(d)) if d.is_ascii_hexdigit() => {
+        chars.next();
+      }
+      ('_', _) => syntax_err!("expected digit after underscore"),
+      (d, _) if d.is_ascii_hexdigit() => {
+        hex.push(*d);
+        chars.next();
+      }
+      (_, _) => break
     }
-    chars.next();
-    hex.push(ch);
   }
   Number::Hex(hex)
 }
 
 pub fn parse_bin(chars: &mut CharsIter) -> Number {
   let mut bin = String::new();
-  while let Some(&ch) = chars.peek() {
-    if !matches!(ch, '0' | '1') {
-      break;
+  while let [Some(a), b] = chars.peek_amount(2) {
+    match (a, b) {
+      ('_', Some('0' | '1')) => {
+        chars.next();
+      }
+      ('_', _) => syntax_err!("expected digit after underscore"),
+      (d @ '0' | d @ '1', _) => {
+        bin.push(*d);
+        chars.next();
+      }
+      (_, _) => break
     }
-    chars.next();
-    bin.push(ch);
   }
   Number::Bin(bin)
 }

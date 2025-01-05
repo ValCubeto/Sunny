@@ -41,7 +41,7 @@ impl fmt::Display for Item {
 
 impl fmt::Display for Entity {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "{} ", if self.metadata.public() { "pub" } else { "priv" })?;
+    write!(f, "{} ", if self.metadata.public() { "shared" } else { "hidden" })?;
     write!(f, "{} ", if self.metadata.mutable() { "mut" } else { "const" })?;
     write!(f, "{}", self.item)
   }

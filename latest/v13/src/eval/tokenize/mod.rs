@@ -53,7 +53,7 @@ pub fn tokenize(input: String) -> Vec<Tk> {
         }
         Some('=') => {
           chars.next();
-          tokens.push(Tk::Op(Op::LessEqual));
+          tokens.push(Tk::Op(Op::LessOrEqual));
         }
         Some('<') => {
           chars.next();
@@ -62,14 +62,14 @@ pub fn tokenize(input: String) -> Vec<Tk> {
             tokens.push(Tk::Op(Op::LeftShiftAssign));
             continue;
           }
-          tokens.push(Tk::Op(Op::LeftShift));
+          tokens.push(Tk::Op(Op::DoubleLeftAngle));
         }
         _ => tokens.push(Tk::Op(Op::LeftAngle))
       }
       '>' => match chars.peek() {
         Some('=') => {
           chars.next();
-          tokens.push(Tk::Op(Op::GreaterEqual));
+          tokens.push(Tk::Op(Op::GreaterOrEqual));
         }
         Some('>') => {
           chars.next();
@@ -78,7 +78,7 @@ pub fn tokenize(input: String) -> Vec<Tk> {
             tokens.push(Tk::Op(Op::RightShiftAssign));
             continue;
           }
-          tokens.push(Tk::Op(Op::RightShift));
+          tokens.push(Tk::Op(Op::DoubleRightAngle));
         }
         _ => tokens.push(Tk::Op(Op::RightAngle))
       }
@@ -191,7 +191,7 @@ pub fn tokenize(input: String) -> Vec<Tk> {
           tokens.push(Tk::Op(Op::XorAssign));
           continue;
         }
-        tokens.push(Tk::Op(Op::Xor));
+        tokens.push(Tk::Op(Op::Caret));
       }
       '&' => match chars.peek() {
         // `&&`

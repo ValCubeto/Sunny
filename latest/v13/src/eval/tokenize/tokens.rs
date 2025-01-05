@@ -28,7 +28,7 @@ pub enum Operator {
   /// `=`
   Equal,
   /// `^`
-  Xor,
+  Caret,
   /// `&`
   Ampersand,
   /// `|`
@@ -50,13 +50,13 @@ pub enum Operator {
   /// `<>`
   Diamond,
   /// `<<`
-  LeftShift,
+  DoubleLeftAngle,
   /// `>>`
-  RightShift,
+  DoubleRightAngle,
   /// `<=`
-  LessEqual,
+  LessOrEqual,
   /// `>=`
-  GreaterEqual,
+  GreaterOrEqual,
   /// `&&`
   DoubleAmpersand,
   /// `||`
@@ -96,7 +96,7 @@ impl fmt::Display for Operator {
       Self::Slash => "slash",
       Self::Percent => "percent",
       Self::Equal => "equal",
-      Self::Xor => "xor",
+      Self::Caret => "caret",
       Self::Ampersand => "ampersand",
       Self::Pipe => "pipe",
       Self::Question => "question mark",
@@ -106,8 +106,8 @@ impl fmt::Display for Operator {
       Self::DoubleColon => "double colon",
       Self::DoubleEqual => "double equal",
       Self::NotEqual => "not equal",
-      Self::LessEqual => "less equal",
-      Self::GreaterEqual => "greater equal",
+      Self::LessOrEqual => "less equal",
+      Self::GreaterOrEqual => "greater equal",
       Self::DoubleAmpersand => "double ampersand",
       Self::DoublePipe => "double pipe",
       Self::AddAssign => "add-assign operator",
@@ -122,8 +122,8 @@ impl fmt::Display for Operator {
       Self::LogicalOrAssign => "logical-or-assign operator",
       Self::LeftShiftAssign => "left-shift-assign operator",
       Self::RightShiftAssign => "right-shift-assign operator",
-      Self::LeftShift => "left shift",
-      Self::RightShift => "right shift",
+      Self::DoubleLeftAngle => "double left angle",
+      Self::DoubleRightAngle => "double right angle",
       Self::LeftAngle => "left angle",
       Self::RightAngle => "right angle",
       Self::Dot => "dot",
@@ -263,12 +263,13 @@ impl Operator {
       Self::DoublePipe => Expr::LogicalOr(lhs, rhs),
       Self::Ampersand => Expr::And(lhs, rhs),
       Self::Pipe => Expr::Or(lhs, rhs),
-      Self::Xor => Expr::Xor(lhs, rhs),
+      Self::Caret => Expr::Xor(lhs, rhs),
       Self::Equal => Expr::Equal(lhs, rhs),
       Self::NotEqual => Expr::NotEqual(lhs, rhs),
-      Self::LessEqual => Expr::LessEqual(lhs, rhs),
-      Self::GreaterEqual => Expr::GreaterEqual(lhs, rhs),
-      Self::LeftShift => Expr::LeftShift(lhs, rhs),
+      Self::LessOrEqual => Expr::LessEqual(lhs, rhs),
+      Self::GreaterOrEqual => Expr::GreaterEqual(lhs, rhs),
+      Self::DoubleLeftAngle => Expr::LeftShift(lhs, rhs),
+      Self::DoubleRightAngle => Expr::RightShift(lhs, rhs),
       _ => syntax_err!("unexpected {self}")
     }
   }
