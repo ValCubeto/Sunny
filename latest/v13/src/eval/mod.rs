@@ -1,5 +1,5 @@
-mod tokenize;
-mod parse;
+pub mod tokenize;
+pub mod parse;
 use crate::ctx::Ctx;
 
 pub fn eval(input: String, _ctx: Ctx) {

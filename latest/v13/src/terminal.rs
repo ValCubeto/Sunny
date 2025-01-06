@@ -1,6 +1,8 @@
 #![allow(unused)]
 
 use std::fmt::Display;
+use crate::eval::tokenize::{ LINE, COLUMN };
+use crate::ctx::{ FILE, CONTENTS };
 
 macro_rules! def_consts {
   ($($name:ident = $value:expr;)*) => {
@@ -99,6 +101,7 @@ pub trait Stylize: Display {
     self.green().bold()
   }
 }
+
 impl<T: Display> Stylize for T {}
 
 #[macro_export]
@@ -127,7 +130,7 @@ macro_rules! debug_todo {
     #[allow(unused_imports)]
     use $crate::terminal::Stylize;
     use $crate::debug_msg;
-    debug_msg!("{}: {}", "TODO".bold().yellow(), $arg);
+    debug_msg!("{}: {}", "TODO".warning(), $arg);
   }};
 }
 
@@ -145,26 +148,41 @@ macro_rules! debug_msg {
   }};
 }
 
-#[macro_export]
-macro_rules! syntax_err {
-  ($($arg:expr),*) => {{
-    $crate::quit!("Syntax error", $($arg),*);
-  }};
+pub fn quit(ename: &str, msg: &str, file: &str, line: u32, column: u32) -> ! {
+  eprintln!("{}: {}", ename.error(), msg);
+  unsafe {
+    eprintln!("  at {}:{}:{}", FILE, LINE, COLUMN);
+  }
+  eprintln!("  at {}:{}:{}", file, line, column);
+  eprintln!();
+  unsafe {
+    let line = CONTENTS.lines().nth(LINE - 1).unwrap();
+    eprintln!("{line}");
+    eprintln!("{}{}", " ".repeat(COLUMN - 1), "^".red().bold());
+  }
+  std::process::exit(1);
 }
 
 #[macro_export]
 macro_rules! internal_err {
   ($($arg:expr),*) => {{
-    $crate::quit!("Internal error", $($arg),*);
+    use $crate::terminal::quit;
+    quit("Internal error", &format!($($arg),*), file!(), line!(), column!());
   }};
 }
 
 #[macro_export]
-macro_rules! quit {
-  ($ename:expr, $($arg:expr),*) => {{
-    use $crate::terminal::Stylize;
-    eprintln!("{}: {}", $ename.error(), format!($($arg),*));
-    eprintln!("  at {}:{}:{}", file!(), line!(), column!());
-    std::process::exit(1);
+macro_rules! argument_err {
+  ($($arg:expr),*) => {{
+    use $crate::terminal::quit;
+    quit("Argument error", &format!($($arg),*), file!(), line!(), column!());
+  }};
+}
+
+#[macro_export]
+macro_rules! syntax_err {
+  ($($arg:expr),*) => {{
+    use $crate::terminal::quit;
+    quit("Syntax error", &format!($($arg),*), file!(), line!(), column!());
   }};
 }

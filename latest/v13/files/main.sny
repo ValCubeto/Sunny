@@ -1,7 +1,3 @@
-// asd
-/*
-  asd
-*/
 
-const NUM_EXPR: Int = a + b * c - d / e % f
-state N: Int = 1
+const STR: String = "Hello, world"!
+state NUM: Int32 = 1

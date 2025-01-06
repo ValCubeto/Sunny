@@ -55,7 +55,6 @@ pub enum Keyword {
 
 impl fmt::Display for Keyword {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    debug_todo!("use some kind of sorted list");
     let word = match self {
       Self::Use => "use",
       Self::As => "as",

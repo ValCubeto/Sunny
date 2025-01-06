@@ -7,7 +7,7 @@ pub fn help() {
   let run_txt = format!("{:7}", "run").blue().bold();
   let init_txt = format!("{:7}", "init").blue().bold();
 
-  // TODO: create terminal::table()
+  debug_todo!("create a table() function");
   println!("{}'s runtime and package manager", format!("{LANG} v{VERSION}").cyan().bold());
   println!();
   println!("{}", "Usage:".bold());

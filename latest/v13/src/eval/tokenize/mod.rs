@@ -3,15 +3,46 @@ pub mod tokens;
 pub mod number;
 use std::str::Chars;
 use keywords::Keyword;
-use number::{parse_bin, parse_hex, parse_number, Number};
+use number::{ parse_bin, parse_hex, parse_number, Number };
 use peekmore::{ PeekMore, PeekMoreIterator };
 use tokens::{ Operator as Op, Token as Tk };
 
-type CharsIter<'a> = PeekMoreIterator<Chars<'a>>;
+pub static mut LINE: usize = 1;
+pub static mut COLUMN: usize = 1;
+
+pub struct CharsIter<'a>(PeekMoreIterator<Chars<'a>>);
+impl<'a> CharsIter<'a> {
+  pub fn new(iter: PeekMoreIterator<Chars<'a>>) -> Self {
+    CharsIter(iter)
+  }
+  pub fn next(&mut self) -> Option<char> {
+    let curr = self.0.next();
+    unsafe {
+      // debug_msg!("curr = {curr:?}; line = {LINE}; column = {COLUMN}");
+      match curr {
+        Some('\n') => {
+          COLUMN = 1;
+          LINE += 1;
+        }
+        Some(_) => {
+          COLUMN += 1;
+        }
+        None => {}
+      }
+    }
+    curr
+  }
+  pub fn peek(&mut self) -> Option<&char> {
+    self.0.peek()
+  }
+  pub fn peek_amount(&mut self, amount: usize) -> &[Option<char>] {
+    self.0.peek_amount(amount)
+  }
+}
 
 pub fn tokenize(input: String) -> Vec<Tk> {
   let mut tokens = Vec::new();
-  let mut chars: CharsIter = input.chars().peekmore();
+  let mut chars = CharsIter::new(input.chars().peekmore());
   while let Some(ch) = chars.next() {
     match ch {
       ' ' | '\t' => skip_spaces(&mut chars),
