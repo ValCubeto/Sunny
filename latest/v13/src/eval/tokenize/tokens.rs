@@ -2,12 +2,69 @@ use std::slice::Iter;
 use std::fmt;
 use peekmore::PeekMoreIterator;
 use crate::eval::parse::expressions::Expr;
-use super::{ keywords::Keyword, number::Number };
+use super::{ keywords::Keyword, number::Number, Position, COLUMN, LINE };
 
-pub type Tokens<'a> = PeekMoreIterator<Iter<'a, Token>>;
+pub struct Tokens<'a>(PeekMoreIterator<Iter<'a, (Position, Token)>>);
+impl<'a> Tokens<'a> {
+  pub fn new(tokens: PeekMoreIterator<Iter<'a, (Position, Token)>>) -> Self {
+    Tokens(tokens)
+  }
+  pub fn next(&mut self) -> Option<&'a Token> {
+    match self.0.next() {
+      None => None,
+      Some((pos, token)) => {
+        unsafe {
+          LINE = pos.line;
+          COLUMN = pos.column;
+        }
+        Some(token)
+      }
+    }
+  }
+  pub fn peek(&mut self) -> Option<&'a Token> {
+    self.0.peek().map(|p| &p.1)
+  }
+  pub fn peek_amount(&mut self, amount: usize) -> Vec<Option<&'a Token>> {
+    let mut tokens = Vec::with_capacity(amount);
+    let mut pairs = self.0.peek_amount(amount).iter();
+    while let Some(Some((_, token))) = pairs.next() {
+      tokens.push(Some(token));
+    }
+    for _i in tokens.len()..=tokens.capacity() {
+      tokens.push(None);
+    }
+    tokens
+  }
+  pub fn skip_newline(&mut self) {
+    if let Some(Token::NewLine) = self.peek() {
+      self.next();
+    }
+  }
+}
 
 #[allow(unused)]
 #[derive(Debug)]
+
+/// # LEVEL 1
+/// `a = b` <br>
+/// `a += b` <br>
+/// `a -= b` <br>
+/// `a *= b` <br>
+/// `a /= b` <br>
+/// `a %= b` <br>
+/// `a ^= b` <br>
+/// `a &= b` <br>
+/// `a |= b` <br>
+/// `a &&= b` <br>
+/// `a ||= b` <br>
+/// `a <<= b` <br>
+/// `a >>= b` <br>
+/// # LEVEL 2
+/// `a == b` <br>
+/// `a != b` <br>
+/// # LEVEL 3
+/// `a && b` <br>
+/// `a || b` <br>
 pub enum Operator {
   /// `<`
   LeftAngle,
@@ -87,122 +144,7 @@ pub enum Operator {
   RightShiftAssign,
 }
 
-impl fmt::Display for Operator {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    let name = match self {
-      Self::Plus => "plus sign",
-      Self::Minus => "minus sign",
-      Self::Star => "star",
-      Self::Slash => "slash",
-      Self::Percent => "percent",
-      Self::Equal => "equal",
-      Self::Caret => "caret",
-      Self::Ampersand => "ampersand",
-      Self::Pipe => "pipe",
-      Self::Question => "question mark",
-      Self::Bang => "bang",
-      Self::DoubleDot => "double dot",
-      Self::TripleDot => "triple dot",
-      Self::DoubleColon => "double colon",
-      Self::DoubleEqual => "double equal",
-      Self::NotEqual => "not equal",
-      Self::LessOrEqual => "less equal",
-      Self::GreaterOrEqual => "greater equal",
-      Self::DoubleAmpersand => "double ampersand",
-      Self::DoublePipe => "double pipe",
-      Self::AddAssign => "add-assign operator",
-      Self::SubAssign => "sub-assign operator",
-      Self::MulAssign => "mul-assign operator",
-      Self::DivAssign => "div-assign operator",
-      Self::ModAssign => "mod-assign operator",
-      Self::XorAssign => "xor-assign operator",
-      Self::AndAssign => "and-assign operator",
-      Self::OrAssign => "or-assign operator",
-      Self::LogicalAndAssign => "logical-and-assign operator",
-      Self::LogicalOrAssign => "logical-or-assign operator",
-      Self::LeftShiftAssign => "left-shift-assign operator",
-      Self::RightShiftAssign => "right-shift-assign operator",
-      Self::DoubleLeftAngle => "double left angle",
-      Self::DoubleRightAngle => "double right angle",
-      Self::LeftAngle => "left angle",
-      Self::RightAngle => "right angle",
-      Self::Dot => "dot",
-      Self::Diamond => "diamond",
-    };
-    f.write_str(name)
-  }
-}
 
-#[allow(unused)]
-#[derive(Debug)]
-/// I should create an Operator enum
-pub enum Token {
-  /// Any operator
-  Op(Operator),
-  /// `\n`, `\r\n`
-  NewLine,
-  /// `(`
-  LeftParen,
-  /// `)`
-  RightParen,
-  /// `{`
-  LeftBrace,
-  /// `}`
-  RightBrace,
-  /// `[`
-  LeftBracket,
-  /// `]`
-  RightBracket,
-  /// `,`
-  Comma,
-  /// `;`
-  Semicolon,
-  /// `:`
-  Colon,
-  /// `=>`
-  Arrow,
-  /// `if`, `fun`, `for`, etc
-  Keyword(Keyword),
-  /// Any valid variable name
-  Ident(String),
-  String(String),
-  Number(Number),
-}
-
-impl fmt::Display for Token {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    #[allow(unreachable_patterns, reason="Compile anyways even if I add more Token variants")]
-    match self {
-      Token::Keyword(kw) => write!(f, "keyword {kw}"),
-      Token::Ident(ident) => write!(f, "identifier {ident:?}"),
-      Token::String(string) => write!(f, "string {string:?}"),
-      Token::Number(n) => write!(f, "number {n}"),
-      Token::Op(op) => write!(f, "{op}"),
-      Token::NewLine => write!(f, "new line"),
-      Token::LeftParen => write!(f, "left parenthesis"),
-      Token::RightParen => write!(f, "right parenthesis"),
-      Token::LeftBrace => write!(f, "left brace"),
-      Token::RightBrace => write!(f, "right brace"),
-      Token::LeftBracket => write!(f, "left bracket"),
-      Token::RightBracket => write!(f, "right bracket"),
-      Token::Comma => write!(f, "comma"),
-      Token::Semicolon => write!(f, "semicolon"),
-      Token::Colon => write!(f, "colon"),
-      Token::Arrow => write!(f, "arrow"),
-      _ => unimplemented!()
-    }
-  }
-}
-
-#[allow(unused)]
-impl Token {
-  #[inline]
-  pub fn ptr(self) -> Box<Token> {
-    Box::new(self)
-  }
-}
-
-// It's an inferno to manually write all binding powers
 impl Operator {
   // They usually use dummies
   /// `Option<(u8, ())>`
@@ -215,13 +157,12 @@ impl Operator {
   /// `Option<((), u8)>`
   pub fn prefix_bp(&self) -> u8 {
     match self {
-      Self::Plus | Self::Minus => 9,
+      Self::Plus | Self::Minus | Self::Bang | Self::Ampersand | Self::Star => 9,
       _ => syntax_err!("unexpected {self}")
     }
   }
   pub fn infix_bp(&self) -> Option<(u8, u8)> {
     Some(match self {
-      // Self::Equal => (2, 1),
       Self::Plus | Self::Minus => (5, 6),
       Self::Star | Self::Slash | Self::Percent => (7, 8),
       Self::Dot => (14, 13),
@@ -274,3 +215,123 @@ impl Operator {
     }
   }
 }
+
+impl fmt::Display for Operator {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    let name = match self {
+      Self::Plus => "plus sign",
+      Self::Minus => "minus sign",
+      Self::Star => "star",
+      Self::Slash => "slash",
+      Self::Percent => "percent",
+      Self::Equal => "equal",
+      Self::Caret => "caret",
+      Self::Ampersand => "ampersand",
+      Self::Pipe => "pipe",
+      Self::Question => "question mark",
+      Self::Bang => "bang",
+      Self::DoubleDot => "double dot",
+      Self::TripleDot => "triple dot",
+      Self::DoubleColon => "double colon",
+      Self::DoubleEqual => "double equal",
+      Self::NotEqual => "not equal",
+      Self::LessOrEqual => "less equal",
+      Self::GreaterOrEqual => "greater equal",
+      Self::DoubleAmpersand => "double ampersand",
+      Self::DoublePipe => "double pipe",
+      Self::AddAssign => "add-assign operator",
+      Self::SubAssign => "sub-assign operator",
+      Self::MulAssign => "mul-assign operator",
+      Self::DivAssign => "div-assign operator",
+      Self::ModAssign => "mod-assign operator",
+      Self::XorAssign => "xor-assign operator",
+      Self::AndAssign => "and-assign operator",
+      Self::OrAssign => "or-assign operator",
+      Self::LogicalAndAssign => "logical-and-assign operator",
+      Self::LogicalOrAssign => "logical-or-assign operator",
+      Self::LeftShiftAssign => "left-shift-assign operator",
+      Self::RightShiftAssign => "right-shift-assign operator",
+      Self::DoubleLeftAngle => "double left angle",
+      Self::DoubleRightAngle => "double right angle",
+      Self::LeftAngle => "left angle",
+      Self::RightAngle => "right angle",
+      Self::Dot => "dot",
+      Self::Diamond => "diamond",
+    };
+    f.write_str(name)
+  }
+}
+
+#[allow(unused)]
+#[derive(Debug)]
+/// I should create an Operator enum
+pub enum Token {
+  EoF,
+  /// Any operator
+  Op(Operator),
+  /// `\n`, `\r\n`
+  NewLine,
+  /// `(`
+  LeftParen,
+  /// `)`
+  RightParen,
+  /// `{`
+  LeftBrace,
+  /// `}`
+  RightBrace,
+  /// `[`
+  LeftBracket,
+  /// `]`
+  RightBracket,
+  /// `,`
+  Comma,
+  /// `;`
+  Semicolon,
+  /// `:`
+  Colon,
+  /// `=>`
+  Arrow,
+  /// `if`, `fun`, `for`, etc
+  Keyword(Keyword),
+  /// Any valid variable name
+  Ident(String),
+  String(String),
+  Number(Number),
+}
+
+impl fmt::Display for Token {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    #[allow(unreachable_patterns, reason="Compile anyways even if I add more Token variants")]
+    match self {
+      Token::Keyword(kw) => write!(f, "keyword {kw}"),
+      Token::Ident(ident) => write!(f, "identifier {ident:?}"),
+      Token::String(string) => write!(f, "string {string:?}"),
+      Token::Number(n) => write!(f, "number {n}"),
+      Token::Op(op) => write!(f, "{op}"),
+      Token::NewLine => write!(f, "new line"),
+      Token::LeftParen => write!(f, "left parenthesis"),
+      Token::RightParen => write!(f, "right parenthesis"),
+      Token::LeftBrace => write!(f, "left brace"),
+      Token::RightBrace => write!(f, "right brace"),
+      Token::LeftBracket => write!(f, "left bracket"),
+      Token::RightBracket => write!(f, "right bracket"),
+      Token::Comma => write!(f, "comma"),
+      Token::Semicolon => write!(f, "semicolon"),
+      Token::Colon => write!(f, "colon"),
+      Token::Arrow => write!(f, "arrow"),
+      Token::EoF => write!(f, "end of file"),
+      _ => unimplemented!()
+    }
+  }
+}
+
+#[allow(unused)]
+impl Token {
+  #[inline]
+  pub fn ptr(self) -> Box<Token> {
+    Box::new(self)
+  }
+}
+
+// It's an inferno to manually write all binding powers
+

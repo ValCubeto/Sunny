@@ -1,3 +1,13 @@
 
-const STR: String = "Hello, world"!
-state NUM: Int32 = 1
+const
+  STR
+    :
+      String
+        =
+          "Hello, world"
+            .
+              parse
+                ;
+state NUM: Int32 = 100
+
+fun

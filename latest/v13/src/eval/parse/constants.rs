@@ -15,27 +15,31 @@ const ( <ident>, ... ): <type> = <expr> <end>
 
 /// Parse `const` or `state` items
 pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
-  // skip non-relevant tokens
-  while let Some(Token::NewLine | Token::Semicolon) = tokens.peek() {
-    tokens.next();
-  };
+  tokens.skip_newline();
   let Some(Token::Ident(ident)) = tokens.next() else {
     syntax_err!("expected identifier");
   };
+  tokens.skip_newline();
   let Some(Token::Colon) = tokens.next() else {
     syntax_err!("expected typing");
   };
+  tokens.skip_newline();
   let Some(typing) = parse_type(tokens) else {
     syntax_err!("expected type");
   };
+  tokens.skip_newline();
   let Some(Token::Op(Operator::Equal)) = tokens.next() else {
     syntax_err!("expected equal sign");
   };
+  tokens.skip_newline();
   let value = parse_expr(tokens);
 
   match tokens.peek() {
-    Some(Token::NewLine | Token::Semicolon) | None => {}
-    Some(&other) => syntax_err!("unexpected {other}")
+    Some(Token::NewLine | Token::Semicolon | Token::EoF) | None => {}
+    Some(other) => {
+      tokens.next();
+      syntax_err!("unexpected {other}, expected end of statement")
+    }
   }
 
   let mut metadata = Metadata::new();

@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use std::fmt::Display;
-use crate::eval::tokenize::{ LINE, COLUMN };
+use crate::eval::tokenize::{ COLUMN, LINE };
 use crate::ctx::{ FILE, CONTENTS };
 
 macro_rules! def_consts {
@@ -106,11 +106,16 @@ impl<T: Display> Stylize for T {}
 
 #[macro_export]
 macro_rules! debug {
-  ($arg:expr) => {{
+  ($arg:expr $(, $arg2:expr),* $(,)?) => {{ 
     #[allow(unused_imports)]
     use $crate::terminal::Stylize;
     use $crate::debug_msg;
-    debug_msg!("{} = {:#?}", stringify!($arg).bold(), $arg);
+    #[allow(unused_mut)]
+    let mut msg = format!("{} = {:#?}", stringify!($arg).bold(), $arg);
+    $(
+      msg.push_str(&format!("; {} = {:#?}", stringify!($arg2).bold(), $arg2));
+    ),*
+    debug_msg!("{msg}");
   }};
 }
 
@@ -156,9 +161,17 @@ pub fn quit(ename: &str, msg: &str, file: &str, line: u32, column: u32) -> ! {
   eprintln!("  at {}:{}:{}", file, line, column);
   eprintln!();
   unsafe {
-    let line = CONTENTS.lines().nth(LINE - 1).unwrap();
-    eprintln!("{line}");
-    eprintln!("{}{}", " ".repeat(COLUMN - 1), "^".red().bold());
+    let line = CONTENTS.lines().nth(LINE - 1).unwrap_or_else(|| panic!("line = {LINE}"));
+    let mut padding = 0;
+    for ch in line.chars() {
+      match ch {
+        '\t' => padding += 4,
+        ' ' => padding += 1,
+        _ => break,
+      }
+    }
+    eprintln!("{}", &line[padding..]);
+    eprintln!("{}{}", " ".repeat(COLUMN - 1 - padding), "^"/* .repeat(TOK_LEN) */.red().bold());
   }
   std::process::exit(1);
 }

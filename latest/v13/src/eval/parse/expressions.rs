@@ -168,7 +168,7 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
     Some(token) => syntax_err!("unexpected {token}")
   };
   loop {
-    let op = match tokens.peek_amount(2) {
+    let op = match &tokens.peek_amount(2)[0..2] {
       [None, None] => break,
       [Some(Tk::NewLine), Some(Tk::Op(op))] => {
         tokens.next();
@@ -183,6 +183,7 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
         continue;
       }
       [Some(Tk::Op(op)), _] => op,
+      // Usually [Some(NewLine), _]
       _ => return lhs
     };
     if let Some(left_bp) = op.postfix_bp() {

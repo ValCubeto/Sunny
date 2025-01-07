@@ -6,33 +6,35 @@ pub mod types;
 use constants::parse_static;
 use items::Entity;
 use peekmore::PeekMore;
-use super::tokenize::tokens::Token as Tk;
+use super::tokenize::tokens::{Token as Tk, Tokens};
 use super::tokenize::keywords::Keyword as Kw;
+use super::tokenize::Position;
 
-pub fn parse(tokens: Vec<Tk>) -> Vec<Entity> {
+pub fn parse(tokens: Vec<(Position, Tk)>) -> Vec<Entity> {
   let mut items = Vec::new();
-  let mut tokens = tokens.iter().peekmore();
+  let mut tokens = Tokens::new(tokens.iter().peekmore());
   while let Some(token) = tokens.next() {
     let item = match token {
+      Tk::EoF => break,
       Tk::NewLine | Tk::Semicolon => continue,
       Tk::Keyword(Kw::Const) => parse_static(false, &mut tokens),
       Tk::Keyword(Kw::State) => parse_static(true, &mut tokens),
-      Tk::Keyword(Kw::Hidden) => todo!(),
-      Tk::Keyword(Kw::Shared) => todo!(),
-      Tk::Keyword(Kw::Use) => todo!(),
-      Tk::Keyword(Kw::Struct) => todo!(),
-      Tk::Keyword(Kw::Enum) => todo!(),
-      Tk::Keyword(Kw::BitSet) => todo!(),
-      Tk::Keyword(Kw::Fun) => todo!(),
-      Tk::Keyword(Kw::ArgStruct) => todo!(),
-      Tk::Keyword(Kw::Class) => todo!(),
-      Tk::Keyword(Kw::Idea) => todo!(),
-      Tk::Keyword(Kw::Impl) => todo!(),
-      Tk::Keyword(Kw::TypeDef) => todo!(),
-      Tk::Keyword(Kw::Unsafe) => todo!(),
-      Tk::Keyword(Kw::Async) => todo!(),
-      Tk::Keyword(Kw::If) => todo!(),
-      Tk::Keyword(Kw::Macro) => todo!(),
+      Tk::Keyword(Kw::Hidden) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::Shared) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::Use) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::Struct) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::Enum) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::BitSet) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::Fun) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::ArgStruct) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::Class) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::Idea) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::Impl) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::TypeDef) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::Unsafe) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::Async) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::If) => syntax_err!("not yet implemented"),
+      Tk::Keyword(Kw::Macro) => syntax_err!("not yet implemented"),
       _ => syntax_err!("unexpected {token}"),
     };
     items.push(item);
