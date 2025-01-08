@@ -29,6 +29,11 @@ impl ParsedArgs {
   }
 }
 
+const SINGLE_FLAGS: [&str; 2] = [
+  "no-color",
+  "debug",
+];
+
 pub fn parse() -> ParsedArgs {
   let mut argv = env::args();
   let mut args = Vec::new();
@@ -45,7 +50,11 @@ pub fn parse() -> ParsedArgs {
       break;
     }
     let key = arg.trim_start_matches('-').to_owned();
-    let value = argv.next().unwrap_or_default();
+    let value = if SINGLE_FLAGS.contains(&key.as_str()) {
+      "".to_owned()
+    } else {
+      argv.next().unwrap_or_default()
+    };
     flags.insert(key, value);
   }
   while let Some(arg) = argv.next() {
@@ -54,7 +63,11 @@ pub fn parse() -> ParsedArgs {
         break;
       }
       let key = arg.trim_start_matches('-').to_owned();
-      let value = argv.next().unwrap_or_default();
+      let value = if SINGLE_FLAGS.contains(&key.as_str()) {
+        "".to_owned()
+      } else {
+        argv.next().unwrap_or_default()
+      };
       flags.insert(key, value);
       continue;
     }

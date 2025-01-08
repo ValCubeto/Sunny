@@ -18,8 +18,7 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
   tokens.skip_newline();
   let ident = match tokens.next() {
     Some(Token::Ident(ident)) => ident,
-    Some(other) => syntax_err!("unexpected {other}, expected identifier"),
-    None => syntax_err!("expected identifier")
+    Some(_) | None => syntax_err!("expected identifier")
   };
   tokens.skip_newline();
   let Some(Token::Colon) = tokens.next() else {
@@ -31,7 +30,7 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
   };
   tokens.skip_newline();
   let Some(Token::Op(Operator::Equal)) = tokens.next() else {
-    syntax_err!("expected equal sign");
+    syntax_err!("expected value");
   };
   tokens.skip_newline();
   let value = parse_expr(tokens);

@@ -149,6 +149,7 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
     None => syntax_err!("unexpected end of file"),
     Some(Tk::Ident(ident)) => Expr::Single(Value::Ident(ident.clone())),
     Some(Tk::String(string)) => Expr::Single(Value::String(string.clone())),
+    Some(Tk::Char(ch)) => Expr::Single(Value::Char(*ch)),
     Some(Tk::Number(number)) => Expr::Single(Value::Number(number.clone())),
     Some(Tk::LeftParen) => {
       let lhs = parse_expr_bp(tokens, 0);
@@ -165,6 +166,7 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
       op.prefix_expr(rhs)
     }
     Some(Tk::NewLine) => return parse_expr_bp(tokens, min_bp),
+    Some(Tk::EoF) => syntax_err!("expected value"),
     Some(token) => syntax_err!("unexpected {token}")
   };
   loop {

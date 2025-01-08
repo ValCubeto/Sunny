@@ -2,7 +2,7 @@
 // GET /analyze -> passes the code and returns the output of ../../target/debug/v13.exe
 
 import { createServer } from "http"
-import { readFileSync, writeFileSync } from "fs"
+import { createWriteStream, readFileSync, writeFileSync } from "fs"
 import { spawn } from "child_process"
 
 const server = createServer((req, res) => {
@@ -21,21 +21,13 @@ const server = createServer((req, res) => {
       input += chunk.toString()
     })
     req.on("end", () => {
-      console.info(`input[${input.length}] = ${input}`)
       writeFileSync("./input.sny", input)
       const child = spawn("../../target/debug/v13.exe", ["run", "--no-color", "input.sny"])
       res.writeHead(200, { "Content-Type": "text/plain" })
-      let buffer = Buffer.alloc(2048)
-      child.stdout.on("data", (chunk) => {
-        buffer.write(chunk.toString())
-      })
-      child.stderr.on("data", (chunk) => {
-        buffer.write(chunk.toString())
-      })
-      child.on("close", (code) => {
-        console.info(`child exited with code ${code}`)
-        let output = buffer.toString().slice(0, buffer.length)
-        console.info(`output[${output.length}] = ${output}`)
+      child.stdout.pipe(createWriteStream("./output.log"))
+      child.stderr.pipe(createWriteStream("./output.log"))
+      child.on("close", (_code) => {
+        let output = readFileSync("./output.log")
         res.write(output)
         res.end()
         console.info("Request ended")

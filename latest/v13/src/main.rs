@@ -23,7 +23,6 @@ fn main() {
       DEBUG = true;
     }
   }
-
   debug!(args);
   commands::run_cmd(args);
 }

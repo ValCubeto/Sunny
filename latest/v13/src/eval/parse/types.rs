@@ -15,7 +15,7 @@ pub fn parse_type(tokens: &mut Tokens) -> Option<Type> {
   let name = match tokens.next()? {
     Token::Ident(ident) => ident.clone(),
     Token::Op(Operator::LeftAngle) => todo!(),
-    other => syntax_err!("unexpected {other}"),
+    _ => return None,
   };
   let generics = HashMap::new();
   Some(Type { name, generics })

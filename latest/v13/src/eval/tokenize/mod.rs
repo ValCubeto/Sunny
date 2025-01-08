@@ -384,7 +384,8 @@ pub fn skip_spaces(chars: &mut CharsIter) -> usize {
 
 pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
   match chars.next() {
-    Some('\n') | None => syntax_err!("unterminated string"),
+    Some('\'') => syntax_err!("empty character literal"),
+    Some('\n') | None => syntax_err!("unterminated character literal"),
     Some('\\') => {
       match chars.next() {
         None => syntax_err!("unterminated escape sequence"),
@@ -439,6 +440,9 @@ pub fn parse_string(chars: &mut CharsIter) -> (String, usize) {
   while let Some(&ch) = chars.peek() {
     if ch == '"' {
       chars.next();
+      return (string, len);
+    }
+    if ch == '\n' {
       break;
     }
     let (ch, ch_len) = parse_char(chars);
@@ -446,5 +450,5 @@ pub fn parse_string(chars: &mut CharsIter) -> (String, usize) {
     len += ch_len;
     string.push(ch);
   }
-  (string, len)
+  syntax_err!("unclosed string");
 }
