@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use std::fmt::Display;
-use crate::eval::tokenize::{ COLUMN, LINE };
+use crate::eval::tokenize::{ COLUMN, LINE, TOK_LEN };
 use crate::ctx::{ FILE, CONTENTS };
 
 macro_rules! def_consts {
@@ -156,22 +156,23 @@ macro_rules! debug_msg {
 pub fn quit(ename: &str, msg: &str, file: &str, line: u32, column: u32) -> ! {
   eprintln!("{}: {}", ename.error(), msg);
   unsafe {
-    eprintln!("  at {}:{}:{}", FILE, LINE, COLUMN);
-  }
-  eprintln!("  at {}:{}:{}", file, line, column);
-  eprintln!();
-  unsafe {
-    let line = CONTENTS.lines().nth(LINE - 1).unwrap_or_else(|| panic!("line = {LINE}"));
-    let mut padding = 0;
-    for ch in line.chars() {
-      match ch {
-        '\t' => padding += 4,
-        ' ' => padding += 1,
-        _ => break,
+    let lines: Vec<&str> = CONTENTS.lines().collect();
+    let line_text = lines[LINE - 1];
+    if !line_text.trim().is_empty() {
+      eprintln!();
+      let mut padding = 0;
+      for ch in line_text.chars() {
+        match ch {
+          '\t' => padding += 4,
+          ' ' => padding += 1,
+          _ => break,
+        }
       }
+      eprintln!("{}", &line_text[padding..]);
+      eprintln!("{}{}", " ".repeat(COLUMN - 1 - padding), "^".repeat(TOK_LEN).red().bold());
     }
-    eprintln!("{}", &line[padding..]);
-    eprintln!("{}{}", " ".repeat(COLUMN - 1 - padding), "^"/* .repeat(TOK_LEN) */.red().bold());
+    eprintln!("  at {}:{}:{}", FILE, LINE, COLUMN);
+    eprintln!("  at {}:{}:{}", file, line, column);
   }
   std::process::exit(1);
 }

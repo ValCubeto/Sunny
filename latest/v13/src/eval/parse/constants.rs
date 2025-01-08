@@ -16,8 +16,10 @@ const ( <ident>, ... ): <type> = <expr> <end>
 /// Parse `const` or `state` items
 pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
   tokens.skip_newline();
-  let Some(Token::Ident(ident)) = tokens.next() else {
-    syntax_err!("expected identifier");
+  let ident = match tokens.next() {
+    Some(Token::Ident(ident)) => ident,
+    Some(other) => syntax_err!("unexpected {other}, expected identifier"),
+    None => syntax_err!("expected identifier")
   };
   tokens.skip_newline();
   let Some(Token::Colon) = tokens.next() else {

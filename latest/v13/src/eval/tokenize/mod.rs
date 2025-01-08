@@ -9,29 +9,25 @@ use tokens::{ Operator as Op, Token as Tk };
 
 pub static mut LINE: usize = 1;
 pub static mut COLUMN: usize = 1;
+pub static mut TOK_LEN: usize = 1;
 
 pub struct CharsIter<'a> {
   iterator: PeekMoreIterator<Chars<'a>>,
-  saved_pos: Position
+  pub saved_pos: Position
 }
 impl<'a> CharsIter<'a> {
   pub fn new(iterator: PeekMoreIterator<Chars<'a>>) -> Self {
     CharsIter {
       iterator,
-      saved_pos: Position { line: 1, column: 1 }
+      saved_pos: Position { line: 1, column: 1, tok_len: 1 }
     }
   }
   /// Save the current position at the start of a token
   pub fn save_pos(&mut self) {
     unsafe {
-      self.saved_pos = Position {
-        line: LINE,
-        column: COLUMN
-      }
+      self.saved_pos.line = LINE;
+      self.saved_pos.column = COLUMN;
     }
-  }
-  pub fn saved_pos(&self) -> Position {
-    self.saved_pos
   }
   pub fn next(&mut self) -> Option<char> {
     let curr = self.iterator.next();
@@ -61,22 +57,32 @@ impl<'a> CharsIter<'a> {
 pub struct Position {
   pub line: usize,
   pub column: usize,
+  pub tok_len: usize,
 }
 
 pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
   let mut tokens: Vec<(Position, Tk)> = Vec::new();
   let mut chars = CharsIter::new(input.chars().peekmore());
+  /// `push(token: Token, len: usize = 1)`
   macro_rules! push {
-    ($tk:expr) => {
-      {
-        tokens.push((chars.saved_pos(), $tk));
-      }
-    }
+    ($tk:expr) => {{
+      tokens.push((chars.saved_pos, $tk));
+    }};
+    ($tk:expr, $len:expr) => {{
+      let mut pos = chars.saved_pos;
+      pos.tok_len = $len;
+      tokens.push((pos, $tk));
+    }};
   }
   chars.save_pos();
   while let Some(ch) = chars.next() {
     match ch {
-      ' ' | '\t' => skip_spaces(&mut chars),
+      ' ' | '\t' => {
+        let len = skip_spaces(&mut chars) + 1;
+        unsafe {
+          COLUMN += len;
+        }
+      },
       '(' => push!(Tk::LeftParen),
       ')' => push!(Tk::RightParen),
       '{' => push!(Tk::LeftBrace),
@@ -88,22 +94,16 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       '!' => match chars.peek() {
         Some('=') => {
           chars.next();
-          push!(Tk::Op(Op::NotEqual));
+          push!(Tk::Op(Op::NotEqual), 2);
           continue;
         }
         _ => push!(Tk::Op(Op::Bang))
       }
       '\n' | '\r' => {
-        let mut skipped = String::from(ch);
         // Collect all the new line characters
-        while let Some(&ch) = chars.peek() {
-          if !matches!(ch, '\n' | '\r') {
-            break;
-          }
-          skipped.push(ch);
+        while let Some('\n' | '\r') = chars.peek() {
           chars.next();
         }
-        // Idk how to negate this condition
         if !matches!(tokens.last(), Some((_, Tk::NewLine))) {
           push!(Tk::NewLine);
         }
@@ -111,36 +111,36 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       '<' => match chars.peek() {
         Some('>') => {
           chars.next();
-          push!(Tk::Op(Op::Diamond));
+          push!(Tk::Op(Op::Diamond), 2);
         }
         Some('=') => {
           chars.next();
-          push!(Tk::Op(Op::LessOrEqual));
+          push!(Tk::Op(Op::LessOrEqual), 2);
         }
         Some('<') => {
           chars.next();
           if chars.peek() == Some(&'=') {
             chars.next();
-            push!(Tk::Op(Op::LeftShiftAssign));
+            push!(Tk::Op(Op::LeftShiftAssign), 3);
             continue;
           }
-          push!(Tk::Op(Op::DoubleLeftAngle));
+          push!(Tk::Op(Op::DoubleLeftAngle), 2);
         }
         _ => push!(Tk::Op(Op::LeftAngle))
       }
       '>' => match chars.peek() {
         Some('=') => {
           chars.next();
-          push!(Tk::Op(Op::GreaterOrEqual));
+          push!(Tk::Op(Op::GreaterOrEqual), 2);
         }
         Some('>') => {
           chars.next();
           if chars.peek() == Some(&'=') {
             chars.next();
-            push!(Tk::Op(Op::RightShiftAssign));
+            push!(Tk::Op(Op::RightShiftAssign), 3);
             continue;
           }
-          push!(Tk::Op(Op::DoubleRightAngle));
+          push!(Tk::Op(Op::DoubleRightAngle), 2);
         }
         _ => push!(Tk::Op(Op::RightAngle))
       }
@@ -149,10 +149,10 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           chars.next();
           if chars.peek() == Some(&'.') {
             chars.next();
-            push!(Tk::Op(Op::TripleDot));
+            push!(Tk::Op(Op::TripleDot), 3);
             continue;
           }
-          push!(Tk::Op(Op::DoubleDot));
+          push!(Tk::Op(Op::DoubleDot), 2);
           continue;
         }
         push!(Tk::Op(Op::Dot));
@@ -160,7 +160,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       ':' => {
         if chars.peek() == Some(&':') {
           chars.next();
-          push!(Tk::Op(Op::DoubleColon));
+          push!(Tk::Op(Op::DoubleColon), 2);
           continue;
         }
         push!(Tk::Colon);
@@ -174,44 +174,48 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           chars.next();
           skip_spaces(&mut chars);
         }
-        if let Some((_, Tk::Semicolon)) = tokens.last() {} else {
+        if !matches!(tokens.last(), Some((_, Tk::Semicolon))) {
           push!(Tk::Semicolon);
         }
       }
       '+' => match chars.peek() {
         Some('=') => {
           chars.next();
-          push!(Tk::Op(Op::AddAssign));
+          push!(Tk::Op(Op::AddAssign), 2);
         }
         Some(&d) if d.is_ascii_digit() => {
+          // Skip the plus sign
           chars.next();
-          push!(Tk::Number(parse_number(&mut chars, d)));
+          let (num, len) = parse_number(&mut chars, d);
+          push!(Tk::Number(num), len + 1);
         }
         _ => push!(Tk::Op(Op::Plus))
       }
       '-' => match chars.peek() {
         Some('=') => {
           chars.next();
-          push!(Tk::Op(Op::SubAssign));
+          push!(Tk::Op(Op::SubAssign), 2);
         }
         Some(&d) if d.is_ascii_digit() => {
-          push!(Tk::Number(parse_number(&mut chars, '-')));
+          let (num, len) = parse_number(&mut chars, '-');
+          push!(Tk::Number(num), len);
         }
         _ => push!(Tk::Op(Op::Minus))
       }
       '*' => match chars.peek() {
         Some('=') => {
           chars.next();
-          push!(Tk::Op(Op::MulAssign));
+          push!(Tk::Op(Op::MulAssign), 2);
         }
         _ => push!(Tk::Op(Op::Star))
       }
       '/' => match chars.peek() {
         Some('=') => {
           chars.next();
-          push!(Tk::Op(Op::DivAssign));
+          push!(Tk::Op(Op::DivAssign), 2);
         }
         Some('/') => {
+          // Inline comments
           chars.next();
           while let Some(&ch) = chars.peek() {
             if ch == '\n' {
@@ -242,7 +246,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       '%' => {
         if chars.peek() == Some(&'=') {
           chars.next();
-          push!(Tk::Op(Op::ModAssign));
+          push!(Tk::Op(Op::ModAssign), 2);
           continue;
         }
         push!(Tk::Op(Op::Percent));
@@ -250,7 +254,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       '^' => {
         if chars.peek() == Some(&'=') {
           chars.next();
-          push!(Tk::Op(Op::XorAssign));
+          push!(Tk::Op(Op::XorAssign), 2);
           continue;
         }
         push!(Tk::Op(Op::Caret));
@@ -262,15 +266,15 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           // `&&=`
           if chars.peek() == Some(&'=') {
             chars.next();
-            push!(Tk::Op(Op::LogicalAndAssign));
+            push!(Tk::Op(Op::LogicalAndAssign), 3);
             continue;
           }
-          push!(Tk::Op(Op::DoubleAmpersand));
+          push!(Tk::Op(Op::DoubleAmpersand), 2);
         }
         // `&=`
         Some(&'=') => {
           chars.next();
-          push!(Tk::Op(Op::AndAssign));
+          push!(Tk::Op(Op::AndAssign), 2);
         }
         _ => push!(Tk::Op(Op::Ampersand))
       }
@@ -281,22 +285,22 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           // `||=`
           if chars.peek() == Some(&'=') {
             chars.next();
-            push!(Tk::Op(Op::LogicalOrAssign));
+            push!(Tk::Op(Op::LogicalOrAssign), 3);
             continue;
           }
-          push!(Tk::Op(Op::DoublePipe));
+          push!(Tk::Op(Op::DoublePipe), 2);
         }
         // `|=`
         Some(&'=') => {
           chars.next();
-          push!(Tk::Op(Op::OrAssign));
+          push!(Tk::Op(Op::OrAssign), 2);
         }
         _ => push!(Tk::Op(Op::Pipe))
       }
       '=' => match chars.peek() {
         Some('=') => {
           chars.next();
-          push!(Tk::Op(Op::DoubleEqual));
+          push!(Tk::Op(Op::DoubleEqual), 2);
           continue;
         }
         Some('>') => {
@@ -305,24 +309,31 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           continue;
         }
         _ => push!(Tk::Op(Op::Equal))
-      },
+      }
       '0' => match chars.peek() {
-        Some('x') => {
+        Some('x' | 'X') => {
           chars.next();
-          push!(Tk::Number(parse_hex(&mut chars)));
+          let (num, len) = parse_hex(&mut chars);
+          push!(Tk::Number(num), len);
         }
-        Some('b') => {
+        Some('b' | 'B') => {
           chars.next();
-          push!(Tk::Number(parse_bin(&mut chars)));
+          let (num, len) = parse_bin(&mut chars);
+          push!(Tk::Number(num), len);
         }
         Some(&d) if d.is_ascii_digit() => {
-          chars.next(); // duplicated 'd'
-          push!(Tk::Number(parse_number(&mut chars, d)));
+          // Skip this leading zero
+          chars.next();
+          let (num, len) = parse_number(&mut chars, d);
+          push!(Tk::Number(num), len + 1);
         }
         Some(&c) if c.is_ascii_alphabetic() => syntax_err!("unexpected character {c:?}"),
         _ => push!(Tk::Number(Number::Int("0".to_owned())))
       }
-      d @ '1'..='9' => push!(Tk::Number(parse_number(&mut chars, d))),
+      d @ '1'..='9' => {
+        let (num, len) = parse_number(&mut chars, d);
+        push!(Tk::Number(num), len);
+      }
       'a'..='z' | 'A'..='Z' | '_' => {
         let mut word = String::from(ch);
         while let Some(&ch) = chars.peek() {
@@ -333,13 +344,25 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           word.push(ch);
           chars.next();
         }
+        let len = word.len();
         let token = match Keyword::parse(&word) {
           Some(kw) => Tk::Keyword(kw),
           None => Tk::Ident(word),
         };
-        push!(token);
+        push!(token, len);
       }
-      '"' => push!(Tk::String(parse_string(&mut chars))),
+      '"' => {
+        let (string, len) = parse_string(&mut chars);
+        push!(Tk::String(string), len + 2);
+      }
+      '\'' => {
+        let (ch, len) = parse_char(&mut chars);
+        if chars.next() != Some('\'') {
+          syntax_err!("expected a closing single quote here");
+          // "If you meant to write a string literal, use double quotes"
+        }
+        push!(Tk::Char(ch), len + 2);
+      }
       _ => syntax_err!("unexpected token: {ch:?}")
     } // match
     chars.save_pos();
@@ -348,67 +371,82 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
   tokens
 }
 
-pub fn skip_spaces(chars: &mut CharsIter) {
+/// Returns the number of skipped spaces in case of any token that contains spaces
+pub fn skip_spaces(chars: &mut CharsIter) -> usize {
+  let mut len = 0;
   while let Some(&ch) = chars.peek() {
     if !matches!(ch, ' ' | '\t') {
       break;
     }
+    len += 1;
     chars.next();
+  }
+  len
+}
+
+pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
+  match chars.next() {
+    Some('\n') | None => syntax_err!("unterminated string"),
+    Some('\\') => {
+      match chars.next() {
+        None => syntax_err!("unterminated escape sequence"),
+        Some('n') => ('\n', 2),
+        Some('r') => ('\r', 2),
+        Some('t') => ('\t', 2),
+        Some('0') => ('\0', 2),
+        Some('e') => ('\x1b', 2),
+        Some('u') => {
+          // "\u{}"
+          let mut len = 4;
+          if chars.next() != Some('{') {
+            syntax_err!("expected '{{' after '\\u'");
+          }
+          len += skip_spaces(chars);
+          let mut hex = String::new();
+          while let Some(&ch) = chars.peek() {
+            match ch {
+              '}' | ' ' | '\t' => break,
+              ch if ch.is_ascii_hexdigit() => {
+                chars.next();
+                hex.push(ch);
+              }
+              _ => syntax_err!("invalid hex in escape sequence")
+            }
+          }
+          if hex.is_empty() {
+            syntax_err!("empty escape sequence");
+          }
+          len += hex.len();
+          let code = match u32::from_str_radix(&hex, 16) {
+            Ok(code) => code,
+            Err(why) => syntax_err!("invalid escape sequence {hex:?} ({why})")
+          };
+          let ch = char::from_u32(code).unwrap_or_else(|| syntax_err!("invalid escape sequence {hex:?}"));
+          len += skip_spaces(chars);
+          if chars.next() != Some('}') {
+            syntax_err!("expected right brace after escape sequence");
+          }
+          (ch, len)
+        }
+        Some(other) => (other, 2)
+      }
+    }
+    Some(other) => (other, 1)
   }
 }
 
-pub fn parse_string(chars: &mut CharsIter) -> String {
+pub fn parse_string(chars: &mut CharsIter) -> (String, usize) {
   let mut string = String::new();
-  while let Some(ch) = chars.next() {
-    match ch {
-      '"' => break,
-      '\n' => syntax_err!("unterminated string"),
-      '\\' => {
-        match chars.next() {
-          None => return string,
-          Some('"') => string.push('"'),
-          Some('\\') => string.push('\\'),
-          Some('n') => string.push('\n'),
-          Some('r') => string.push('\r'),
-          Some('t') => string.push('\t'),
-          Some('0') => string.push('\0'),
-          Some('e') => string.push('\x1b'),
-          Some('u') => {
-            if chars.next() != Some('{') {
-              syntax_err!("expected '{{' after '\\u'");
-            }
-            skip_spaces(chars);
-            let mut hex = String::new();
-            // This shows a warning but if I use a for loop the program crashes...
-            #[allow(clippy::while_let_on_iterator)]
-            while let Some(&ch) = chars.peek() {
-              if !ch.is_ascii_hexdigit() {
-                if !matches!(ch, '}' | ' ' | '\t') {
-                  syntax_err!("invalid hex in escape sequence");
-                }
-                break;
-              }
-              chars.next();
-              hex.push(ch);
-            }
-            if hex.is_empty() {
-              syntax_err!("empty escape sequence");
-            }
-            let code = match u32::from_str_radix(&hex, 16) {
-              Ok(code) => code,
-              Err(why) => syntax_err!("invalid escape sequence {hex:?} ({why})")
-            };
-            string.push(char::from_u32(code).unwrap());
-            skip_spaces(chars);
-            if chars.next() != Some('}') {
-              syntax_err!("expected right brace after escape sequence");
-            }
-          }
-          Some(other) => syntax_err!("unknown escape sequence \\{other}")
-        }
-      },
-      _ => string.push(ch)
+  let mut len = 0;
+  while let Some(&ch) = chars.peek() {
+    if ch == '"' {
+      chars.next();
+      break;
     }
+    let (ch, ch_len) = parse_char(chars);
+    debug!(ch);
+    len += ch_len;
+    string.push(ch);
   }
-  string
+  (string, len)
 }

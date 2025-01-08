@@ -8,6 +8,4 @@ const
             .
               parse
                 ;
-state NUM: Int32 = 100
-
-fun
+state NUM: Int32 = 1000

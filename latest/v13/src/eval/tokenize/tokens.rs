@@ -2,7 +2,7 @@ use std::slice::Iter;
 use std::fmt;
 use peekmore::PeekMoreIterator;
 use crate::eval::parse::expressions::Expr;
-use super::{ keywords::Keyword, number::Number, Position, COLUMN, LINE };
+use super::{ keywords::Keyword, number::Number, Position, COLUMN, LINE, TOK_LEN };
 
 pub struct Tokens<'a>(PeekMoreIterator<Iter<'a, (Position, Token)>>);
 impl<'a> Tokens<'a> {
@@ -16,6 +16,7 @@ impl<'a> Tokens<'a> {
         unsafe {
           LINE = pos.line;
           COLUMN = pos.column;
+          TOK_LEN = pos.tok_len;
         }
         Some(token)
       }
@@ -295,18 +296,19 @@ pub enum Token {
   Keyword(Keyword),
   /// Any valid variable name
   Ident(String),
+  Char(char),
   String(String),
   Number(Number),
 }
 
 impl fmt::Display for Token {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    #[allow(unreachable_patterns, reason="Compile anyways even if I add more Token variants")]
     match self {
       Token::Keyword(kw) => write!(f, "keyword {kw}"),
       Token::Ident(ident) => write!(f, "identifier {ident:?}"),
-      Token::String(string) => write!(f, "string {string:?}"),
-      Token::Number(n) => write!(f, "number {n}"),
+      Token::String(_) => write!(f, "string literal"),
+      Token::Char(_) => write!(f, "char literal"),
+      Token::Number(_) => write!(f, "number literal"),
       Token::Op(op) => write!(f, "{op}"),
       Token::NewLine => write!(f, "new line"),
       Token::LeftParen => write!(f, "left parenthesis"),
@@ -319,8 +321,7 @@ impl fmt::Display for Token {
       Token::Semicolon => write!(f, "semicolon"),
       Token::Colon => write!(f, "colon"),
       Token::Arrow => write!(f, "arrow"),
-      Token::EoF => write!(f, "end of file"),
-      _ => unimplemented!()
+      Token::EoF => write!(f, "end of file")
     }
   }
 }

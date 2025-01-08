@@ -4,10 +4,10 @@ use crate::ctx::Ctx;
 
 pub fn eval(input: String, _ctx: Ctx) {
   let tokens = tokenize::tokenize(input);
-  // for (pos, token) in tokens.iter() {
-  //   debug_msg!("[{}:{}] {token}", pos.line, pos.column);
-  // }
-  debug_msg!("parsed tokens");
+  for (pos, token) in tokens.iter() {
+    debug_msg!("token[len={}] = {:?} ({}:{})", pos.tok_len, token, pos.line, pos.column);
+  }
+  debug_msg!("Parsed tokens");
   let items = parse::parse(tokens);
   // debug!(items);
   for item in items {

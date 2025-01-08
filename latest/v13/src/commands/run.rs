@@ -16,7 +16,8 @@ pub fn run(args: ParsedArgs) {
   let ctx = Ctx::new(cwd, args);
   let contents = fs::read_to_string(file_path).unwrap();
   unsafe {
-    CONTENTS = contents.clone();
+    CONTENTS = contents.trim_end_matches([' ', '\t']).to_owned();
+    CONTENTS.push(' ');
   }
   debug!(contents);
   eval(contents, ctx);

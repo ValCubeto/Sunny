@@ -6,7 +6,7 @@ pub mod types;
 use constants::parse_static;
 use items::Entity;
 use peekmore::PeekMore;
-use super::tokenize::tokens::{Token as Tk, Tokens};
+use super::tokenize::tokens::{ Token as Tk, Tokens };
 use super::tokenize::keywords::Keyword as Kw;
 use super::tokenize::Position;
 
