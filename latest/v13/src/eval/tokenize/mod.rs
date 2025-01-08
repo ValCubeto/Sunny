@@ -78,11 +78,8 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
   while let Some(ch) = chars.next() {
     match ch {
       ' ' | '\t' => {
-        let len = skip_spaces(&mut chars) + 1;
-        unsafe {
-          COLUMN += len;
-        }
-      },
+        let _ = skip_spaces(&mut chars);
+      }
       '(' => push!(Tk::LeftParen),
       ')' => push!(Tk::RightParen),
       '{' => push!(Tk::LeftBrace),
@@ -357,10 +354,11 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       }
       '\'' => {
         let (ch, len) = parse_char(&mut chars);
-        if chars.next() != Some('\'') {
+        if chars.peek() != Some(&'\'') {
           syntax_err!("expected a closing single quote here");
           // "If you meant to write a string literal, use double quotes"
         }
+        chars.next();
         push!(Tk::Char(ch), len + 2);
       }
       _ => syntax_err!("unexpected token: {ch:?}")

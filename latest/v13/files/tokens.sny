@@ -16,7 +16,8 @@
 // = += -= *= /= %= ^= &= |= &&= ||= >>= <<=
 // =>
 
-// use as
+const '\u{ 65 }' = "po"
+
 // hidden shared
 // const state
 // let var
