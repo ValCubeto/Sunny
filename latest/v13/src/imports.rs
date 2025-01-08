@@ -2,7 +2,7 @@
 macro_rules! use_item {
   ($($cmd:ident),*) => {
     $(
-      mod $cmd;
+      pub mod $cmd;
       use $cmd::{$cmd};
     )*
   };

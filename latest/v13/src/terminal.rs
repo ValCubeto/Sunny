@@ -53,7 +53,11 @@ macro_rules! fmt_methods {
       #[inline]
       /// Returns a `String` with the given style to display.
       fn $fn_name(&self) -> String {
-        format!("{}{}{}", $start, self, $end)
+        if unsafe { crate::COLORING } {
+          format!("{}{}{}", $start, self, $end)
+        } else {
+          format!("{}", self)
+        }
       }
     )*
   }
@@ -144,19 +148,29 @@ macro_rules! debug_msg {
   ($($arg:expr),*) => {{
     #[allow(unused_imports)]
     use $crate::terminal::Stylize;
-    use chrono::Local;
-    let path = format!("{}:{}:{}", file!(), line!(), column!());
-    let date = Local::now().format("%d-%m-%y %H:%M:%S");
-    let out = format!($($arg),*);
-    println!("[{} at {}, {}]", "Debug".cyan().bold(), path.bold(), date.bold());
-    println!("{}", out);
+    use $crate::terminal::print_debug_msg;
+    print_debug_msg(&format!($($arg),*), file!(), line!(), column!());
   }};
+}
+
+use chrono::Local;
+pub fn print_debug_msg(msg: &str, file: &str, line: u32, column: u32) {
+  if unsafe { !crate::DEBUG } {
+    return;
+  }
+  let path = format!("{}:{}:{}", file, line, column);
+  let date = Local::now().format("%d-%m-%y %H:%M:%S");
+  println!("[{} at {}, {}]", "Debug".cyan().bold(), path.bold(), date.bold());
+  println!("{}", msg);
 }
 
 pub fn quit(ename: &str, msg: &str, file: &str, line: u32, column: u32) -> ! {
   eprintln!("{}: {}", ename.error(), msg);
   unsafe {
     let lines: Vec<&str> = CONTENTS.lines().collect();
+    if lines.is_empty() {
+      std::process::exit(1);
+    }
     let line_text = lines[LINE - 1];
     if !line_text.trim().is_empty() {
       eprintln!();
