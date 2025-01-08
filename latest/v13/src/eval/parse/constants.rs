@@ -22,7 +22,7 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
   };
   tokens.skip_newline();
   let Some(Token::Colon) = tokens.next() else {
-    syntax_err!("expected typing");
+    syntax_err!("expected type");
   };
   tokens.skip_newline();
   let Some(typing) = parse_type(tokens) else {
