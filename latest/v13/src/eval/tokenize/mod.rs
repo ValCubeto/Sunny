@@ -6,7 +6,7 @@ use std::str::Chars;
 use keywords::parse_word;
 use numbers::{ Number, parse_bin, parse_hex, parse_number };
 use peekmore::{ PeekMore, PeekMoreIterator };
-use strings::{parse_char, parse_fstring, parse_string};
+use strings::{parse_char, FString, parse_string};
 use tokens::{ Operator as Op, Token as Tk };
 
 pub static mut LINE: usize = 1;
@@ -35,9 +35,7 @@ impl<'a> CharsIter<'a> {
   pub fn next_raw(&mut self) -> Option<char> {
     self.iterator.next()
   }
-  /// Updates the position
-  pub fn next(&mut self) -> Option<char> {
-    let curr = self.iterator.next();
+  pub fn advance_cursor(&mut self, curr: Option<char>) {
     match curr {
       Some('\n') => unsafe {
         COLUMN = 1;
@@ -48,6 +46,11 @@ impl<'a> CharsIter<'a> {
       }
       None => {}
     }
+  }
+  /// Updates the position
+  pub fn next(&mut self) -> Option<char> {
+    let curr = self.next_raw();
+    self.advance_cursor(curr);
     curr
   }
   pub fn peek(&mut self) -> Option<char> {
@@ -98,17 +101,17 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         let (string, len) = parse_string(&mut chars);
         push!(Tk::String(string), len + 2);
       }
-      'f' | 'F' => {
-        if chars.peek() != Some('"') {
-          debug_msg!("not a fstring");
+      'f' | 'F' => match chars.peek() {
+        Some('"') => {
+          chars.next();
+          let (fstring, len) = FString::parse(&mut chars);
+          push!(Tk::FString(fstring), len + 3);
+        }
+        Some(_) | None => {
           let (word, len) = parse_word(&mut chars, ch);
           push!(word, len);
           continue;
         }
-        chars.next();
-        let (fstring, len) = parse_fstring(&mut chars);
-        push!(Tk::FString(fstring), len + 3);
-        continue;
       }
       'a'..='z' | 'A'..='Z' | '_' => {
         let (word, len) = parse_word(&mut chars, ch);
@@ -377,7 +380,13 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         let (num, len) = parse_number(&mut chars, d);
         push!(Tk::Number(num), len);
       }
-      _ => syntax_err!("unexpected token: {ch:?}")
+      _ => {
+        unsafe {
+          // I'm lazy to call peek() and then next_char() on each case
+          COLUMN -= 1;
+        }
+        syntax_err!("unexpected token {ch:?}")
+      }
     } // match
     chars.save_pos();
   } // while

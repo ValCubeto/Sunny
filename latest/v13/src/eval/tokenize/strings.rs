@@ -1,8 +1,10 @@
 use std::fmt;
 
-use crate::eval::tokenize::tokenize;
+use peekmore::PeekMore;
 
-use super::{ skip_spaces, tokens::Token, CharsIter, Position };
+use crate::eval::{parse::expressions::{parse_expr, Expr}, tokenize::tokenize};
+
+use super::{ skip_spaces, tokens::{Token, Tokens}, CharsIter, Position };
 
 pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
   match chars.next() {
@@ -83,6 +85,13 @@ pub struct FString {
   pub inserted: Vec<Vec<(Position, Token)>>
 }
 
+#[allow(unused)]
+#[derive(Debug)]
+pub struct ParsedFString {
+  pub literals: Vec<String>,
+  pub inserted: Vec<Expr>
+}
+
 impl fmt::Display for FString {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     write!(f, "f\"")?;
@@ -90,7 +99,6 @@ impl fmt::Display for FString {
       write!(f, "{literal}{{{}}}", inserted.iter()
         .map(|(_, token)| format!("{token:?}"))
         .collect::<Vec<String>>()
-        .as_slice()
         .join(", ")
       )?;
     }
@@ -103,74 +111,97 @@ impl fmt::Display for FString {
 
 // Accept nested braces
 fn collect_inserted_code(chars: &mut CharsIter, insert: &mut String) {
-  while let Some(ch) = chars.next() {
-    debug_msg!("{ch:?} added to insert");
+  while let Some(ch) = chars.next_raw() {
     insert.push(ch);
     if ch == '{' {
       collect_inserted_code(chars, insert);
       continue;
     }
     if ch == '}' {
-      debug_msg!("Closing brace");
       break;
     }
   }
 }
 
-pub fn parse_fstring(chars: &mut CharsIter) -> (FString, usize) {
-  let mut literals = vec![];
-  let mut inserted = vec![];
-  let mut curr_literal: &mut String;
-  let mut len = 0;
-  literals.push(String::new());
-  curr_literal = literals.last_mut().unwrap();
-  while let Some(ch) = chars.peek() {
-    match ch {
-      '"' => {
-        chars.next();
-        let fstring = FString {
-          literals,
-          inserted
-        };
-        return (fstring, len);
-      }
-      '\n' => break,
-      '{' => {
-        chars.next();
-        let mut insert = String::new();
-        while let Some(ch) = chars.peek() {
-          if ch == '}' {
-            break;
+impl FString {
+  /// Creates an FString from the chars iterator
+  pub fn parse(chars: &mut CharsIter) -> (FString, usize) {
+    let mut literals = vec![];
+    let mut inserted = vec![];
+    let mut curr_literal: &mut String;
+    let mut len = 0;
+    literals.push(String::new());
+    curr_literal = literals.last_mut().unwrap();
+    while let Some(ch) = chars.peek() {
+      match ch {
+        '"' => {
+          chars.next();
+          let fstring = FString {
+            literals,
+            inserted
+          };
+          return (fstring, len);
+        }
+        '\n' => break,
+        '{' => {
+          chars.next();
+          let mut insert = String::new();
+          while let Some(ch) = chars.peek() {
+            if ch == '}' {
+              break;
+            }
+            // The position is advanced by `tokenize`
+            chars.next_raw();
+            insert.push(ch);
+            if ch == '{' {
+              collect_inserted_code(chars, &mut insert);
+            }
           }
-          // The position is advanced by `tokenize`
-          chars.next_raw();
-          insert.push(ch);
-          if ch == '{' {
-            debug_msg!("Nested braces");
-            collect_inserted_code(chars, &mut insert);
+          let ch = chars.next_raw();
+          if ch != Some('}') {
+            for ch in insert.chars() {
+              chars.advance_cursor(Some(ch));
+            }
+            syntax_err!("unclosed formatting");
           }
+          if chars.peek() != Some('"') {
+            literals.push(String::new());
+          }
+          curr_literal = literals.last_mut().unwrap();
+          len += insert.len() + 2;
+          let tokens = tokenize(insert);
+          chars.advance_cursor(ch);
+          if tokens.is_empty() {
+            continue;
+          }
+          inserted.push(tokens);
         }
-        if chars.next() != Some('}') {
-          syntax_err!("unclosed formatting");
+        _ => {
+          let (ch, ch_len) = parse_char(chars);
+          len += ch_len;
+          curr_literal.push(ch);
         }
-        if chars.peek() != Some('"') {
-          literals.push(String::new());
-        }
-        curr_literal = literals.last_mut().unwrap();
-        len += insert.len() + 2;
-        debug!(insert);
-        let tokens = tokenize(insert);
-        if tokens.is_empty() {
-          continue;
-        }
-        inserted.push(tokens);
-      }
-      _ => {
-        let (ch, ch_len) = parse_char(chars);
-        len += ch_len;
-        curr_literal.push(ch);
       }
     }
+    syntax_err!("unclosed string");
   }
-  syntax_err!("unclosed string");
+
+  /// Parses the token lists of the inserted expressions
+  pub fn to_parsed(&self) -> ParsedFString {
+    let mut inserted = Vec::with_capacity(self.inserted.len());
+    for tokens in self.inserted.iter() {
+      let mut tokens = Tokens::new(tokens.iter().peekmore());
+      inserted.push(parse_expr(&mut tokens));
+      match tokens.next() {
+        Some(Token::EoF | Token::NewLine) | None => {}
+        Some(token) => {
+          syntax_err!("unexpected {token}");
+        }
+      }
+    }
+    ParsedFString {
+      literals: self.literals.clone(),
+      inserted
+    }
+  }
 }
