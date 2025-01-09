@@ -6,7 +6,7 @@ use std::str::Chars;
 use keywords::parse_word;
 use numbers::{ Number, parse_bin, parse_hex, parse_number };
 use peekmore::{ PeekMore, PeekMoreIterator };
-use strings::{parse_char, parse_string};
+use strings::{parse_char, parse_fstring, parse_string};
 use tokens::{ Operator as Op, Token as Tk };
 
 pub static mut LINE: usize = 1;
@@ -97,16 +97,15 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       }
       'f' | 'F' => {
         if chars.peek() != Some(&'"') {
+          debug_msg!("not a fstring");
           let (word, len) = parse_word(&mut chars, ch);
           push!(word, len);
           continue;
         }
-        // if chars.peek() == Some(&'"') {
-        //   chars.next();
-        //   let (fstring, len) = parse_fstring(&mut chars);
-        //   push!(Tk::FString(fstring), len + 2);
-        //   continue;
-        // }
+        chars.next();
+        let (fstring, len) = parse_fstring(&mut chars);
+        push!(Tk::FString(fstring), len + 2);
+        continue;
       }
       'a'..='z' | 'A'..='Z' | '_' => {
         let (word, len) = parse_word(&mut chars, ch);

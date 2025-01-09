@@ -4,6 +4,7 @@ use peekmore::PeekMoreIterator;
 use crate::eval::parse::expressions::Expr;
 use super::keywords::Keyword;
 use super::numbers::Number;
+use super::strings::FString;
 use super::{ Position, COLUMN, LINE, TOK_LEN };
 
 pub struct Tokens<'a>(PeekMoreIterator<Iter<'a, (Position, Token)>>);
@@ -46,8 +47,7 @@ impl<'a> Tokens<'a> {
 }
 
 #[allow(unused)]
-#[derive(Debug)]
-
+#[derive(Debug, Clone)]
 /// # LEVEL 1
 /// `a = b` <br>
 /// `a += b` <br>
@@ -266,7 +266,7 @@ impl fmt::Display for Operator {
 }
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// I should create an Operator enum
 pub enum Token {
   EoF,
@@ -300,6 +300,7 @@ pub enum Token {
   Ident(String),
   Char(char),
   String(String),
+  FString(FString),
   Number(Number),
 }
 
@@ -309,6 +310,7 @@ impl fmt::Display for Token {
       Token::Keyword(kw) => write!(f, "keyword {kw}"),
       Token::Ident(ident) => write!(f, "identifier {ident:?}"),
       Token::String(_) => write!(f, "string literal"),
+      Token::FString(_) => write!(f, "format string literal"),
       Token::Char(_) => write!(f, "char literal"),
       Token::Number(_) => write!(f, "number literal"),
       Token::Op(op) => write!(f, "{op}"),

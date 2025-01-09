@@ -149,6 +149,7 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
     None => syntax_err!("unexpected end of file"),
     Some(Tk::Ident(ident)) => Expr::Single(Value::Ident(ident.clone())),
     Some(Tk::String(string)) => Expr::Single(Value::String(string.clone())),
+    Some(Tk::FString(fstring)) => Expr::Single(Value::FString(fstring.clone())),
     Some(Tk::Char(ch)) => Expr::Single(Value::Char(*ch)),
     Some(Tk::Number(number)) => Expr::Single(Value::Number(number.clone())),
     Some(Tk::LeftParen) => {

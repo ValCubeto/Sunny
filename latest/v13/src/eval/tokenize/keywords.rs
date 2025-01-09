@@ -14,8 +14,8 @@ pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
       'A'..='Z' | '0'..='9' | '_' => {
         word.push(ch);
         chars.next();
-        while let Some('a'..='z' | 'A'..='Z' | '0'..='9' | '_') = chars.peek() {
-          word.push(ch);
+        while let Some(ch @ ('a'..='z' | 'A'..='Z' | '0'..='9' | '_')) = chars.peek() {
+          word.push(*ch);
           chars.next();
         }
         let len = word.len();
@@ -33,7 +33,7 @@ pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
 }
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Keyword {
   Use,
   As,

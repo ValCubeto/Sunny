@@ -22,11 +22,13 @@ pub fn parse_type(tokens: &mut Tokens) -> Option<Type> {
     other => syntax_err!("unexpected {other}, expected type"),
   };
   let generics = HashMap::new();
-  if let Token::Op(Operator::LeftAngle) = tokens.next()? {
-    syntax_err!("`T<...>` syntax not yet implemented");
+  if let Token::Op(Operator::LeftAngle) = tokens.peek()? {
+    tokens.next();
+    syntax_err!("`{name}<...>` syntax not yet implemented");
   }
-  if let Token::Keyword(Keyword::For) = tokens.next()? {
-    syntax_err!("`I for T` syntax not yet implemented");
+  if let Token::Keyword(Keyword::For) = tokens.peek()? {
+    tokens.next();
+    syntax_err!("`{name} for T` syntax not yet implemented");
   }
   Some(Type { name, generics })
 }

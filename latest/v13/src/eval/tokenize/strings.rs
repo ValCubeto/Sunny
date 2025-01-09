@@ -1,4 +1,4 @@
-use super::{ skip_spaces, CharsIter };
+use super::{ skip_spaces, tokens::Token, CharsIter };
 
 pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
   match chars.next() {
@@ -66,9 +66,47 @@ pub fn parse_string(chars: &mut CharsIter) -> (String, usize) {
       break;
     }
     let (ch, ch_len) = parse_char(chars);
-    debug!(ch);
     len += ch_len;
     string.push(ch);
+  }
+  syntax_err!("unclosed string");
+}
+
+#[allow(unused)]
+#[derive(Debug, Clone)]
+pub struct FString {
+  pub literals: Vec<String>,
+  pub inserted: Vec<Vec<Token>>
+}
+
+pub fn parse_fstring(chars: &mut CharsIter) -> (FString, usize) {
+  let mut literals = vec![String::new()];
+  let mut curr_literal = literals.last_mut().unwrap();
+  let mut len = 0;
+  while let Some(&ch) = chars.peek() {
+    match ch {
+      '{' => {
+        syntax_err!("formatting not yet implemented");
+        // chars.next();
+        // len += 1;
+        // literals.push(String::new());
+        // curr_literal = literals.last_mut().unwrap();
+      }
+      '"' => {
+        chars.next();
+        let fstring = FString {
+          literals,
+          inserted: vec![]
+        };
+        return (fstring, len);
+      }
+      '\n' => break,
+      _ => {
+        let (ch, ch_len) = parse_char(chars);
+        len += ch_len;
+        curr_literal.push(ch);
+      }
+    }
   }
   syntax_err!("unclosed string");
 }
