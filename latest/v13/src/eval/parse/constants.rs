@@ -1,5 +1,4 @@
 use std::fmt;
-use crate::eval::parse::types::parse_type;
 use crate::eval::tokenize::tokens::{ Operator, Token, Tokens };
 use super::expressions::{ Expr, parse_expr };
 use super::items::{ Entity, Item, Metadata };
@@ -25,7 +24,7 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
     syntax_err!("expected type");
   };
   tokens.skip_newline();
-  let Some(typing) = parse_type(tokens) else {
+  let Some(typing) = Type::parse(tokens) else {
     syntax_err!("expected type");
   };
   tokens.skip_newline();
@@ -57,7 +56,7 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
 
 #[allow(unused)]
 #[derive(Debug)]
-/// **Any `const`, `state`, `let`, or `var`**
+/// Any `const`, `state`, `let`, or `var`
 pub struct Variable {
   name: String,
   typing: Type,
@@ -66,6 +65,6 @@ pub struct Variable {
 
 impl fmt::Display for Variable {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "var {}: {:?} = {}", self.name, self.typing, self.value)
+    write!(f, "var {}: {} = {}", self.name, self.typing, self.value)
   }
 }

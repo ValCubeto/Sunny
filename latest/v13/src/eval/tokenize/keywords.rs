@@ -4,7 +4,7 @@ use super::tokens::Token;
 
 pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
   let mut word = String::from(ch);
-  while let Some(&ch) = chars.peek() {
+  while let Some(ch) = chars.peek() {
     match ch {
       'a'..='z' => {
         word.push(ch);
@@ -15,7 +15,7 @@ pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
         word.push(ch);
         chars.next();
         while let Some(ch @ ('a'..='z' | 'A'..='Z' | '0'..='9' | '_')) = chars.peek() {
-          word.push(*ch);
+          word.push(ch);
           chars.next();
         }
         let len = word.len();

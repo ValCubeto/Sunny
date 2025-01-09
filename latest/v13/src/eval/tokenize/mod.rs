@@ -31,24 +31,27 @@ impl<'a> CharsIter<'a> {
       self.saved_pos.column = COLUMN;
     }
   }
+  /// Does not update the position
+  pub fn next_raw(&mut self) -> Option<char> {
+    self.iterator.next()
+  }
+  /// Updates the position
   pub fn next(&mut self) -> Option<char> {
     let curr = self.iterator.next();
-    unsafe {
-      match curr {
-        Some('\n') => {
-          COLUMN = 1;
-          LINE += 1;
-        }
-        Some(_) => {
-          COLUMN += 1;
-        }
-        None => {}
+    match curr {
+      Some('\n') => unsafe {
+        COLUMN = 1;
+        LINE += 1;
       }
+      Some(_) => unsafe {
+        COLUMN += 1;
+      }
+      None => {}
     }
     curr
   }
-  pub fn peek(&mut self) -> Option<&char> {
-    self.iterator.peek()
+  pub fn peek(&mut self) -> Option<char> {
+    self.iterator.peek().copied()
   }
   pub fn peek_amount(&mut self, amount: usize) -> &[Option<char>] {
     self.iterator.peek_amount(amount)
@@ -84,7 +87,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       }
       '\'' => {
         let (ch, len) = parse_char(&mut chars);
-        if chars.peek() != Some(&'\'') {
+        if chars.peek() != Some('\'') {
           syntax_err!("expected a closing single quote here");
           // "If you meant to write a string literal, use double quotes"
         }
@@ -96,7 +99,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         push!(Tk::String(string), len + 2);
       }
       'f' | 'F' => {
-        if chars.peek() != Some(&'"') {
+        if chars.peek() != Some('"') {
           debug_msg!("not a fstring");
           let (word, len) = parse_word(&mut chars, ch);
           push!(word, len);
@@ -104,7 +107,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         }
         chars.next();
         let (fstring, len) = parse_fstring(&mut chars);
-        push!(Tk::FString(fstring), len + 2);
+        push!(Tk::FString(fstring), len + 3);
         continue;
       }
       'a'..='z' | 'A'..='Z' | '_' => {
@@ -114,14 +117,14 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       '(' => push!(Tk::LeftParen),
       ')' => push!(Tk::RightParen),
       '{' => {
-        if chars.peek() == Some(&'{') {
+        if chars.peek() == Some('{') {
           push!(Tk::DoubleLeftBrace, 2);
           continue;
         }
         push!(Tk::LeftBrace);
       }
       '}' => {
-        if chars.peek() == Some(&'}') {
+        if chars.peek() == Some('}') {
           push!(Tk::DoubleRightBrace, 2);
           continue;
         }
@@ -159,7 +162,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         }
         Some('<') => {
           chars.next();
-          if chars.peek() == Some(&'=') {
+          if chars.peek() == Some('=') {
             chars.next();
             push!(Tk::Op(Op::LeftShiftAssign), 3);
             continue;
@@ -175,7 +178,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         }
         Some('>') => {
           chars.next();
-          if chars.peek() == Some(&'=') {
+          if chars.peek() == Some('=') {
             chars.next();
             push!(Tk::Op(Op::RightShiftAssign), 3);
             continue;
@@ -185,9 +188,9 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         _ => push!(Tk::Op(Op::RightAngle))
       }
       '.' => {
-        if chars.peek() == Some(&'.') {
+        if chars.peek() == Some('.') {
           chars.next();
-          if chars.peek() == Some(&'.') {
+          if chars.peek() == Some('.') {
             chars.next();
             push!(Tk::Op(Op::TripleDot), 3);
             continue;
@@ -198,7 +201,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         push!(Tk::Op(Op::Dot));
       }
       ':' => {
-        if chars.peek() == Some(&':') {
+        if chars.peek() == Some(':') {
           chars.next();
           push!(Tk::Op(Op::DoubleColon), 2);
           continue;
@@ -207,7 +210,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       }
       ';' => {
         // Collect multiple semicolons
-        while let Some(&ch) = chars.peek() {
+        while let Some(ch) = chars.peek() {
           if ch != ';' {
             break;
           }
@@ -223,7 +226,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           chars.next();
           push!(Tk::Op(Op::AddAssign), 2);
         }
-        Some(&d) if d.is_ascii_digit() => {
+        Some(d) if d.is_ascii_digit() => {
           // Skip the plus sign
           chars.next();
           let (num, len) = parse_number(&mut chars, d);
@@ -236,7 +239,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           chars.next();
           push!(Tk::Op(Op::SubAssign), 2);
         }
-        Some(&d) if d.is_ascii_digit() => {
+        Some(d) if d.is_ascii_digit() => {
           let (num, len) = parse_number(&mut chars, '-');
           push!(Tk::Number(num), len);
         }
@@ -257,7 +260,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         Some('/') => {
           // Inline comments
           chars.next();
-          while let Some(&ch) = chars.peek() {
+          while let Some(ch) = chars.peek() {
             if ch == '\n' {
               break;
             }
@@ -266,10 +269,10 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         }
         Some('*') => {
           chars.next();
-          while let Some(&ch) = chars.peek() {
+          while let Some(ch) = chars.peek() {
             if ch == '*' {
               chars.next();
-              if chars.peek() == Some(&'/') {
+              if chars.peek() == Some('/') {
                 chars.next();
                 break;
               }
@@ -284,7 +287,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         _ => push!(Tk::Op(Op::Slash))
       }
       '%' => {
-        if chars.peek() == Some(&'=') {
+        if chars.peek() == Some('=') {
           chars.next();
           push!(Tk::Op(Op::ModAssign), 2);
           continue;
@@ -292,7 +295,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         push!(Tk::Op(Op::Percent));
       }
       '^' => {
-        if chars.peek() == Some(&'=') {
+        if chars.peek() == Some('=') {
           chars.next();
           push!(Tk::Op(Op::XorAssign), 2);
           continue;
@@ -301,10 +304,10 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       }
       '&' => match chars.peek() {
         // `&&`
-        Some(&'&') => {
+        Some('&') => {
           chars.next();
           // `&&=`
-          if chars.peek() == Some(&'=') {
+          if chars.peek() == Some('=') {
             chars.next();
             push!(Tk::Op(Op::LogicalAndAssign), 3);
             continue;
@@ -312,7 +315,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           push!(Tk::Op(Op::DoubleAmpersand), 2);
         }
         // `&=`
-        Some(&'=') => {
+        Some('=') => {
           chars.next();
           push!(Tk::Op(Op::AndAssign), 2);
         }
@@ -320,10 +323,10 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       }
       '|' => match chars.peek() {
         // `||`
-        Some(&'|') => {
+        Some('|') => {
           chars.next();
           // `||=`
-          if chars.peek() == Some(&'=') {
+          if chars.peek() == Some('=') {
             chars.next();
             push!(Tk::Op(Op::LogicalOrAssign), 3);
             continue;
@@ -331,7 +334,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           push!(Tk::Op(Op::DoublePipe), 2);
         }
         // `|=`
-        Some(&'=') => {
+        Some('=') => {
           chars.next();
           push!(Tk::Op(Op::OrAssign), 2);
         }
@@ -361,13 +364,13 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           let (num, len) = parse_bin(&mut chars);
           push!(Tk::Number(num), len);
         }
-        Some(&d) if d.is_ascii_digit() => {
+        Some(d) if d.is_ascii_digit() => {
           // Skip this leading zero
           chars.next();
           let (num, len) = parse_number(&mut chars, d);
           push!(Tk::Number(num), len + 1);
         }
-        Some(&c) if c.is_ascii_alphabetic() => syntax_err!("unexpected character {c:?}"),
+        Some(c) if c.is_ascii_alphabetic() => syntax_err!("unexpected character {c:?}"),
         _ => push!(Tk::Number(Number::Int("0".to_owned())))
       }
       d @ '1'..='9' => {

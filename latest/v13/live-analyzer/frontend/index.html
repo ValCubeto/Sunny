@@ -5,18 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sunny Live Analyzer</title>
   <style>
-    body {
+    * {
+      margin: 10px 20px;
+    }
+    html {
       font-family: 'Roboto Mono', monospace;
     }
+    html, body {
+      width: 100%;
+      height: calc(100% - 20px);
+    }
+    html, #input {
+      padding: 0px;
+      margin: 0px;
+    }
+    #input-container {
+      height: calc(40% - 20px);
+      width: calc(100% - 40px);
+      text-align: center;
+    }
+    body {
+      padding: 0px;
+      margin: 20px 0px;
+    }
     #input {
-      width: 500px;
-      height: 300px;
+      height: 100%;
+      width: 100%;
+    }
+    h1 {
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <h1>Sunny Live Analyzer</h1>
-  <textarea id="input"></textarea>
+  <div id="input-container">
+    <textarea id="input"></textarea>
+  </div>
   <p id="output"></p>
   <script src="index.js"></script>
 </body>

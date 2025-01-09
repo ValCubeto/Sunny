@@ -73,7 +73,7 @@ fn parse_int(chars: &mut CharsIter, digit: char) -> (String, usize) {
   let mut len = 1;
   let mut int = match digit {
     '0' => {
-      while chars.peek() == Some(&'0') {
+      while chars.peek() == Some('0') {
         len += 1;
         chars.next();
       }
@@ -114,7 +114,7 @@ pub fn parse_hex(chars: &mut CharsIter) -> (Number, usize) {
   let mut hex = String::new();
   let mut len = 2;
   match chars.peek() {
-    Some(&d) if d.is_ascii_hexdigit() => {
+    Some(d) if d.is_ascii_hexdigit() => {
       chars.next();
       hex.push(d);
       len += 1;
@@ -146,7 +146,7 @@ pub fn parse_bin(chars: &mut CharsIter) -> (Number, usize) {
   let mut bin = String::new();
   let mut len = 2;
   match chars.peek() {
-    Some(&d @ '0' | &d @ '1') => {
+    Some(d @ ('0' | '1')) => {
       chars.next();
       bin.push(d);
       len += 1;

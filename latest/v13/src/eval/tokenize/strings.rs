@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::eval::tokenize::tokenize;
 
 use super::{ skip_spaces, tokens::Token, CharsIter, Position };
@@ -17,13 +19,13 @@ pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
         Some('u') => {
           // "\u{}"
           let mut len = 4;
-          if chars.peek() != Some(&'{') {
+          if chars.peek() != Some('{') {
             syntax_err!("expected '{{' after '\\u'");
           }
           chars.next();
           len += skip_spaces(chars);
           let mut hex = String::new();
-          while let Some(&ch) = chars.peek() {
+          while let Some(ch) = chars.peek() {
             match ch {
               '}' | ' ' | '\t' => break,
               '\n' => syntax_err!("unterminated escape sequence"),
@@ -59,7 +61,7 @@ pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
 pub fn parse_string(chars: &mut CharsIter) -> (String, usize) {
   let mut string = String::new();
   let mut len = 0;
-  while let Some(&ch) = chars.peek() {
+  while let Some(ch) = chars.peek() {
     if ch == '"' {
       chars.next();
       return (string, len);
@@ -81,32 +83,49 @@ pub struct FString {
   pub inserted: Vec<Vec<(Position, Token)>>
 }
 
+impl fmt::Display for FString {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(f, "f\"")?;
+    for (literal, inserted) in self.literals.iter().zip(self.inserted.iter()) {
+      write!(f, "{literal}{{{}}}", inserted.iter()
+        .map(|(_, token)| format!("{token:?}"))
+        .collect::<Vec<String>>()
+        .as_slice()
+        .join(", ")
+      )?;
+    }
+    if self.literals.len() > self.inserted.len() {
+      write!(f, "{}", self.literals.last().unwrap())?;
+    }
+    write!(f, "\"")
+  }
+}
+
+// Accept nested braces
+fn collect_inserted_code(chars: &mut CharsIter, insert: &mut String) {
+  while let Some(ch) = chars.next() {
+    debug_msg!("{ch:?} added to insert");
+    insert.push(ch);
+    if ch == '{' {
+      collect_inserted_code(chars, insert);
+      continue;
+    }
+    if ch == '}' {
+      debug_msg!("Closing brace");
+      break;
+    }
+  }
+}
+
 pub fn parse_fstring(chars: &mut CharsIter) -> (FString, usize) {
-  let mut literals = vec![String::new()];
+  let mut literals = vec![];
   let mut inserted = vec![];
-  let mut curr_literal: &mut String = literals.last_mut().unwrap();
+  let mut curr_literal: &mut String;
   let mut len = 0;
-  while let Some(&ch) = chars.peek() {
+  literals.push(String::new());
+  curr_literal = literals.last_mut().unwrap();
+  while let Some(ch) = chars.peek() {
     match ch {
-      '{' => {
-        chars.next();
-        len += 1;
-        literals.push(String::new());
-        curr_literal = literals.last_mut().unwrap();
-        // let inserted_code = String::new();
-        match chars.next() {
-          Some('}') => syntax_err!("empty formatting"),
-          Some('\n') | None => syntax_err!("unclosed formatting"),
-          Some(c) => {
-            todo!();
-            let mut insert = String::from(c);
-            // collect the piece of inserted code until '}' is found
-            // while let Some(ch)
-            let tokens = tokenize(insert);
-            inserted.push(tokens);
-          }
-        }
-      }
       '"' => {
         chars.next();
         let fstring = FString {
@@ -116,6 +135,36 @@ pub fn parse_fstring(chars: &mut CharsIter) -> (FString, usize) {
         return (fstring, len);
       }
       '\n' => break,
+      '{' => {
+        chars.next();
+        let mut insert = String::new();
+        while let Some(ch) = chars.peek() {
+          if ch == '}' {
+            break;
+          }
+          // The position is advanced by `tokenize`
+          chars.next_raw();
+          insert.push(ch);
+          if ch == '{' {
+            debug_msg!("Nested braces");
+            collect_inserted_code(chars, &mut insert);
+          }
+        }
+        if chars.next() != Some('}') {
+          syntax_err!("unclosed formatting");
+        }
+        if chars.peek() != Some('"') {
+          literals.push(String::new());
+        }
+        curr_literal = literals.last_mut().unwrap();
+        len += insert.len() + 2;
+        debug!(insert);
+        let tokens = tokenize(insert);
+        if tokens.is_empty() {
+          continue;
+        }
+        inserted.push(tokens);
+      }
       _ => {
         let (ch, ch_len) = parse_char(chars);
         len += ch_len;

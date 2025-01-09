@@ -19,7 +19,7 @@ impl fmt::Display for Value {
     match self {
       Value::Char(c) => write!(f, "{c:?}"),
       Value::String(s) => write!(f, "{s:?}"),
-      Value::FString(s) => write!(f, "{s:?}"),
+      Value::FString(s) => write!(f, "{s}"),
       Value::Ident(s) => write!(f, "{s}"),
       Value::Number(n) => write!(f, "{n}"),
     }
