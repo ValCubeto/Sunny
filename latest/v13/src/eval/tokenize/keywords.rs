@@ -1,4 +1,36 @@
 use std::fmt;
+use super::CharsIter;
+use super::tokens::Token;
+
+pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
+  let mut word = String::from(ch);
+  while let Some(&ch) = chars.peek() {
+    match ch {
+      'a'..='z' => {
+        word.push(ch);
+        chars.next();
+      }
+      // Can't be a keyword, no need to check
+      'A'..='Z' | '0'..='9' | '_' => {
+        word.push(ch);
+        chars.next();
+        while let Some('a'..='z' | 'A'..='Z' | '0'..='9' | '_') = chars.peek() {
+          word.push(ch);
+          chars.next();
+        }
+        let len = word.len();
+        return (Token::Ident(word), len);
+      },
+      _ => break
+    }
+  }
+  let len = word.len();
+  let token = match Keyword::parse(&word) {
+    Some(kw) => Token::Keyword(kw),
+    None => Token::Ident(word)
+  };
+  (token, len)
+}
 
 #[allow(unused)]
 #[derive(Debug)]

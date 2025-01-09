@@ -39,7 +39,7 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
     Some(Token::NewLine | Token::Semicolon | Token::EoF) | None => {}
     Some(other) => {
       tokens.next();
-      syntax_err!("unexpected {other}, expected end of statement")
+      syntax_err!("unexpected {other}, expected operator or end of statement")
     }
   }
 

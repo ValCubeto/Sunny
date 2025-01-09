@@ -6,12 +6,13 @@ import { createWriteStream, readFileSync, writeFileSync } from "fs"
 import { spawn } from "child_process"
 
 const server = createServer((req, res) => {
-  console.info(`GET ${req.url}`)
   if (req.url === "/") {
+    console.info(`GET ${req.url}`)
     res.writeHead(200, { "Content-Type": "text/html" })
     res.write(readFileSync("../frontend/index.html"))
     res.end()
   } else if (req.url === "/index.js") {
+    console.info(`GET ${req.url}`)
     res.writeHead(200, { "Content-Type": "text/javascript" })
     res.write(readFileSync("../frontend/index.js"))
     res.end()
@@ -26,11 +27,10 @@ const server = createServer((req, res) => {
       res.writeHead(200, { "Content-Type": "text/plain" })
       child.stdout.pipe(createWriteStream("./output.log"))
       child.stderr.pipe(createWriteStream("./output.log"))
-      child.on("close", (_code) => {
+      child.on("close", () => {
         let output = readFileSync("./output.log")
         res.write(output)
         res.end()
-        console.info("Request ended")
       })
     })
   }

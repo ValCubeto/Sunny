@@ -2,7 +2,9 @@ use std::slice::Iter;
 use std::fmt;
 use peekmore::PeekMoreIterator;
 use crate::eval::parse::expressions::Expr;
-use super::{ keywords::Keyword, number::Number, Position, COLUMN, LINE, TOK_LEN };
+use super::keywords::Keyword;
+use super::numbers::Number;
+use super::{ Position, COLUMN, LINE, TOK_LEN };
 
 pub struct Tokens<'a>(PeekMoreIterator<Iter<'a, (Position, Token)>>);
 impl<'a> Tokens<'a> {

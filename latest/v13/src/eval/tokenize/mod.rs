@@ -1,10 +1,12 @@
 pub mod keywords;
 pub mod tokens;
-pub mod number;
+pub mod numbers;
+pub mod strings;
 use std::str::Chars;
-use keywords::Keyword;
-use number::{ Number, parse_bin, parse_hex, parse_number };
+use keywords::parse_word;
+use numbers::{ Number, parse_bin, parse_hex, parse_number };
 use peekmore::{ PeekMore, PeekMoreIterator };
+use strings::{parse_char, parse_string};
 use tokens::{ Operator as Op, Token as Tk };
 
 pub static mut LINE: usize = 1;
@@ -79,6 +81,36 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
     match ch {
       ' ' | '\t' => {
         let _ = skip_spaces(&mut chars);
+      }
+      '\'' => {
+        let (ch, len) = parse_char(&mut chars);
+        if chars.peek() != Some(&'\'') {
+          syntax_err!("expected a closing single quote here");
+          // "If you meant to write a string literal, use double quotes"
+        }
+        chars.next();
+        push!(Tk::Char(ch), len + 2);
+      }
+      '"' => {
+        let (string, len) = parse_string(&mut chars);
+        push!(Tk::String(string), len + 2);
+      }
+      'f' | 'F' => {
+        if chars.peek() != Some(&'"') {
+          let (word, len) = parse_word(&mut chars, ch);
+          push!(word, len);
+          continue;
+        }
+        // if chars.peek() == Some(&'"') {
+        //   chars.next();
+        //   let (fstring, len) = parse_fstring(&mut chars);
+        //   push!(Tk::FString(fstring), len + 2);
+        //   continue;
+        // }
+      }
+      'a'..='z' | 'A'..='Z' | '_' => {
+        let (word, len) = parse_word(&mut chars, ch);
+        push!(word, len);
       }
       '(' => push!(Tk::LeftParen),
       ')' => push!(Tk::RightParen),
@@ -331,36 +363,6 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         let (num, len) = parse_number(&mut chars, d);
         push!(Tk::Number(num), len);
       }
-      'a'..='z' | 'A'..='Z' | '_' => {
-        let mut word = String::from(ch);
-        while let Some(&ch) = chars.peek() {
-          // TODO: add more word characters
-          if !matches!(ch, 'a'..='z' | 'A'..='Z' | '0'..='9' | '_') {
-            break;
-          }
-          word.push(ch);
-          chars.next();
-        }
-        let len = word.len();
-        let token = match Keyword::parse(&word) {
-          Some(kw) => Tk::Keyword(kw),
-          None => Tk::Ident(word),
-        };
-        push!(token, len);
-      }
-      '"' => {
-        let (string, len) = parse_string(&mut chars);
-        push!(Tk::String(string), len + 2);
-      }
-      '\'' => {
-        let (ch, len) = parse_char(&mut chars);
-        if chars.peek() != Some(&'\'') {
-          syntax_err!("expected a closing single quote here");
-          // "If you meant to write a string literal, use double quotes"
-        }
-        chars.next();
-        push!(Tk::Char(ch), len + 2);
-      }
       _ => syntax_err!("unexpected token: {ch:?}")
     } // match
     chars.save_pos();
@@ -372,83 +374,9 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
 /// Returns the number of skipped spaces in case of any token that contains spaces
 pub fn skip_spaces(chars: &mut CharsIter) -> usize {
   let mut len = 0;
-  while let Some(&ch) = chars.peek() {
-    if !matches!(ch, ' ' | '\t') {
-      break;
-    }
+  while let Some(' ' | '\t') = chars.peek() {
     len += 1;
     chars.next();
   }
   len
-}
-
-pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
-  match chars.next() {
-    Some('\'') => syntax_err!("empty character literal"),
-    Some('\n') | None => syntax_err!("unterminated character literal"),
-    Some('\\') => {
-      match chars.next() {
-        None => syntax_err!("unterminated escape sequence"),
-        Some('n') => ('\n', 2),
-        Some('r') => ('\r', 2),
-        Some('t') => ('\t', 2),
-        Some('0') => ('\0', 2),
-        Some('e') => ('\x1b', 2),
-        Some('u') => {
-          // "\u{}"
-          let mut len = 4;
-          if chars.next() != Some('{') {
-            syntax_err!("expected '{{' after '\\u'");
-          }
-          len += skip_spaces(chars);
-          let mut hex = String::new();
-          while let Some(&ch) = chars.peek() {
-            match ch {
-              '}' | ' ' | '\t' => break,
-              ch if ch.is_ascii_hexdigit() => {
-                chars.next();
-                hex.push(ch);
-              }
-              _ => syntax_err!("invalid hex in escape sequence")
-            }
-          }
-          if hex.is_empty() {
-            syntax_err!("empty escape sequence");
-          }
-          len += hex.len();
-          let code = match u32::from_str_radix(&hex, 16) {
-            Ok(code) => code,
-            Err(why) => syntax_err!("invalid escape sequence {hex:?} ({why})")
-          };
-          let ch = char::from_u32(code).unwrap_or_else(|| syntax_err!("invalid escape sequence {hex:?}"));
-          len += skip_spaces(chars);
-          if chars.next() != Some('}') {
-            syntax_err!("expected right brace after escape sequence");
-          }
-          (ch, len)
-        }
-        Some(other) => (other, 2)
-      }
-    }
-    Some(other) => (other, 1)
-  }
-}
-
-pub fn parse_string(chars: &mut CharsIter) -> (String, usize) {
-  let mut string = String::new();
-  let mut len = 0;
-  while let Some(&ch) = chars.peek() {
-    if ch == '"' {
-      chars.next();
-      return (string, len);
-    }
-    if ch == '\n' {
-      break;
-    }
-    let (ch, ch_len) = parse_char(chars);
-    debug!(ch);
-    len += ch_len;
-    string.push(ch);
-  }
-  syntax_err!("unclosed string");
 }

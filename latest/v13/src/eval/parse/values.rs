@@ -1,5 +1,5 @@
 use std::fmt;
-use crate::eval::tokenize::number::Number;
+use crate::eval::tokenize::numbers::Number;
 
 #[allow(unused)]
 #[derive(Debug)]
@@ -7,11 +7,11 @@ use crate::eval::tokenize::number::Number;
 pub enum Value {
   Char(char),
   String(String),
-  Ident(String),
-  Number(Number),
   // FString,
   // RString,
   // CString,
+  Ident(String),
+  Number(Number),
 }
 
 impl fmt::Display for Value {
