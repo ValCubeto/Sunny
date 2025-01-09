@@ -24,9 +24,9 @@ pub struct Entity {
 
 impl fmt::Display for Item {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    #[allow(unreachable_patterns, reason="Not all variants are implemented yet")]
+    #[allow(unreachable_patterns)]
     match self {
-      Item::Const(variable) => write!(f, "{}", variable),
+      Item::Const(variable) => write!(f, "{variable}"),
       // Item::Struct => write!(f, "struct"),
       // Item::Enum => write!(f, "enum"),
       // Item::BitSet => write!(f, "bitset"),
@@ -41,49 +41,31 @@ impl fmt::Display for Item {
 
 impl fmt::Display for Entity {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "{} ", if self.metadata.public() { "shared" } else { "hidden" })?;
-    write!(f, "{} ", if self.metadata.mutable() { "mut" } else { "const" })?;
-    write!(f, "{}", self.item)
+    write!(f, "{} {}", self.metadata, self.item)
   }
 }
 
-type M = u8;
+#[derive(Debug, Clone, Copy)]
+/// TODO: turn this into a bit set
+pub struct Metadata {
+  pub hidden: bool,
+  pub mutable: bool,
+}
 
-// This is a bit set btw
-pub struct Metadata(M);
 #[allow(unused)]
 impl Metadata {
-  pub const TRUE:  M = 1;
-  pub const FALSE: M = 0;
-  // The shiftings
-  pub const IS_PUBLIC : M = 0;
-  pub const IS_MUTABLE: M = 1;
-
   #[inline]
   pub fn new() -> Self {
-    Metadata(0)
-  }
-  pub fn public(&self) -> bool {
-    self.0 & (1 << Self::IS_PUBLIC) != 0
-  }
-  pub fn set_public(&mut self, is_public: bool) {
-    // 0000_1010 ^ 0000_0001 = 0000_1011
-    // 0000_1010 ^ 0000_0000 = 0000_1010
-    self.0 ^= (is_public as M) << Self::IS_PUBLIC;
-  }
-  pub fn mutable(&self) -> bool {
-    self.0 & (1 << Self::IS_MUTABLE) != 0
-  }
-  pub fn set_mutable(&mut self, is_mutable: bool) {
-    self.0 ^= (is_mutable as M) << Self::IS_MUTABLE;
+    Metadata {
+      hidden: false,
+      mutable: false,
+    }
   }
 }
 
-impl fmt::Debug for Metadata {
+impl fmt::Display for Metadata {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    f.debug_struct("Metadata")
-      .field("public", &self.public())
-      .field("mutable", &self.mutable())
-      .finish()
+    f.write_str(if self.hidden { "hidden" } else { "shared" })?;
+    f.write_str(if self.mutable { " mutable" } else { " constant" })
   }
 }

@@ -44,7 +44,7 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
   }
 
   let mut metadata = Metadata::new();
-  metadata.set_mutable(mutable);
+  metadata.mutable = mutable;
   Entity {
     metadata,
     item: Item::Const(Variable {

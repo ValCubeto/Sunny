@@ -1,11 +1,3 @@
 
-const
-  STR
-    :
-      String
-        =
-          "Hello, world"
-            .
-              parse
-                ;
-state NUM: Int32 = 1000
+const NAME: String = "Sunny"
+const STRING: String = f"Hello, {NAME}!"

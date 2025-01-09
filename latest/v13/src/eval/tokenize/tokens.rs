@@ -282,6 +282,10 @@ pub enum Token {
   LeftBrace,
   /// `}`
   RightBrace,
+  /// `{{`
+  DoubleLeftBrace,
+  /// `}}`
+  DoubleRightBrace,
   /// `[`
   LeftBracket,
   /// `]`
@@ -307,25 +311,27 @@ pub enum Token {
 impl fmt::Display for Token {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
-      Token::Keyword(kw) => write!(f, "keyword {kw}"),
-      Token::Ident(ident) => write!(f, "identifier {ident:?}"),
-      Token::String(_) => write!(f, "string literal"),
-      Token::FString(_) => write!(f, "format string literal"),
-      Token::Char(_) => write!(f, "char literal"),
-      Token::Number(_) => write!(f, "number literal"),
-      Token::Op(op) => write!(f, "{op}"),
-      Token::NewLine => write!(f, "new line"),
-      Token::LeftParen => write!(f, "left parenthesis"),
-      Token::RightParen => write!(f, "right parenthesis"),
-      Token::LeftBrace => write!(f, "left brace"),
-      Token::RightBrace => write!(f, "right brace"),
-      Token::LeftBracket => write!(f, "left bracket"),
-      Token::RightBracket => write!(f, "right bracket"),
-      Token::Comma => write!(f, "comma"),
-      Token::Semicolon => write!(f, "semicolon"),
-      Token::Colon => write!(f, "colon"),
-      Token::Arrow => write!(f, "arrow"),
-      Token::EoF => write!(f, "end of file")
+      Self::Keyword(kw) => write!(f, "keyword {kw}"),
+      Self::Ident(ident) => write!(f, "identifier {ident:?}"),
+      Self::String(_) => write!(f, "string literal"),
+      Self::FString(_) => write!(f, "format string literal"),
+      Self::Char(_) => write!(f, "char literal"),
+      Self::Number(_) => write!(f, "number literal"),
+      Self::Op(op) => write!(f, "{op}"),
+      Self::NewLine => write!(f, "new line"),
+      Self::LeftParen => write!(f, "left parenthesis"),
+      Self::RightParen => write!(f, "right parenthesis"),
+      Self::LeftBrace => write!(f, "left brace"),
+      Self::RightBrace => write!(f, "right brace"),
+      Self::DoubleLeftBrace => write!(f, "double left brace"),
+      Self::DoubleRightBrace => write!(f, "double right brace"),
+      Self::LeftBracket => write!(f, "left bracket"),
+      Self::RightBracket => write!(f, "right bracket"),
+      Self::Comma => write!(f, "comma"),
+      Self::Semicolon => write!(f, "semicolon"),
+      Self::Colon => write!(f, "colon"),
+      Self::Arrow => write!(f, "arrow"),
+      Self::EoF => write!(f, "end of file")
     }
   }
 }

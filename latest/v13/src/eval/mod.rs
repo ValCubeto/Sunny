@@ -5,13 +5,13 @@ use crate::ctx::Ctx;
 pub fn eval(input: String, _ctx: Ctx) {
   let tokens = tokenize::tokenize(input);
   for (pos, token) in tokens.iter() {
-    debug_msg!("token[len={}] = {:?} ({}:{})", pos.tok_len, token, pos.line, pos.column);
+    debug_msg!("({}, {}) Token[{}] {:?}", pos.line, pos.column, pos.tok_len, token);
   }
-  debug_msg!("Parsed tokens");
-  let items = parse::parse(tokens);
+  debug_msg!("Tokenizing done");
+  let entities = parse::parse(tokens);
   // debug!(items);
-  for item in items {
+  for item in entities {
     debug_display!(item);
   }
-  internal_err!("parsed all items. What's next?");
+  internal_err!("parsing done");
 }

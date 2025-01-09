@@ -55,7 +55,7 @@ impl<'a> CharsIter<'a> {
   }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Position {
   pub line: usize,
   pub column: usize,
@@ -113,8 +113,20 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       }
       '(' => push!(Tk::LeftParen),
       ')' => push!(Tk::RightParen),
-      '{' => push!(Tk::LeftBrace),
-      '}' => push!(Tk::RightBrace),
+      '{' => {
+        if chars.peek() == Some(&'{') {
+          push!(Tk::DoubleLeftBrace, 2);
+          continue;
+        }
+        push!(Tk::LeftBrace);
+      }
+      '}' => {
+        if chars.peek() == Some(&'}') {
+          push!(Tk::DoubleRightBrace, 2);
+          continue;
+        }
+        push!(Tk::RightBrace);
+      }
       '[' => push!(Tk::LeftBracket),
       ']' => push!(Tk::RightBracket),
       ',' => push!(Tk::Comma),

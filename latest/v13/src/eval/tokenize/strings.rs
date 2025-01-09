@@ -1,4 +1,6 @@
-use super::{ skip_spaces, tokens::Token, CharsIter };
+use crate::eval::tokenize::tokenize;
+
+use super::{ skip_spaces, tokens::Token, CharsIter, Position };
 
 pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
   match chars.next() {
@@ -76,27 +78,40 @@ pub fn parse_string(chars: &mut CharsIter) -> (String, usize) {
 #[derive(Debug, Clone)]
 pub struct FString {
   pub literals: Vec<String>,
-  pub inserted: Vec<Vec<Token>>
+  pub inserted: Vec<Vec<(Position, Token)>>
 }
 
 pub fn parse_fstring(chars: &mut CharsIter) -> (FString, usize) {
   let mut literals = vec![String::new()];
-  let mut curr_literal = literals.last_mut().unwrap();
+  let mut inserted = vec![];
+  let mut curr_literal: &mut String = literals.last_mut().unwrap();
   let mut len = 0;
   while let Some(&ch) = chars.peek() {
     match ch {
       '{' => {
-        syntax_err!("formatting not yet implemented");
-        // chars.next();
-        // len += 1;
-        // literals.push(String::new());
-        // curr_literal = literals.last_mut().unwrap();
+        chars.next();
+        len += 1;
+        literals.push(String::new());
+        curr_literal = literals.last_mut().unwrap();
+        // let inserted_code = String::new();
+        match chars.next() {
+          Some('}') => syntax_err!("empty formatting"),
+          Some('\n') | None => syntax_err!("unclosed formatting"),
+          Some(c) => {
+            todo!();
+            let mut insert = String::from(c);
+            // collect the piece of inserted code until '}' is found
+            // while let Some(ch)
+            let tokens = tokenize(insert);
+            inserted.push(tokens);
+          }
+        }
       }
       '"' => {
         chars.next();
         let fstring = FString {
           literals,
-          inserted: vec![]
+          inserted
         };
         return (fstring, len);
       }
