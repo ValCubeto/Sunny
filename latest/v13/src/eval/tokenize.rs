@@ -6,7 +6,7 @@ use std::str::Chars;
 use keywords::parse_word;
 use numbers::{ Number, parse_bin, parse_hex, parse_number };
 use peekmore::{ PeekMore, PeekMoreIterator };
-use strings::{parse_char, FString, parse_string};
+use strings::{ parse_char, parse_raw_string, parse_string, FString };
 use tokens::{ Operator as Op, Token as Tk };
 
 pub static mut LINE: usize = 1;
@@ -110,7 +110,17 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         Some(_) | None => {
           let (word, len) = parse_word(&mut chars, ch);
           push!(word, len);
-          continue;
+        }
+      }
+      'r' | 'R' => match chars.peek() {
+        Some('"') => {
+          chars.next();
+          let (raw_string, len) = parse_raw_string(&mut chars);
+          push!(Tk::String(raw_string), len + 3);
+        }
+        Some(_) | None => {
+          let (word, len) = parse_word(&mut chars, ch);
+          push!(word, len);
         }
       }
       'a'..='z' | 'A'..='Z' | '_' => {

@@ -1,5 +1,4 @@
-use std::fmt::{self, Write};
-
+use std::fmt::{ self, Write };
 use hashbrown::HashMap;
 use crate::eval::tokenize::{
   keywords::Keyword,

@@ -1,5 +1,6 @@
 #![allow(unused)]
 
+use chrono::Local;
 use std::fmt::Display;
 use crate::eval::tokenize::{ COLUMN, LINE, TOK_LEN };
 use crate::ctx::{ FILE, CONTENTS };
@@ -52,6 +53,7 @@ macro_rules! fmt_methods {
     $(
       #[inline]
       /// Returns a `String` with the given style to display.
+      /// Does nothing if the --no-color flag is passed.
       fn $fn_name(&self) -> String {
         if unsafe { crate::COLORING } {
           format!("{}{}{}", $start, self, $end)
@@ -108,12 +110,31 @@ pub trait Stylize: Display {
 
 impl<T: Display> Stylize for T {}
 
+pub fn print_debug_msg(msg: &str, file: &str, line: u32, column: u32) {
+  if unsafe { !crate::DEBUG } {
+    return;
+  }
+  let path = format!("{}:{}:{}", file, line, column);
+  let date = Local::now().format("%d-%m-%y %H:%M:%S");
+  println!("[{} at {}, {}]", "Debug".cyan().bold(), path.bold(), date.bold());
+  println!("{}", msg);
+}
+
+#[macro_export]
+macro_rules! debug_msg {
+  ($($arg:expr),*) => {{
+    #[allow(unused_imports)]
+    use $crate::terminal::Stylize;
+    use $crate::terminal::print_debug_msg;
+    print_debug_msg(&format!($($arg),*), file!(), line!(), column!());
+  }};
+}
+
 #[macro_export]
 macro_rules! debug {
   ($arg:expr $(, $arg2:expr),* $(,)?) => {{ 
     #[allow(unused_imports)]
     use $crate::terminal::Stylize;
-    use $crate::debug_msg;
     #[allow(unused_mut)]
     let mut msg = format!("{} = {:#?}", stringify!($arg).bold(), $arg);
     $(
@@ -128,7 +149,6 @@ macro_rules! debug_display {
   ($arg:expr) => {{
     #[allow(unused_imports)]
     use $crate::terminal::Stylize;
-    use $crate::debug_msg;
     debug_msg!("{} = {}", stringify!($arg).bold(), $arg);
   }};
 }
@@ -138,30 +158,8 @@ macro_rules! debug_todo {
   ($arg:expr) => {{
     #[allow(unused_imports)]
     use $crate::terminal::Stylize;
-    use $crate::debug_msg;
     debug_msg!("{}: {}", "TODO".warning(), $arg);
   }};
-}
-
-#[macro_export]
-macro_rules! debug_msg {
-  ($($arg:expr),*) => {{
-    #[allow(unused_imports)]
-    use $crate::terminal::Stylize;
-    use $crate::terminal::print_debug_msg;
-    print_debug_msg(&format!($($arg),*), file!(), line!(), column!());
-  }};
-}
-
-use chrono::Local;
-pub fn print_debug_msg(msg: &str, file: &str, line: u32, column: u32) {
-  if unsafe { !crate::DEBUG } {
-    return;
-  }
-  let path = format!("{}:{}:{}", file, line, column);
-  let date = Local::now().format("%d-%m-%y %H:%M:%S");
-  println!("[{} at {}, {}]", "Debug".cyan().bold(), path.bold(), date.bold());
-  println!("{}", msg);
 }
 
 pub fn quit(ename: &str, msg: &str, file: &str, line: u32, column: u32) -> ! {

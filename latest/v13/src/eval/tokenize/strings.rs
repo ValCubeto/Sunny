@@ -1,10 +1,13 @@
 use std::fmt;
-
 use peekmore::PeekMore;
-
-use crate::eval::{parse::expressions::{parse_expr, Expr}, tokenize::tokenize};
-
-use super::{ skip_spaces, tokens::{Token, Tokens}, CharsIter, Position };
+use crate::eval::parse::expressions::{ parse_expr, Expr };
+use crate::eval::tokenize::{
+  tokenize,
+  skip_spaces,
+  tokens::{ Token, Tokens },
+  CharsIter,
+  Position
+};
 
 pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
   match chars.next() {
@@ -58,6 +61,22 @@ pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
     }
     Some(other) => (other, 1)
   }
+}
+
+pub fn parse_raw_string(chars: &mut CharsIter) -> (String, usize) {
+  let mut string = String::new();
+  while let Some(ch) = chars.next() {
+    if ch == '"' {
+      break;
+    }
+    if ch == '\n' {
+      syntax_err!("unterminated string literal");
+    }
+    string.push(ch);
+    chars.next();
+  }
+  let len = string.len();
+  (string, len)
 }
 
 pub fn parse_string(chars: &mut CharsIter) -> (String, usize) {
@@ -194,9 +213,7 @@ impl FString {
       inserted.push(parse_expr(&mut tokens));
       match tokens.next() {
         Some(Token::EoF | Token::NewLine) | None => {}
-        Some(token) => {
-          syntax_err!("unexpected {token}");
-        }
+        Some(token) => syntax_err!("unexpected {token}")
       }
     }
     ParsedFString {

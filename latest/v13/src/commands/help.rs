@@ -11,7 +11,7 @@ pub fn help() {
   println!("{}'s runtime and package manager", format!("{LANG} v{VERSION}").cyan().bold());
   println!();
   println!("{}", "Usage:".bold());
-  println!("  > {} [command] [input] [args]", LANG.to_lowercase());
+  println!("  {} [command] [input] [args]", LANG.to_lowercase());
   println!();
   println!("{}", "Commands:".bold());
   println!("  {} │ Prints this message", help_txt);
