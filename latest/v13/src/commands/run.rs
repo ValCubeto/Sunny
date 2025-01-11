@@ -19,7 +19,6 @@ pub fn run(args: ParsedArgs) {
     CONTENTS = contents.trim_end_matches([' ', '\t']).to_owned();
     CONTENTS.push(' ');
   }
-  debug!(contents);
   eval(contents, ctx);
 }
 

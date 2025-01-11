@@ -1,14 +1,15 @@
 let input = document.getElementById("input")
 let output = document.getElementById("output")
 
-input.addEventListener("input", (_event) => {
-  fetch("/analyze", {
+input.addEventListener("input", () => {
+  const options = {
     method: "POST",
     headers: {
       "Content-Type": "text/plain"
     },
     body: input.value
-  })
+  }
+  fetch("/analyze", options)
     .then((response) => response.text())
     .then((text) => {
       output.innerHTML = text
@@ -16,6 +17,8 @@ input.addEventListener("input", (_event) => {
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/ /g, "&nbsp;")
-        .replace(/\n/g, "<br>")
+        .split("\n")
+        .map((line) => `<p>${line}</p>`)
+        .join("")
     })
 })

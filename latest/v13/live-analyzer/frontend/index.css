@@ -1,0 +1,56 @@
+* {
+  padding: 20px;
+  margin: 0px;
+}
+html {
+  font-family: 'Roboto Mono', monospace;
+  padding: 0px;
+}
+html, body {
+  width: 100%;
+  height: calc(100% - 20px);
+}
+html, #input {
+  margin: 0px;
+}
+body {
+  color: white;
+  background-color: #191325;
+  padding: 10px 0px;
+  margin: 0px;
+}
+.input-container {
+  height: calc(40% - 20px);
+  width: calc(100% - 40px);
+  text-align: center;
+}
+#input {
+  color: white;
+  background-color: #191325;
+  font-size: 16pt;
+  padding: 10px;
+  height: calc(100% - 20px);
+  width: calc(100% - 20px);
+}
+h1 {
+  text-align: center;
+}
+.scroll-container {
+  width: calc(100% - 40px);
+  height: calc(50% - 40px);
+  padding: 20px;
+}
+#output {
+  overflow-y: scroll;
+  height: calc(100% - 20px);
+  width: calc(100% - 40px);
+  border: white solid 2px;
+  border-radius: 5px;
+}
+#output::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+#output > p {
+  padding: 0px;
+}

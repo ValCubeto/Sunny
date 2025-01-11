@@ -5,6 +5,9 @@ use super::tokens::Token;
 pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
   let mut word = String::from(ch);
   while let Some(ch) = chars.peek() {
+    if word.len() > 30 {
+      syntax_err!("this identifier is too long");
+    }
     match ch {
       'a'..='z' => {
         word.push(ch);
@@ -15,6 +18,9 @@ pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
         word.push(ch);
         chars.next();
         while let Some(ch @ ('a'..='z' | 'A'..='Z' | '0'..='9' | '_')) = chars.peek() {
+          if word.len() > 30 {
+            syntax_err!("this identifier is too long");
+          }
           word.push(ch);
           chars.next();
         }

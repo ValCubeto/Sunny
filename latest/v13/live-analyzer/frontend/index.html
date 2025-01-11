@@ -4,52 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sunny Live Analyzer</title>
-  <style>
-    * {
-      padding: 10px 20px;
-      margin: 0px;
-    }
-    html {
-      font-family: 'Roboto Mono', monospace;
-      padding: 0px;
-    }
-    html, body {
-      width: 100%;
-      height: calc(100% - 20px);
-    }
-    html, #input {
-      margin: 0px;
-    }
-    body {
-      color: white;
-      background-color: #191325;
-      padding: 10px 0px;
-      margin: 0px;
-    }
-    #input-container {
-      height: calc(40% - 20px);
-      width: calc(100% - 40px);
-      text-align: center;
-    }
-    #input {
-      color: white;
-      background-color: #191325;
-      font-size: 16pt;
-      padding: 10px;
-      height: calc(100% - 20px);
-      width: calc(100% - 20px);
-    }
-    h1 {
-      text-align: center;
-    }
-  </style>
+  <link rel="stylesheet" href="index.css">
 </head>
 <body>
   <h1>Sunny Live Analyzer</h1>
-  <div id="input-container">
+  <div class="input-container">
     <textarea id="input"></textarea>
   </div>
-  <p id="output"></p>
+  <div class="scroll-container">
+    <div id="output"></div>
+  </div>
   <script src="index.js"></script>
 </body>
 </html>
