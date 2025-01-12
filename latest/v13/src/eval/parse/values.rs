@@ -1,5 +1,6 @@
 use std::fmt;
 use crate::eval::tokenize::{ numbers::Number, strings::ParsedFString };
+use super::functions::Function;
 
 #[allow(unused)]
 #[derive(Debug)]
@@ -8,10 +9,10 @@ pub enum Value {
   Char(char),
   String(String),
   FString(ParsedFString),
-  // RString,
   // CString,
   Ident(String),
   Number(Number),
+  Function(Function)
 }
 
 impl fmt::Display for Value {
@@ -22,6 +23,7 @@ impl fmt::Display for Value {
       Value::FString(s) => write!(f, "{s:?}"),
       Value::Ident(s) => write!(f, "{s}"),
       Value::Number(n) => write!(f, "{n}"),
+      _ => internal_err!("invalid value")
     }
   }
 }

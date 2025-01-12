@@ -5,7 +5,7 @@ use super::constants::Variable;
 #[derive(Debug)]
 /// Any statement
 pub enum Item {
-  Const(Variable),
+  Variable(Variable),
   // Struct,
   // Enum,
   // BitSet,
@@ -26,7 +26,7 @@ impl fmt::Display for Item {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     #[allow(unreachable_patterns)]
     match self {
-      Item::Const(variable) => write!(f, "{variable}"),
+      Item::Variable(variable) => write!(f, "{variable}"),
       // Item::Struct => write!(f, "struct"),
       // Item::Enum => write!(f, "enum"),
       // Item::BitSet => write!(f, "bitset"),
@@ -50,15 +50,19 @@ impl fmt::Display for Entity {
 pub struct Metadata {
   pub hidden: bool,
   pub mutable: bool,
+  pub is_unsafe: bool,
+  pub is_async: bool,
 }
 
 #[allow(unused)]
 impl Metadata {
   #[inline]
-  pub fn new() -> Self {
+  pub fn default() -> Self {
     Metadata {
       hidden: false,
       mutable: false,
+      is_unsafe: false,
+      is_async: false
     }
   }
 }

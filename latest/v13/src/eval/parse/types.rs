@@ -5,9 +5,15 @@ use crate::eval::tokenize::{
   tokens::{ Operator, Token, Tokens }
 };
 
-// T<A, B: C>
 #[allow(unused)]
 #[derive(Debug)]
+/// # Valid forms
+/// (undefined)
+/// T
+/// T<A: (T) = (T), B: (T) = (T)>
+/// (T) | (T)
+/// (T) + (T)
+/// (T) for (T)
 pub struct Type {
   pub name: String,
   // /// `I for T`
@@ -21,6 +27,7 @@ impl fmt::Display for Type {
     if !self.generics.is_empty() {
       f.write_char('<')?;
       let mut generics = self.generics.iter();
+      // Safety: generics is not empty
       let (key, value) = generics.next().unwrap();
       if key.chars().map(|ch| ch.is_ascii_digit()).all(|p| p) {
         write!(f, "{value}")?;
@@ -43,11 +50,15 @@ impl fmt::Display for Type {
 
 impl Type {
   pub fn parse(tokens: &mut Tokens) -> Option<Type> {
+    // Skip leading `|`
+    if let Some(Token::Op(Operator::Pipe)) = tokens.peek() {
+      tokens.next();
+    }
     let name = match tokens.next()? {
       Token::Ident(ident) => ident.clone(),
       Token::Op(Operator::LeftAngle) => syntax_err!("`<T>` syntax not yet implemented"),
       Token::Keyword(Keyword::Impl) => syntax_err!("`impl T` syntax not yet implemented"),
-      other => syntax_err!("unexpected {other}, expected type"),
+      other => syntax_err!("unexpected {other}")
     };
     let generics = HashMap::new();
     if let Token::Op(Operator::LeftAngle) = tokens.peek()? {

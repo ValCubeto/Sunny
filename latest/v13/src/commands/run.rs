@@ -7,14 +7,20 @@ use crate::strings::EXTENSION;
 use crate::eval::eval;
 
 pub fn run(args: ParsedArgs) {
-  let cwd = current_dir().unwrap();
+  let cwd = match current_dir() {
+    Ok(cwd) => cwd,
+    Err(why) => sys_err!("failed to get the current directory ({why})")
+  };
   let file_path = parse_file_path(&cwd, &args.input);
   debug_msg!("Working with file {}", cwd.join(&file_path).display());
   unsafe {
     FILE = args.input.clone();
   }
   let ctx = Ctx::new(cwd, args);
-  let contents = fs::read_to_string(file_path).unwrap();
+  let contents = match fs::read_to_string(&file_path) {
+    Ok(contents) => contents,
+    Err(why) => sys_err!("failed to read file \"{}\" ({why})", file_path.display())
+  };
   unsafe {
     CONTENTS = contents.trim_end_matches([' ', '\t']).to_owned();
     CONTENTS.push(' ');
@@ -24,7 +30,7 @@ pub fn run(args: ParsedArgs) {
 
 fn parse_file_path(cwd: &Path, input: &str) -> PathBuf {
   if input.is_empty() {
-    // TODO: read from Sunny.toml
+    debug_todo!("read from Sunny.toml");
     argument_err!("No input file specified");
   }
   let path = input.trim();
@@ -32,9 +38,12 @@ fn parse_file_path(cwd: &Path, input: &str) -> PathBuf {
   if !path.exists() {
     let mut path2 = path.clone();
     // main -> main.sny
+    if path2.extension().is_some() {
+      argument_err!("file \"{}\" does not exist", cwd.join(path2).display());
+    }
     path2.set_extension(EXTENSION);
     if !path2.exists() {
-      argument_err!("file \"{}\" does not exist", cwd.join(path2).display());
+      argument_err!("file \"{}\" does not exist", cwd.join(path).display());
     }
     path.set_extension(EXTENSION);
   }

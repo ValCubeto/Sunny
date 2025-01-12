@@ -198,6 +198,14 @@ macro_rules! internal_err {
 }
 
 #[macro_export]
+macro_rules! sys_err {
+  ($($arg:expr),*) => {{
+    use $crate::terminal::quit;
+    quit("System error", &format!($($arg),*), file!(), line!(), column!());
+  }};
+}
+
+#[macro_export]
 macro_rules! argument_err {
   ($($arg:expr),*) => {{
     use $crate::terminal::quit;

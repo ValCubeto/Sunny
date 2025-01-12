@@ -49,7 +49,9 @@ pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
             Ok(code) => code,
             Err(why) => syntax_err!("invalid escape sequence {hex:?} ({why})")
           };
-          let ch = char::from_u32(code).unwrap_or_else(|| syntax_err!("invalid escape sequence {hex:?}"));
+          let ch = char::from_u32(code).unwrap_or_else(|| {
+            syntax_err!("invalid escape sequence {hex:?}");
+          });
           len += skip_spaces(chars);
           if chars.next() != Some('}') {
             syntax_err!("expected right brace after escape sequence");
@@ -145,12 +147,12 @@ fn collect_inserted_code(chars: &mut CharsIter, insert: &mut String) {
 impl FString {
   /// Creates an FString from the chars iterator
   pub fn parse(chars: &mut CharsIter) -> (FString, usize) {
-    let mut literals = vec![];
+    let mut literals = vec![String::new()];
+    let mut curr_literal: &mut String = unsafe {
+      literals.last_mut().unwrap_unchecked()
+    };
     let mut inserted = vec![];
-    let mut curr_literal: &mut String;
     let mut len = 0;
-    literals.push(String::new());
-    curr_literal = literals.last_mut().unwrap();
     while let Some(ch) = chars.peek() {
       match ch {
         '"' => {
@@ -185,8 +187,10 @@ impl FString {
           }
           if chars.peek() != Some('"') {
             literals.push(String::new());
+            curr_literal = unsafe {
+              literals.last_mut().unwrap_unchecked()
+            };
           }
-          curr_literal = literals.last_mut().unwrap();
           len += insert.len() + 2;
           let tokens = tokenize(insert);
           chars.advance_cursor(ch);

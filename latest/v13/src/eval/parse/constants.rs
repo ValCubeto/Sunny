@@ -13,7 +13,13 @@ const ( <ident>, ... ): <type> = <expr> <end>
 */
 
 /// Parse `const` or `state` items
-pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
+pub fn parse_static(metadata: Metadata, tokens: &mut Tokens) -> Entity {
+  if metadata.is_async {
+    syntax_err!("invalid async modifier");
+  }
+  if metadata.is_unsafe {
+    syntax_err!("invalid unsafe modifier");
+  }
   tokens.skip_newline();
   let ident = match tokens.next() {
     Some(Token::Ident(ident)) => ident,
@@ -42,11 +48,9 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
     }
   }
 
-  let mut metadata = Metadata::new();
-  metadata.mutable = mutable;
   Entity {
     metadata,
-    item: Item::Const(Variable {
+    item: Item::Variable(Variable {
       name: ident.clone(),
       typing,
       value
@@ -58,9 +62,9 @@ pub fn parse_static(mutable: bool, tokens: &mut Tokens) -> Entity {
 #[derive(Debug)]
 /// Any `const`, `state`, `let`, or `var`
 pub struct Variable {
-  name: String,
-  typing: Type,
-  value: Expr,
+  pub name: String,
+  pub typing: Type,
+  pub value: Expr,
 }
 
 impl fmt::Display for Variable {
