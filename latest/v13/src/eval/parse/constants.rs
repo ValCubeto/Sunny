@@ -1,8 +1,10 @@
 use std::fmt;
 use crate::eval::tokenize::tokens::{ Operator, Token, Tokens };
-use super::expressions::{ Expr, parse_expr };
-use super::items::{ Entity, Item, Metadata };
-use super::types::Type;
+use crate::eval::parse::{
+  expressions::Expr,
+  items::{ Entity, Item, Metadata },
+  types::Typing
+};
 
 /* Valid syntax:
 const <ident>: <type> <end>
@@ -30,15 +32,13 @@ pub fn parse_static(metadata: Metadata, tokens: &mut Tokens) -> Entity {
     syntax_err!("expected type");
   };
   tokens.skip_newline();
-  let Some(typing) = Type::parse(tokens) else {
-    syntax_err!("expected type");
-  };
+  let typing = Typing::parse(tokens);
   tokens.skip_newline();
   let Some(Token::Op(Operator::Equal)) = tokens.next() else {
     syntax_err!("expected value");
   };
   tokens.skip_newline();
-  let value = parse_expr(tokens);
+  let value = Expr::parse(tokens);
 
   match tokens.peek() {
     Some(Token::NewLine | Token::Semicolon | Token::EoF) | None => {}
@@ -63,12 +63,12 @@ pub fn parse_static(metadata: Metadata, tokens: &mut Tokens) -> Entity {
 /// Any `const`, `state`, `let`, or `var`
 pub struct Variable {
   pub name: String,
-  pub typing: Type,
+  pub typing: Typing,
   pub value: Expr,
 }
 
 impl fmt::Display for Variable {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "var {}: {} = {}", self.name, self.typing, self.value)
+    write!(f, "var {}: {:?} = {}", self.name, self.typing, self.value)
   }
 }

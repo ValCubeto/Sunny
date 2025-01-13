@@ -110,6 +110,11 @@ pub enum Expr {
 }
 
 impl Expr {
+  /// None if there are no tokens
+  pub fn parse(tokens: &mut Tokens) -> Expr {
+    parse_expr_bp(tokens, 0)
+  }
+
   pub fn ptr(self) -> Box<Expr> {
     Box::new(self)
   }
@@ -135,11 +140,6 @@ impl fmt::Display for Expr {
       _ => unimplemented!()
     }
   }
-}
-
-/// None if there are no tokens
-pub fn parse_expr(tokens: &mut Tokens) -> Expr {
-  parse_expr_bp(tokens, 0)
 }
 
 /// Parse expressions using a binding power algorithm

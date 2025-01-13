@@ -39,11 +39,12 @@ pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
 }
 
 #[allow(unused)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Keyword {
   Use,
   As,
 
+  All,
   Shared,
   Hidden,
 
@@ -89,6 +90,10 @@ pub enum Keyword {
 
   Macro,
   Case,
+
+  SelfType,
+  SuperType,
+  Never
 }
 
 impl fmt::Display for Keyword {
@@ -129,7 +134,11 @@ impl fmt::Display for Keyword {
       Self::Macro => "macro",
       Self::Case => "case",
       Self::Shared => "shared",
-      Self::Hidden=> "hidden",
+      Self::Hidden => "hidden",
+      Self::All => "all",
+      Self::SelfType => "Self",
+      Self::SuperType => "Super",
+      Self::Never => "never",
     };
     write!(f, "{word:?}")
   }
@@ -174,6 +183,10 @@ impl Keyword {
       "typedef" => Self::TypeDef,
       "shared" => Self::Shared,
       "hidden" => Self::Hidden,
+      "all" => Self::All,
+      "Self" => Self::SelfType,
+      "Super" => Self::SuperType,
+      "never" => Self::Never,
       _ => return None,
     };
     Some(keyword)

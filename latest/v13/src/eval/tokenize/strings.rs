@@ -1,6 +1,6 @@
 use std::fmt;
 use peekmore::PeekMore;
-use crate::eval::parse::expressions::{ parse_expr, Expr };
+use crate::eval::parse::expressions::Expr;
 use crate::eval::tokenize::{
   tokenize,
   skip_spaces,
@@ -214,7 +214,7 @@ impl FString {
     let mut inserted = Vec::with_capacity(self.inserted.len());
     for tokens in self.inserted.iter() {
       let mut tokens = Tokens::new(tokens.iter().peekmore());
-      inserted.push(parse_expr(&mut tokens));
+      inserted.push(Expr::parse(&mut tokens));
       match tokens.next() {
         Some(Token::EoF | Token::NewLine) | None => {}
         Some(token) => syntax_err!("unexpected {token}")
