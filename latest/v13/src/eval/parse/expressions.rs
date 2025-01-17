@@ -1,6 +1,8 @@
 use std::fmt;
-use crate::eval::tokenize::tokens::{ Token as Tk, Tokens };
-use super::values::Value;
+use crate::eval::{
+  tokenize::tokens::{ Token as Tk, Tokens },
+  parse::{ types::Type, values::Value }
+};
 
 type E = Box<Expr>;
 
@@ -8,6 +10,7 @@ type E = Box<Expr>;
 #[derive(Debug)]
 pub enum Expr {
   Single(Value),
+  Type(Type),
 
   /// `!a`
   Not(E),
@@ -87,6 +90,7 @@ impl fmt::Display for Expr {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
       Self::Single(value) => write!(f, "{value}"),
+      Self::Type(ty) => write!(f, "{ty}"),
       Self::Not(expr) => write!(f, "(!{expr})"),
       Self::Neg(expr) => write!(f, "(-{expr})"),
       Self::Pos(expr) => write!(f, "(+{expr})"),

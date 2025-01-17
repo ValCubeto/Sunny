@@ -1,12 +1,23 @@
-use crate::eval::tokenize::keywords::Keyword;
-use crate::eval::tokenize::tokens::{ Operator, Token, Tokens };
+use crate::eval::tokenize::{
+  keywords::Keyword,
+  tokens::{ Operator, Token, Tokens }
+};
 use crate::eval::parse::{
   constants::Variable,
   expressions::Expr,
   items::{ Entity, Item, Metadata },
   types::Typing,
-  values::Value
+  values::Value,
+  statement::Statement
 };
+
+#[allow(unused)]
+#[derive(Debug)]
+pub struct GenericParam {
+  pub name: String,
+  pub typing: Typing,
+  pub default_val: Typing,
+}
 
 #[allow(unused)]
 #[derive(Debug)]
@@ -14,7 +25,7 @@ pub struct Param {
   pub name: String,
   pub typing: Typing,
   // Default value
-  pub default_val: Option<Expr>,
+  pub default_val: Expr,
 }
 
 #[allow(unused)]
@@ -22,13 +33,14 @@ pub struct Param {
 pub struct Function {
   pub name: String,
   pub params: Vec<Param>,
-  pub generics: Vec<Param>,
+  pub generics: Vec<GenericParam>,
   pub output: Typing,
   pub body: Vec<Expr>,
 }
 
 // Some functions have no name
-pub fn parse_function(metadata: Metadata, tokens: &mut Tokens, name: String) -> Entity {
+pub fn parse_function(mut metadata: Metadata, tokens: &mut Tokens, name: String) -> Entity {
+  metadata.mutable = false;
   if metadata.is_async {
     syntax_err!("async functions not yet implemented");
   }
@@ -38,18 +50,59 @@ pub fn parse_function(metadata: Metadata, tokens: &mut Tokens, name: String) -> 
   if metadata.is_const {
     syntax_err!("const functions not yet implemented");
   }
-  // let mut self_type
-  let mut generics = Vec::new();
-  if matches!(tokens.peek(), Token::Op(Operator::LeftAngle)) {
-    tokens.next();
-    syntax_err!("function generics not yet implemented");
+
+  let mut generics: Vec<GenericParam> = Vec::new();
+  tokens.skip_newline();
+  match tokens.peek() {
+    Token::Op(Operator::Diamond) => {
+      // empty generics
+      tokens.next();
+    }
+    Token::Op(Operator::LeftAngle) => {
+      tokens.next();
+      loop {
+        tokens.skip_newline();
+        match tokens.next() {
+          Token::Op(Operator::RightAngle) => break,
+          Token::Ident(ident) => {
+            let typing = match tokens.peek() {
+              Token::Colon => {
+                tokens.next();
+                Typing::parse(tokens)
+              }
+              _ => Typing::Undefined
+            };
+            let default_val = match tokens.peek() {
+              Token::Op(Operator::Equal) => {
+                tokens.next();
+                Typing::parse(tokens)
+              }
+              // _ => Typing::Undefined
+              other => {
+                debug!(other);
+                Typing::Undefined
+              }
+            };
+            generics.push(GenericParam {
+              name: ident.clone(),
+              typing,
+              default_val
+            });
+          }
+          _ => break
+        }
+      }
+    }
+    _ => {}
   }
   let mut params = Vec::new();
+  tokens.skip_newline();
   match tokens.next() {
     Token::LeftParen => {
       #[allow(clippy::never_loop)]
       loop {
         match tokens.peek() {
+          Token::NewLine => continue,
           Token::RightParen => break,
           Token::Ident(_name) => {
             syntax_err!("function parameters not yet implemented");
@@ -69,6 +122,11 @@ pub fn parse_function(metadata: Metadata, tokens: &mut Tokens, name: String) -> 
     }
     _ => syntax_err!("expected parameters")
   }
+  if !matches!(tokens.next(), Token::RightParen) {
+    syntax_err!("unclosed parenthesis");
+  }
+
+  tokens.skip_newline();
   let output = match tokens.peek() {
     Token::Arrow => {
       tokens.next();
@@ -76,12 +134,21 @@ pub fn parse_function(metadata: Metadata, tokens: &mut Tokens, name: String) -> 
     }
     _ => Typing::Undefined
   };
-  if !matches!(tokens.next(), Token::RightParen) {
-    syntax_err!("unclosed parenthesis");
+
+  tokens.skip_newline();
+  if matches!(tokens.peek(), Token::Keyword(Keyword::Takes)) {
+    tokens.next();
+    syntax_err!("self takes not yet implemented");
+    // tokens.skip_newline();
   }
+
   let mut body = Vec::new();
   if matches!(tokens.next(), Token::LeftBrace) {
-    parse_stmt(tokens, &mut body);
+    body = Statement::parse(tokens);
+    let token = tokens.next();
+    if !matches!(token, Token::RightBrace) {
+      syntax_err!("unexpected {token}");
+    }
   }
   let function = Function {
     name: name.clone(),
@@ -97,44 +164,5 @@ pub fn parse_function(metadata: Metadata, tokens: &mut Tokens, name: String) -> 
       typing: Typing::from_function(&function),
       value: Expr::Single(Value::Function(function))
     })
-  }
-}
-
-fn parse_stmt(tokens: &mut Tokens, body: &mut Vec<Expr>) {
-  while let Some(token) = tokens.try_next() {
-    match token {
-      Token::NewLine | Token::Semicolon => continue,
-      Token::RightParen => break,
-      Token::EoF => syntax_err!("unexpected end of file"),
-      Token::Keyword(Keyword::Let) => {
-        syntax_err!("let statements not yet implemented");
-        // body.push(Expr::parse(tokens));
-      }
-      Token::Keyword(Keyword::Var) => {
-        syntax_err!("var statements not yet implemented");
-      }
-      Token::Keyword(Keyword::If) => {
-        syntax_err!("if statements not yet implemented");
-      }
-      Token::Keyword(Keyword::Loop) => {
-        syntax_err!("loops not yet implemented");
-      }
-      Token::Keyword(Keyword::While) => {
-        syntax_err!("loops not yet implemented");
-      }
-      Token::Keyword(Keyword::For) => {
-        syntax_err!("for loops not yet implemented");
-      }
-      Token::Keyword(Keyword::Match) => {
-        syntax_err!("match statements not yet implemented");
-      }
-      Token::Keyword(Keyword::Defer) => {
-        syntax_err!("defer blocks not yet implemented");
-      }
-      Token::Keyword(Keyword::Return) => {
-        syntax_err!("returns not yet implemented");
-      }
-      _ => syntax_err!("unexpected {token}")
-    }
   }
 }

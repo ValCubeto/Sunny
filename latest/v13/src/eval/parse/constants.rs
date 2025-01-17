@@ -69,6 +69,6 @@ pub struct Variable {
 
 impl fmt::Display for Variable {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "var {}: {:?} = {}", self.name, self.typing, self.value)
+    write!(f, "var {}: {} = {}", self.name, self.typing, self.value)
   }
 }

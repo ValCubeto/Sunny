@@ -23,7 +23,7 @@ impl fmt::Display for Value {
       Value::FString(s) => write!(f, "{s:?}"),
       Value::Ident(s) => write!(f, "{s}"),
       Value::Number(n) => write!(f, "{n}"),
-      other => internal_err!("invalid value {:?}", other)
+      Value::Function(func) => write!(f, "{func:#?}")
     }
   }
 }

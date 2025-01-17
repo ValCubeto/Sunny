@@ -4,6 +4,7 @@ pub mod expressions;
 pub mod values;
 pub mod types;
 pub mod functions;
+pub mod statement;
 use constants::parse_static;
 use functions::parse_function;
 use items::{ Entity, Metadata };
@@ -103,17 +104,36 @@ fn match_token(metadata: &mut Metadata, token: &Tk, tokens: &mut Tokens) -> Opti
       };
       parse_function(*metadata, tokens, name)
     },
-    Tk::Keyword(Kw::Use) => syntax_err!("imports not yet implemented"),
-    Tk::Keyword(Kw::Struct) => syntax_err!("structs not yet implemented"),
-    Tk::Keyword(Kw::Enum) => syntax_err!("enums not yet implemented"),
-    Tk::Keyword(Kw::BitSet) => syntax_err!("bit sets not yet implemented"),
-    Tk::Keyword(Kw::ArgStruct) => syntax_err!("argument structs not yet implemented"),
-    Tk::Keyword(Kw::Class) => syntax_err!("classes not yet implemented"),
-    Tk::Keyword(Kw::Idea) => syntax_err!("ideas not yet implemented"),
-    Tk::Keyword(Kw::Impl) => syntax_err!("idea implementations not yet implemented"),
-    Tk::Keyword(Kw::TypeDef) => syntax_err!("type definitions not yet implemented"),
-    Tk::Keyword(Kw::If) => syntax_err!("static if statements not yet implemented"),
-    Tk::Keyword(Kw::Macro) => syntax_err!("macros not yet implemented"),
+    Tk::Keyword(Kw::Use) => {
+      syntax_err!("imports not yet implemented");
+    }
+    Tk::Keyword(Kw::Struct) => {
+      syntax_err!("structs not yet implemented");
+    }
+    Tk::Keyword(Kw::Enum) => {
+      syntax_err!("enums not yet implemented");
+    }
+    Tk::Keyword(Kw::BitSet) => {
+      syntax_err!("bit sets not yet implemented");
+    }
+    Tk::Keyword(Kw::ArgStruct) => {
+      syntax_err!("argument structs not yet implemented");
+    }
+    Tk::Keyword(Kw::Class) => {
+      syntax_err!("classes not yet implemented");
+    }
+    Tk::Keyword(Kw::Idea) => {
+      syntax_err!("ideas not yet implemented");
+    }
+    Tk::Keyword(Kw::Impl) => {
+      syntax_err!("idea implementations not yet implemented");
+    }
+    Tk::Keyword(Kw::TypeDef) => {
+      syntax_err!("type definitions not yet implemented");
+    }
+    Tk::Keyword(Kw::Macro) => {
+      syntax_err!("macros not yet implemented");
+    }
     _ => syntax_err!("unexpected {token}"),
   })
 }

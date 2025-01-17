@@ -9,6 +9,22 @@ use crate::eval::tokenize::{
   Position
 };
 
+pub fn parse_raw_string(chars: &mut CharsIter) -> (String, usize) {
+  let mut string = String::new();
+  while let Some(ch) = chars.next() {
+    if ch == '"' {
+      break;
+    }
+    if ch == '\n' {
+      syntax_err!("unterminated string literal");
+    }
+    string.push(ch);
+    chars.next();
+  }
+  let len = string.len();
+  (string, len)
+}
+
 pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
   match chars.next() {
     Some('\'') => syntax_err!("empty character literal"),
@@ -63,22 +79,6 @@ pub fn parse_char(chars: &mut CharsIter) -> (char, usize) {
     }
     Some(other) => (other, 1)
   }
-}
-
-pub fn parse_raw_string(chars: &mut CharsIter) -> (String, usize) {
-  let mut string = String::new();
-  while let Some(ch) = chars.next() {
-    if ch == '"' {
-      break;
-    }
-    if ch == '\n' {
-      syntax_err!("unterminated string literal");
-    }
-    string.push(ch);
-    chars.next();
-  }
-  let len = string.len();
-  (string, len)
 }
 
 pub fn parse_string(chars: &mut CharsIter) -> (String, usize) {

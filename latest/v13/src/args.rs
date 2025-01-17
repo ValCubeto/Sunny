@@ -77,7 +77,8 @@ fn add_flag(arg: String, flags: &mut Flags) {
   let mut split = arg.trim_start_matches('-').splitn(2, '=');
   let key = split.next().unwrap();
   if !VALID_FLAGS.contains(&key) {
-    // Cannot use standard argument error yet because of flags
+    // Cannot use standard argument error yet because of
+    // possible modifiers on the flags themselves
     eprintln!("Warning: invalid flag {key:?}");
   }
   let value = split.next().unwrap_or_default().to_owned();

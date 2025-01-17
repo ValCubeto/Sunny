@@ -59,59 +59,100 @@ pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
 #[allow(unused)]
 #[derive(Debug, Clone, PartialEq)]
 pub enum Keyword {
+  /// `mod`
   Mod,
+  /// `use`
   Use,
+  /// `as`
   As,
 
+  /// `shared`
   Shared,
+  /// `hidden`
   Hidden,
 
+  /// `const`
   Const,
+  /// `state`
   State,
+  /// `let`
   Let,
+  /// `var`
   Var,
 
+  /// `typedef`
   TypeDef,
 
+  /// `struct`
   Struct,
+  /// `enum`
   Enum,
+  /// `bitset`
   BitSet,
+  /// `idea`
   Idea,
 
+  /// `class`
   Class,
+  /// `extends`
   Extends,
+  /// `where`
   Where,
+  /// `impl`
   Impl,
 
+  /// `argstruct`
   ArgStruct,
+  /// `fun`
   Fun,
+  /// `takes`
   Takes,
+  /// `defer`
   Defer,
+  /// `return`
   Return,
-
+  
+  /// `unsafe`
   Unsafe,
 
+  /// `async`
   Async,
+  /// `await`
   Await,
 
+  /// `loop`
   Loop,
+  /// `while`
   While,
+  /// `for`
   For,
+  /// `in`
   In,
+  /// `break`
   Break,
+  /// `continue`
   Continue,
 
+  /// `if`
   If,
+  /// `else`
   Else,
 
+  /// `match`
   Match,
+  /// `is`
   Is,
 
+  /// `macro`
   Macro,
+  /// `case`
   Case,
 
+  /// `Self`
   SelfType,
+  /// `Super`
   SuperType,
+  /// `never`
   Never
 }
 
