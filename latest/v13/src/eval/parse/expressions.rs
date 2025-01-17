@@ -1,6 +1,5 @@
 use std::fmt;
 use crate::eval::tokenize::tokens::{ Token as Tk, Tokens };
-use super::constants::Variable;
 use super::values::Value;
 
 type E = Box<Expr>;
@@ -20,8 +19,6 @@ pub enum Expr {
   Deref(E),
   /// `&a`
   Ref(E),
-  /// `a%`
-  Percent(E),
   /// `a?`
   Try(E),
 
@@ -69,44 +66,10 @@ pub enum Expr {
   /// `a ... b`
   InclusiveRange(E, E),
 
-  /// `a = b`
-  Assign(E, E),
-  /// `a += b`
-  AddAssign(E, E),
-  /// `a -= b`
-  SubAssign(E, E),
-  /// `a *= b`
-  MulAssign(E, E),
-  /// `a /= b`
-  DivAssign(E, E),
-  /// `a %= b`
-  ModAssign(E, E),
-  /// `a **= b`
-  PowAssign(E, E),
-  /// `a &&= b`
-  LogicalAndAssign(E, E),
-  /// `a &= b`
-  AndAssign(E, E),
-  /// `a ||= b`
-  LogicalOrAssign(E, E),
-  /// `a |= b`
-  OrAssign(E, E),
-  /// `a ^= b`
-  XorAssign(E, E),
-
   /// `a :: b`
   GetItem(E, E),
   /// `a . b`
-  GetField(E, E),
-
-  // Call(ident, generics, args),
-  Let(Box<Variable>),
-  Var(Box<Variable>),
-
-  Loop(Vec<Expr>),
-  While(E, Vec<Expr>),
-  If(E, Vec<Expr>, Vec<Expr>),
-  ForIn(E, E, Vec<Expr>),
+  GetField(E, E)
 }
 
 impl Expr {
@@ -123,21 +86,36 @@ impl Expr {
 impl fmt::Display for Expr {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
-      Expr::Single(value) => write!(f, "{value}"),
-      Expr::Not(expr) => write!(f, "(!{expr})"),
-      Expr::Neg(expr) => write!(f, "(-{expr})"),
-      Expr::Pos(expr) => write!(f, "(+{expr})"),
-      Expr::Deref(expr) => write!(f, "(*{expr})"),
-      Expr::Ref(expr) => write!(f, "(&{expr})"),
-      Expr::Percent(expr) => write!(f, "({expr}%)"),
-      Expr::Try(expr) => write!(f, "({expr}?)"),
-      Expr::Add(lhs, rhs) => write!(f, "({lhs} + {rhs})"),
-      Expr::Sub(lhs, rhs) => write!(f, "({lhs} - {rhs})"),
-      Expr::Mul(lhs, rhs) => write!(f, "({lhs} * {rhs})"),
-      Expr::Div(lhs, rhs) => write!(f, "({lhs} / {rhs})"),
-      Expr::Mod(lhs, rhs) => write!(f, "({lhs} % {rhs})"),
-      Expr::GetField(lhs, rhs) => write!(f, "({lhs}.{rhs})"),
-      _ => unimplemented!()
+      Self::Single(value) => write!(f, "{value}"),
+      Self::Not(expr) => write!(f, "(!{expr})"),
+      Self::Neg(expr) => write!(f, "(-{expr})"),
+      Self::Pos(expr) => write!(f, "(+{expr})"),
+      Self::Deref(expr) => write!(f, "(*{expr})"),
+      Self::Ref(expr) => write!(f, "(&{expr})"),
+      Self::Try(expr) => write!(f, "({expr}?)"),
+      Self::Add(lhs, rhs) => write!(f, "({lhs} + {rhs})"),
+      Self::Sub(lhs, rhs) => write!(f, "({lhs} - {rhs})"),
+      Self::Mul(lhs, rhs) => write!(f, "({lhs} * {rhs})"),
+      Self::Div(lhs, rhs) => write!(f, "({lhs} / {rhs})"),
+      Self::Mod(lhs, rhs) => write!(f, "({lhs} % {rhs})"),
+      Self::LogicalAnd(lhs, rhs) => write!(f, "({lhs} && {rhs})"),
+      Self::LogicalOr(lhs, rhs) => write!(f, "({lhs} || {rhs})"),
+      Self::And(lhs, rhs) => write!(f, "({lhs} & {rhs})"),
+      Self::Or(lhs, rhs) => write!(f, "({lhs} | {rhs})"),
+      Self::Xor(lhs, rhs) => write!(f, "({lhs} ^ {rhs})"),
+      Self::Equal(lhs, rhs) => write!(f, "({lhs} == {rhs})"),
+      Self::NotEqual(lhs, rhs) => write!(f, "({lhs} != {rhs})"),
+      Self::Less(lhs, rhs) => write!(f, "({lhs} < {rhs})"),
+      Self::Greater(lhs, rhs) => write!(f, "({lhs} > {rhs})"),
+      Self::LessEqual(lhs, rhs) => write!(f, "({lhs} <= {rhs})"),
+      Self::GreaterEqual(lhs, rhs) => write!(f, "({lhs} >= {rhs})"),
+      Self::LeftShift(lhs, rhs) => write!(f, "({lhs} << {rhs})"),
+      Self::RightShift(lhs, rhs) => write!(f, "({lhs} >> {rhs})"),
+      Self::Cmp(lhs, rhs) => write!(f, "({lhs} <> {rhs})"),
+      Self::ExclusiveRange(lhs, rhs) => write!(f, "({lhs} .. {rhs})"),
+      Self::InclusiveRange(lhs, rhs) => write!(f, "({lhs} ... {rhs})"),
+      Self::GetItem(lhs, rhs) => write!(f, "({lhs}::{rhs})"),
+      Self::GetField(lhs, rhs) => write!(f, "({lhs}.{rhs})"),
     }
   }
 }
@@ -146,29 +124,27 @@ impl fmt::Display for Expr {
 fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
   // left-hand side
   let mut lhs = match tokens.next() {
-    None => syntax_err!("unexpected end of file"),
-    Some(Tk::Ident(ident)) => Expr::Single(Value::Ident(ident.clone())),
-    Some(Tk::String(string)) => Expr::Single(Value::String(string.clone())),
-    Some(Tk::FString(fstring)) => Expr::Single(Value::FString(fstring.to_parsed())),
-    Some(Tk::Char(ch)) => Expr::Single(Value::Char(*ch)),
-    Some(Tk::Number(number)) => Expr::Single(Value::Number(number.clone())),
-    Some(Tk::LeftParen) => {
+    Tk::Ident(ident) => Expr::Single(Value::Ident(ident.clone())),
+    Tk::String(string) => Expr::Single(Value::String(string.clone())),
+    Tk::FString(fstring) => Expr::Single(Value::FString(fstring.to_parsed())),
+    Tk::Char(ch) => Expr::Single(Value::Char(*ch)),
+    Tk::Number(number) => Expr::Single(Value::Number(number.clone())),
+    Tk::LeftParen => {
       let lhs = parse_expr_bp(tokens, 0);
       match tokens.next() {
-        Some(Tk::RightParen) => {}
-        Some(other) => syntax_err!("expected right parenthesis, found {other}"),
-        None => syntax_err!("unclosed parenthesis")
+        Tk::RightParen => {}
+        _ => syntax_err!("unclosed parenthesis")
       }
       lhs
     }
-    Some(Tk::Op(op)) => {
+    Tk::Op(op) => {
       let right_bp = op.prefix_bp();
       let rhs = parse_expr_bp(tokens, right_bp);
       op.prefix_expr(rhs)
     }
-    Some(Tk::NewLine) => return parse_expr_bp(tokens, min_bp),
-    Some(Tk::EoF) => syntax_err!("expected value"),
-    Some(token) => syntax_err!("unexpected {token}")
+    Tk::NewLine => return parse_expr_bp(tokens, min_bp),
+    Tk::EoF => syntax_err!("expected value"),
+    token => syntax_err!("unexpected {token}")
   };
   loop {
     let op = match &tokens.peek_amount(2)[0..2] {
@@ -180,7 +156,7 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
       [Some(Tk::NewLine), Some(Tk::NewLine)] => {
         tokens.next();
         tokens.next();
-        while let Some(Tk::NewLine) = tokens.peek() {
+        while let Some(Tk::NewLine) = tokens.try_peek() {
           tokens.next();
         }
         continue;

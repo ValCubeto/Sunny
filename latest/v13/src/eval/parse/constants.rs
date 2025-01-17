@@ -24,27 +24,27 @@ pub fn parse_static(metadata: Metadata, tokens: &mut Tokens) -> Entity {
   }
   tokens.skip_newline();
   let ident = match tokens.next() {
-    Some(Token::Ident(ident)) => ident,
-    Some(_) | None => syntax_err!("expected identifier")
+    Token::Ident(ident) => ident,
+    _ => syntax_err!("expected identifier")
   };
   tokens.skip_newline();
-  let Some(Token::Colon) = tokens.next() else {
+  if !matches!(tokens.next(), Token::Colon) {
     syntax_err!("expected type");
   };
   tokens.skip_newline();
   let typing = Typing::parse(tokens);
   tokens.skip_newline();
-  let Some(Token::Op(Operator::Equal)) = tokens.next() else {
+  if !matches!(tokens.next(), Token::Op(Operator::Equal)) {
     syntax_err!("expected value");
   };
   tokens.skip_newline();
   let value = Expr::parse(tokens);
 
   match tokens.peek() {
-    Some(Token::NewLine | Token::Semicolon | Token::EoF) | None => {}
-    Some(other) => {
+    Token::NewLine | Token::Semicolon | Token::EoF => {}
+    other => {
       tokens.next();
-      syntax_err!("unexpected {other}, expected operator or end of statement")
+      syntax_err!("expected operator or end of statement, found {other}");
     }
   }
 

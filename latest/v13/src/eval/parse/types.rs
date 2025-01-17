@@ -32,11 +32,10 @@ pub enum Typing {
 impl Typing {
   pub fn parse(tokens: &mut Tokens) -> Typing {
     // Skip leading `|`
-    if let Some(Token::Op(Operator::Pipe)) = tokens.peek() {
+    if matches!(tokens.peek(), Token::Op(Operator::Pipe)) {
       tokens.next();
     }
-    let expected_type = || syntax_err!("expected type");
-    let name = match tokens.next().unwrap_or_else(expected_type) {
+    let name = match tokens.next() {
       Token::Ident(ident) => ident.clone(),
       Token::Keyword(Keyword::Fun) => syntax_err!("functions as types not yet implemented"),
       Token::Op(Operator::LeftAngle) => syntax_err!("`<T>` syntax not yet implemented"),
@@ -44,19 +43,19 @@ impl Typing {
       other => syntax_err!("unexpected {other}")
     };
     let generics = HashMap::new();
-    if let Token::Op(Operator::LeftAngle) = tokens.peek().unwrap_or_else(expected_type) {
+    if let Token::Op(Operator::LeftAngle) = tokens.peek() {
       tokens.next();
       syntax_err!("`{name}<...>` syntax not yet implemented");
     }
-    if let Token::Keyword(Keyword::For) = tokens.peek().unwrap_or_else(expected_type) {
+    if let Token::Keyword(Keyword::For) = tokens.peek() {
       tokens.next();
       syntax_err!("`{name} for T` syntax not yet implemented");
     }
-    if let Token::Op(Operator::Pipe) = tokens.peek().unwrap_or_else(expected_type) {
+    if let Token::Op(Operator::Pipe) = tokens.peek() {
       tokens.next();
       syntax_err!("`{name} | T` syntax not yet implemented");
     }
-    if let Token::Op(Operator::Plus) = tokens.peek().unwrap_or_else(expected_type) {
+    if let Token::Op(Operator::Plus) = tokens.peek() {
       tokens.next();
       syntax_err!("`{name} + T` syntax not yet implemented");
     }

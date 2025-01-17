@@ -17,8 +17,9 @@ use crate::eval::tokenize::{
 pub fn parse(tokens: Vec<(Position, Tk)>) -> Vec<Entity> {
   let mut items = Vec::new();
   let mut tokens = Tokens::new(tokens.iter().peekmore());
+  // This is for a feature that changes the metadata for all following items
   let mut common_meta = Metadata::default();
-  while let Some(token) = tokens.next() {
+  while let Some(token) = tokens.try_next() {
     if let Tk::EoF = token {
       break;
     }
@@ -34,13 +35,12 @@ pub fn parse(tokens: Vec<(Position, Tk)>) -> Vec<Entity> {
 
 fn match_token(metadata: &mut Metadata, token: &Tk, tokens: &mut Tokens) -> Option<Entity> {
   Some(match token {
-    Tk::Keyword(Kw::All) => {
+    Tk::Keyword(Kw::Mod) => {
       match tokens.next() {
-        Some(Tk::Keyword(vis @ (Kw::Hidden | Kw::Shared))) => {
+        Tk::Keyword(vis @ (Kw::Hidden | Kw::Shared)) => {
           metadata.hidden = vis == &Kw::Hidden;
         }
-        Some(other) => syntax_err!("unexpected {other}"),
-        None => syntax_err!("expected visibility modifier")
+        _ => syntax_err!("expected visibility modifier")
       }
       metadata.mutable = true;
       return None;
@@ -55,38 +55,42 @@ fn match_token(metadata: &mut Metadata, token: &Tk, tokens: &mut Tokens) -> Opti
     }
     Tk::Keyword(Kw::Hidden) => {
       tokens.skip_newline();
-      if let Some(Tk::Keyword(Kw::Shared | Kw::Hidden)) = tokens.peek() {
-        tokens.next();
-        syntax_err!("multiple visibility modifiers");
-      }
+      let token = match tokens.next() {
+        Tk::EoF => syntax_err!("expected visibility modifier"),
+        Tk::Keyword(Kw::Shared | Kw::Hidden) => syntax_err!("multiple visibility modifiers"),
+        other => other
+      };
       let mut metadata = *metadata;
       metadata.hidden = true;
       match_token(&mut metadata, token, tokens)?
     }
     Tk::Keyword(Kw::Shared) => {
       tokens.skip_newline();
-      if let Some(Tk::Keyword(Kw::Shared | Kw::Hidden)) = tokens.peek() {
-        tokens.next();
-        syntax_err!("multiple visibility modifiers");
-      }
+      let token = match tokens.next() {
+        Tk::EoF => syntax_err!("expected visibility modifier"),
+        Tk::Keyword(Kw::Shared | Kw::Hidden) => syntax_err!("multiple visibility modifiers"),
+        other => other
+      };
       let mut metadata = *metadata;
       metadata.hidden = false;
       match_token(&mut metadata, token, tokens)?
     }
     Tk::Keyword(Kw::Unsafe) => {
-      if let Some(Tk::Keyword(Kw::Unsafe)) = tokens.peek() {
-        tokens.next();
-        syntax_err!("repeated unsafe keyword");
-      }
+      let token = match tokens.next() {
+        Tk::EoF => syntax_err!("expected function or block"),
+        Tk::Keyword(Kw::Unsafe) => syntax_err!("repeated keyword"),
+        other => other
+      };
       let mut metadata = *metadata;
       metadata.is_unsafe = true;
       match_token(&mut metadata, token, tokens)?
     }
     Tk::Keyword(Kw::Async) => {
-      if let Some(Tk::Keyword(Kw::Async)) = tokens.peek() {
-        tokens.next();
-        syntax_err!("repeated async keyword");
-      }
+      let token = match tokens.next() {
+        Tk::EoF => syntax_err!("expected function or block"),
+        Tk::Keyword(Kw::Async) => syntax_err!("repeated keyword"),
+        other => other
+      };
       // create a copy
       let mut metadata = *metadata;
       metadata.is_async = true;
@@ -94,7 +98,7 @@ fn match_token(metadata: &mut Metadata, token: &Tk, tokens: &mut Tokens) -> Opti
     }
     Tk::Keyword(Kw::Fun) => {
       let name: String = match tokens.next() {
-        Some(Tk::Ident(name)) => name.clone(),
+        Tk::Ident(name) => name.clone(),
         _ => syntax_err!("expected function name")
       };
       parse_function(*metadata, tokens, name)

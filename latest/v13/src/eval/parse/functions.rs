@@ -40,62 +40,48 @@ pub fn parse_function(metadata: Metadata, tokens: &mut Tokens, name: String) -> 
   }
   // let mut self_type
   let mut generics = Vec::new();
-  if let Some(Token::Op(Operator::LeftAngle)) = tokens.peek() {
+  if matches!(tokens.peek(), Token::Op(Operator::LeftAngle)) {
     tokens.next();
     syntax_err!("function generics not yet implemented");
   }
   let mut params = Vec::new();
   match tokens.next() {
-    Some(Token::LeftParen) => {
+    Token::LeftParen => {
       #[allow(clippy::never_loop)]
       loop {
-        match tokens.next() {
-          Some(Token::RightParen) => break,
-          Some(Token::Ident(_name)) => syntax_err!("function parameters not yet implemented"),
-          Some(Token::LeftBrace) => syntax_err!("parameter destructuring not yet implemented"),
-          Some(Token::LeftParen) => syntax_err!("parameter destructuring not yet implemented"),
-          Some(Token::LeftBracket) => syntax_err!("parameter destructuring not yet implemented"),
-          Some(other) => syntax_err!("unexpected {other}"),
-          None => syntax_err!("expected parameter list")
+        match tokens.peek() {
+          Token::RightParen => break,
+          Token::Ident(_name) => {
+            syntax_err!("function parameters not yet implemented");
+          }
+          Token::LeftBrace => {
+            syntax_err!("parameter destructuring not yet implemented");
+          }
+          Token::LeftParen => {
+            syntax_err!("parameter destructuring not yet implemented");
+          }
+          Token::LeftBracket => {
+            syntax_err!("parameter destructuring not yet implemented");
+          }
+          _ => syntax_err!("expected parameter list")
         }
       }
     }
-    Some(other) => syntax_err!("unexpected {other}"),
-    None => syntax_err!("expected parameters")
+    _ => syntax_err!("expected parameters")
   }
   let output = match tokens.peek() {
-    Some(Token::Colon) => {
+    Token::Arrow => {
       tokens.next();
       Typing::parse(tokens)
     }
     _ => Typing::Undefined
   };
-  if !matches!(tokens.next(), Some(&Token::RightParen)) {
-    syntax_err!("expected right parenthesis");
+  if !matches!(tokens.next(), Token::RightParen) {
+    syntax_err!("unclosed parenthesis");
   }
   let mut body = Vec::new();
-  while let Some(token) = tokens.next() {
-    if let Token::NewLine | Token::Semicolon = token {
-      continue;
-    }
-    match token {
-      Token::NewLine | Token::Semicolon => continue,
-      Token::RightParen => break,
-      Token::EoF => syntax_err!("unexpected end of file"),
-      Token::Keyword(Keyword::Let) => {
-        syntax_err!("let statements not yet implemented");
-        // body.push(Expr::parse(tokens));
-      }
-      Token::Keyword(Keyword::Var) => syntax_err!("var statements not yet implemented"),
-      Token::Keyword(Keyword::If) => syntax_err!("if statements not yet implemented"),
-      Token::Keyword(Keyword::Loop) => syntax_err!("loops not yet implemented"),
-      Token::Keyword(Keyword::While) => syntax_err!("loops not yet implemented"),
-      Token::Keyword(Keyword::For) => syntax_err!("for loops not yet implemented"),
-      Token::Keyword(Keyword::Match) => syntax_err!("match statements not yet implemented"),
-      Token::Keyword(Keyword::Defer) => syntax_err!("defer blocks not yet implemented"),
-      Token::Keyword(Keyword::Return) => syntax_err!("returns not yet implemented"),
-      _ => syntax_err!("unexpected {token}")
-    }
+  if matches!(tokens.next(), Token::LeftBrace) {
+    parse_stmt(tokens, &mut body);
   }
   let function = Function {
     name: name.clone(),
@@ -111,5 +97,44 @@ pub fn parse_function(metadata: Metadata, tokens: &mut Tokens, name: String) -> 
       typing: Typing::from_function(&function),
       value: Expr::Single(Value::Function(function))
     })
+  }
+}
+
+fn parse_stmt(tokens: &mut Tokens, body: &mut Vec<Expr>) {
+  while let Some(token) = tokens.try_next() {
+    match token {
+      Token::NewLine | Token::Semicolon => continue,
+      Token::RightParen => break,
+      Token::EoF => syntax_err!("unexpected end of file"),
+      Token::Keyword(Keyword::Let) => {
+        syntax_err!("let statements not yet implemented");
+        // body.push(Expr::parse(tokens));
+      }
+      Token::Keyword(Keyword::Var) => {
+        syntax_err!("var statements not yet implemented");
+      }
+      Token::Keyword(Keyword::If) => {
+        syntax_err!("if statements not yet implemented");
+      }
+      Token::Keyword(Keyword::Loop) => {
+        syntax_err!("loops not yet implemented");
+      }
+      Token::Keyword(Keyword::While) => {
+        syntax_err!("loops not yet implemented");
+      }
+      Token::Keyword(Keyword::For) => {
+        syntax_err!("for loops not yet implemented");
+      }
+      Token::Keyword(Keyword::Match) => {
+        syntax_err!("match statements not yet implemented");
+      }
+      Token::Keyword(Keyword::Defer) => {
+        syntax_err!("defer blocks not yet implemented");
+      }
+      Token::Keyword(Keyword::Return) => {
+        syntax_err!("returns not yet implemented");
+      }
+      _ => syntax_err!("unexpected {token}")
+    }
   }
 }

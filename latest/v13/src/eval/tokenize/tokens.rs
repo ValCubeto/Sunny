@@ -12,7 +12,7 @@ impl<'a> Tokens<'a> {
   pub fn new(tokens: PeekMoreIterator<Iter<'a, (Position, Token)>>) -> Self {
     Tokens(tokens)
   }
-  pub fn next(&mut self) -> Option<&'a Token> {
+  pub fn try_next(&mut self) -> Option<&'a Token> {
     match self.0.next() {
       None => None,
       Some((pos, token)) => {
@@ -25,8 +25,28 @@ impl<'a> Tokens<'a> {
       }
     }
   }
-  pub fn peek(&mut self) -> Option<&'a Token> {
+  pub fn next(&mut self) -> &'a Token {
+    self.try_next().unwrap_or_else(|| {
+      syntax_err!("unexpected end of input");
+    })
+  }
+  pub fn next_or(&mut self, msg: &str) -> &'a Token {
+    self.try_next().unwrap_or_else(|| {
+      syntax_err!("{msg}");
+    })
+  }
+  pub fn try_peek(&mut self) -> Option<&'a Token> {
     self.0.peek().map(|p| &p.1)
+  }
+  pub fn peek(&mut self) -> &'a Token {
+    self.try_peek().unwrap_or_else(|| {
+      syntax_err!("unexpected end of input");
+    })
+  }
+  pub fn peek_or(&mut self, msg: &str) -> &'a Token {
+    self.try_peek().unwrap_or_else(|| {
+      syntax_err!("{msg}");
+    })
   }
   pub fn peek_amount(&mut self, amount: usize) -> Vec<Option<&'a Token>> {
     let mut tokens = Vec::with_capacity(amount);
@@ -40,7 +60,7 @@ impl<'a> Tokens<'a> {
     tokens
   }
   pub fn skip_newline(&mut self) {
-    if let Some(Token::NewLine) = self.peek() {
+    if matches!(self.peek(), Token::NewLine) {
       self.next();
     }
   }
@@ -188,7 +208,6 @@ impl Operator {
     let lhs = lhs.ptr();
     match self {
       Self::Question => Expr::Try(lhs),
-      Self::Percent => Expr::Percent(lhs),
       _ => syntax_err!("unexpected {self}")
     }
   }
@@ -269,7 +288,16 @@ impl fmt::Display for Operator {
 #[derive(Debug, Clone)]
 /// I should create an Operator enum
 pub enum Token {
-  EoF,
+  /// `if`, `fun`, `for`, etc
+  Keyword(Keyword),
+  /// Any valid variable name
+  Ident(String),
+  /// A variable name followed by a bang
+  MacroName(String),
+  Char(char),
+  String(String),
+  FString(FString),
+  Number(Number),
   /// Any operator
   Op(Operator),
   /// `\n`, `\r\n`
@@ -296,16 +324,12 @@ pub enum Token {
   Semicolon,
   /// `:`
   Colon,
-  /// `=>`
+  /// `->`
   Arrow,
-  /// `if`, `fun`, `for`, etc
-  Keyword(Keyword),
-  /// Any valid variable name
-  Ident(String),
-  Char(char),
-  String(String),
-  FString(FString),
-  Number(Number),
+  /// `=>`
+  FatArrow,
+  /// End of file
+  EoF
 }
 
 impl fmt::Display for Token {
@@ -313,6 +337,7 @@ impl fmt::Display for Token {
     match self {
       Self::Keyword(kw) => write!(f, "keyword {kw}"),
       Self::Ident(ident) => write!(f, "identifier {ident:?}"),
+      Self::MacroName(name) => write!(f, "macro name {name:?}!"),
       Self::String(_) => write!(f, "string literal"),
       Self::FString(_) => write!(f, "format string literal"),
       Self::Char(_) => write!(f, "char literal"),
@@ -331,6 +356,7 @@ impl fmt::Display for Token {
       Self::Semicolon => write!(f, "semicolon"),
       Self::Colon => write!(f, "colon"),
       Self::Arrow => write!(f, "arrow"),
+      Self::FatArrow => write!(f, "fat arrow"),
       Self::EoF => write!(f, "end of file")
     }
   }
@@ -343,6 +369,3 @@ impl Token {
     Box::new(self)
   }
 }
-
-// It's an inferno to manually write all binding powers
-

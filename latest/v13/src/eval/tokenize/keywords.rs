@@ -2,6 +2,14 @@ use std::fmt;
 use super::CharsIter;
 use super::tokens::Token;
 
+// a!
+// mod
+// `...`
+// $a
+// $a: T[tk]+
+// $a: T[tk]*
+// f"{a:fmt}"
+
 pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
   let mut word = String::from(ch);
   while let Some(ch) = chars.peek() {
@@ -24,9 +32,19 @@ pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
           word.push(ch);
           chars.next();
         }
+        
+        if chars.peek() == Some('!') {
+          chars.next();
+          let len = word.len() + 1;
+          return (Token::MacroName(word), len);
+        }
         let len = word.len();
         return (Token::Ident(word), len);
-      },
+      }
+      '!' => {
+        let len = word.len() + 1;
+        return (Token::MacroName(word), len);
+      }
       _ => break
     }
   }
@@ -41,10 +59,10 @@ pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
 #[allow(unused)]
 #[derive(Debug, Clone, PartialEq)]
 pub enum Keyword {
+  Mod,
   Use,
   As,
 
-  All,
   Shared,
   Hidden,
 
@@ -67,6 +85,7 @@ pub enum Keyword {
 
   ArgStruct,
   Fun,
+  Takes,
   Defer,
   Return,
 
@@ -98,7 +117,9 @@ pub enum Keyword {
 
 impl fmt::Display for Keyword {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    let word = match self {
+    f.write_str(match self {
+      Self::Takes => "takes",
+      Self::Mod => "mod",
       Self::Use => "use",
       Self::As => "as",
       Self::Const => "const",
@@ -135,18 +156,18 @@ impl fmt::Display for Keyword {
       Self::Case => "case",
       Self::Shared => "shared",
       Self::Hidden => "hidden",
-      Self::All => "all",
       Self::SelfType => "Self",
       Self::SuperType => "Super",
       Self::Never => "never",
-    };
-    write!(f, "{word:?}")
+    })
   }
 }
 
 impl Keyword {
   pub fn parse(input: &str) -> Option<Self> {
     let keyword = match input {
+      "takes" => Self::Takes,
+      "mod" => Self::Mod,
       "use" => Self::Use,
       "as" => Self::As,
       "const" => Self::Const,
@@ -183,7 +204,6 @@ impl Keyword {
       "typedef" => Self::TypeDef,
       "shared" => Self::Shared,
       "hidden" => Self::Hidden,
-      "all" => Self::All,
       "Self" => Self::SelfType,
       "Super" => Self::SuperType,
       "never" => Self::Never,

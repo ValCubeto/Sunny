@@ -252,6 +252,10 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
           chars.next();
           push!(Tk::Op(Op::SubAssign), 2);
         }
+        Some('>') => {
+          chars.next();
+          push!(Tk::Arrow, 2);
+        }
         Some(d) if d.is_ascii_digit() => {
           let (num, len) = parse_number(&mut chars, '-');
           push!(Tk::Number(num), len);
@@ -361,7 +365,7 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
         }
         Some('>') => {
           chars.next();
-          push!(Tk::Arrow);
+          push!(Tk::FatArrow, 2);
           continue;
         }
         _ => push!(Tk::Op(Op::Equal))

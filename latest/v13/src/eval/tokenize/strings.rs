@@ -216,8 +216,8 @@ impl FString {
       let mut tokens = Tokens::new(tokens.iter().peekmore());
       inserted.push(Expr::parse(&mut tokens));
       match tokens.next() {
-        Some(Token::EoF | Token::NewLine) | None => {}
-        Some(token) => syntax_err!("unexpected {token}")
+        Token::EoF | Token::NewLine => {}
+        token => syntax_err!("unexpected {token}")
       }
     }
     ParsedFString {
