@@ -1,5 +1,5 @@
-mod hidden
+mod shared
 
-fun main<T: Display = String>() -> path::to::T {
-  // println
+fun main<T: Display = String, KKK>() -> path::to::T {
+  println
 }

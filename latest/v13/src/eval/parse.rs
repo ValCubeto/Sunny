@@ -6,7 +6,7 @@ pub mod types;
 pub mod functions;
 pub mod statement;
 use constants::parse_static;
-use functions::parse_function;
+use functions::Function;
 use items::{ Entity, Metadata };
 use peekmore::PeekMore;
 use crate::eval::tokenize::{
@@ -102,8 +102,8 @@ fn match_token(metadata: &mut Metadata, token: &Tk, tokens: &mut Tokens) -> Opti
         Tk::Ident(name) => name.clone(),
         _ => syntax_err!("expected function name")
       };
-      parse_function(*metadata, tokens, name)
-    },
+      Function::parse(*metadata, tokens, name)
+    }
     Tk::Keyword(Kw::Use) => {
       syntax_err!("imports not yet implemented");
     }

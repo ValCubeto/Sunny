@@ -64,6 +64,12 @@ impl<'a> Tokens<'a> {
       self.next();
     }
   }
+  /// Skip both new lines and semicolons
+  pub fn skip_separator(&mut self) {
+    if matches!(self.peek(), Token::NewLine | Token::Semicolon) {
+      self.next();
+    }
+  }
 }
 
 #[allow(unused)]

@@ -9,6 +9,7 @@ type E = Box<Expr>;
 #[allow(unused)]
 #[derive(Debug)]
 pub enum Expr {
+  None,
   Single(Value),
   Type(Type),
 
@@ -89,6 +90,7 @@ impl Expr {
 impl fmt::Display for Expr {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
+      Self::None => Ok(()),
       Self::Single(value) => write!(f, "{value}"),
       Self::Type(ty) => write!(f, "{ty}"),
       Self::Not(expr) => write!(f, "(!{expr})"),

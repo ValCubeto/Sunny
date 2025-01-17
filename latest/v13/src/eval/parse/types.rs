@@ -130,14 +130,15 @@ impl Typing {
   }
 }
 
-fn join<T: fmt::Display>(iter: impl Iterator<Item = T>, sep: &str) -> String {
+/// Joins a list of displayable items
+pub fn join<T: fmt::Display>(iter: impl Iterator<Item = T>, sep: &str) -> String {
   iter.map(|ty| ty.to_string()).collect::<Vec<_>>().join(sep)
 }
 
 impl fmt::Display for Typing {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
-      Self::Undefined => write!(f, "_"),
+      Self::Undefined => Ok(()),
       Self::Single(ty) => write!(f, "{ty}"),
       Self::Tuple(tys) => write!(f, "({})", join(tys.iter(), ", ")),
       Self::Or(tys) => write!(f, "{}", join(tys.iter(), " | ")),

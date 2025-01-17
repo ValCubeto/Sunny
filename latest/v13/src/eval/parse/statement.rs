@@ -1,48 +1,30 @@
-use crate::eval::parse::{
-  expressions::Expr,
-  values::Value
-};
+use crate::eval::parse::expressions::Expr;
 use crate::eval::tokenize::{
   keywords::Keyword,
   tokens::{ Operator, Token, Tokens }
 };
 
-// type S = Box<Statement>;
-
 #[allow(unused)]
+#[derive(Debug)]
 pub enum Statement {
   Expr(Expr),
+  Return(Expr),
   Assign(Expr, Expr),
   If {
     cond: Expr,
     yes: Vec<Statement>,
-    no: Vec<Statement>,
-  },
+    no: Vec<Statement>
+  }
 }
 
 impl Statement {
-  pub fn parse(tokens: &mut Tokens) -> Vec<Expr> {
+  pub fn parse(tokens: &mut Tokens) -> Vec<Statement> {
     let mut body = Vec::new();
-    while let Some(token) = tokens.try_next() {
+    tokens.skip_separator();
+    while let Some(token) = tokens.try_peek() {
       match token {
-        Token::NewLine | Token::Semicolon => continue,
-        Token::RightBrace => break,
-        Token::Ident(name) => {
-          let mut expr = Expr::Single(Value::Ident(name.clone()));
-          while let Some(token) = tokens.try_next() {
-            match token {
-              Token::NewLine | Token::Semicolon => break,
-              Token::Op(Operator::Equal) => {
-                tokens.next();
-                expr = Expr::Single(Value::Ident(name.clone()));
-              }
-              Token::RightBrace => break,
-              _ => syntax_err!("unexpected {token}")
-            }
-          }
-          body.push(expr);
-        }
         Token::EoF => syntax_err!("unexpected end of file"),
+        Token::RightBrace => break,
         Token::Keyword(Keyword::Let) => {
           syntax_err!("let statements not yet implemented");
           // body.push(Expr::parse(tokens));
@@ -71,9 +53,31 @@ impl Statement {
         Token::Keyword(Keyword::Return) => {
           syntax_err!("returns not yet implemented");
         }
-        _ => break
-      }
-    }
+        _ => {
+          let expr = Expr::parse(tokens);
+          while let Some(token) = tokens.try_peek() {
+            match token {
+              Token::NewLine | Token::Semicolon => {
+                tokens.next();
+              }
+              Token::Op(Operator::Equal) => {
+                tokens.next();
+                let stmt = Statement::Assign(expr, Expr::parse(tokens));
+                body.push(stmt);
+                break;
+              }
+              _ => {
+                body.push(Statement::Expr(expr));
+                break;
+              } // _
+            } // match
+          } // while
+        } // _
+      } // match
+      tokens.skip_separator();
+    } // while
+    debug!(tokens.peek());
+    debug_todo!("return from last statement");
     body
   }
 }
