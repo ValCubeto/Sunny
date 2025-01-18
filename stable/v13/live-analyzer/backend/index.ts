@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse, createServer } from "http"
-import { createWriteStream, readFileSync, writeFileSync } from "fs"
+import { openSync, readFileSync, writeFileSync } from "fs"
 import { spawn } from "child_process"
 import { AddressInfo } from "net"
 
@@ -26,15 +26,24 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
       res.end()
       break
     case "/analyze":
+      if (req.method !== "POST") {
+        res.writeHead(405)
+        res.end()
+        return
+      }
       let input = ""
       req.on("data", (chunk: Buffer) => {
         input += chunk.toString()
       })
       req.on("end", () => {
         writeFileSync(INPUT_PATH, input)
-        const child = spawn(SUNNY_PATH, ["run", INPUT_PATH, "--no-color", "--debug"])
-        child.stdout.pipe(createWriteStream(STDOUT_PATH))
-        child.stderr.pipe(createWriteStream(STDERR_PATH))
+        const child = spawn(SUNNY_PATH, ["run", INPUT_PATH, "--no-color", "--debug"], {
+          stdio: [
+            0,
+            openSync(STDOUT_PATH, "w"),
+            openSync(STDERR_PATH, "w")
+          ]
+        })
         child.on("close", () => {
           res.writeHead(200, { "Content-Type": "text/plain" })
           res.write("--STDOUT--\n")
