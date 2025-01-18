@@ -1,15 +1,12 @@
-// GET / -> index.html
-// GET /analyze -> passes the code and returns the output of ../../target/debug/v13.exe
-
 import { IncomingMessage, ServerResponse, createServer } from "http"
 import { createWriteStream, readFileSync, writeFileSync } from "fs"
 import { spawn } from "child_process"
 import { AddressInfo } from "net"
 
 const SUNNY_PATH = "../../target/debug/v13.exe"
-const INPUT_PATH = "./files/input.sny"
-const STDOUT_PATH = "./files/stdout.log"
-const STDERR_PATH = "./files/stderr.log"
+const INPUT_PATH = "./cache/input.sny"
+const STDOUT_PATH = "./cache/stdout.log"
+const STDERR_PATH = "./cache/stderr.log"
 
 const server = createServer((req: IncomingMessage, res: ServerResponse) => {
   switch (req.url) {
