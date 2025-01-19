@@ -162,7 +162,7 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
       [Some(Tk::NewLine), Some(Tk::NewLine)] => {
         tokens.next();
         tokens.next();
-        while let Some(Tk::NewLine) = tokens.try_peek() {
+        while let Tk::NewLine = tokens.peek() {
           tokens.next();
         }
         continue;

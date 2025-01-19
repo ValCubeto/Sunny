@@ -1,5 +1,37 @@
-mod shared
-
-fun main<T: Display = String, KKK>() -> path::to::T {
-  println
+shared
+fun
+main
+<
+T
+:
+Display
+=
+String,
+K
+=
+Default
+>
+(
+t
+:
+T
+=
+1
++
+1
+,
+k
+=
+K
+::
+Item
+)
+->
+path
+::
+to
+::
+T
+{
+println
 }

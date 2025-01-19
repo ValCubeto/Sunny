@@ -55,6 +55,8 @@ pub enum Typing {
   Undefined,
   Single(Type),
   Tuple(Vec<Typing>),
+  // List(Box<Typing>),
+  // Map(Box<Typing>, Box<Typing>),
   Or(Vec<Typing>),
   And(Vec<Typing>),
   Impl(Type, Type),
@@ -67,42 +69,38 @@ pub enum Typing {
 impl Typing {
   pub fn parse(tokens: &mut Tokens) -> Typing {
     // Skip leading `|`
-    if matches!(tokens.peek(), Token::Op(Operator::Pipe)) {
+    if matches!(tokens.peek_token(), Token::Op(Operator::Pipe)) {
       tokens.next();
     }
+
     let mut name = Vec::with_capacity(1);
-    loop {
-      match tokens.peek() {
-        Token::Ident(ident) => {
+    match tokens.peek_token() {
+      Token::Ident(ident) => {
+        tokens.next();
+        name.push(ident.clone());
+        while let Token::Op(Operator::DoubleColon) = tokens.peek_token() {
           tokens.next();
-          name.push(ident.clone());
-          while let Token::Op(Operator::DoubleColon) = tokens.peek() {
-            tokens.next();
-            match tokens.next() {
-              Token::Ident(ident) => name.push(ident.clone()),
-              _ => syntax_err!("expected type name")
-            }
+          match tokens.next_token() {
+            Token::Ident(ident) => name.push(ident.clone()),
+            _ => syntax_err!("expected type name")
           }
         }
-        Token::Keyword(Keyword::Fun) => {
-          tokens.next();
-          syntax_err!("functions as types not yet implemented");
-        }
-        Token::LeftParen => {
-          tokens.next();
-          syntax_err!("functions as types not yet implemented");
-        }
-        Token::Op(Operator::LeftAngle) => {
-          tokens.next();
-          syntax_err!("`<T>` syntax not yet implemented");
-        }
-        Token::Keyword(Keyword::Impl) => {
-          tokens.next();
-          syntax_err!("`impl T` syntax not yet implemented");
-        }
-        _ => break
-      };
+      }
+      Token::Keyword(Keyword::Fun) => {
+        tokens.next();
+        syntax_err!("functions as types not yet implemented");
+      }
+      Token::Op(Operator::LeftAngle) => {
+        tokens.next();
+        syntax_err!("`<T>` syntax not yet implemented");
+      }
+      Token::Keyword(Keyword::Impl) => {
+        tokens.next();
+        syntax_err!("`impl T` syntax not yet implemented");
+      }
+      _ => {}
     }
+
     let mut generics = HashMap::new();
     if let Token::Op(Operator::LeftAngle) = tokens.peek() {
       tokens.next();

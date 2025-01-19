@@ -10,9 +10,9 @@ pub fn eval(input: String, _ctx: Ctx) {
     println!("  {token:?}");
   }
   println!("]");
-  let entities = parse::parse(tokens);
+  let module = parse::parse_mod(tokens);
   // debug!(items);
-  for item in entities {
+  for item in module {
     debug_msg!("{item}");
   }
   internal_err!("parsing done");

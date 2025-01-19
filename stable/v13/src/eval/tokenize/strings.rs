@@ -216,7 +216,7 @@ impl FString {
       let mut tokens = Tokens::new(tokens.iter().peekmore());
       inserted.push(Expr::parse(&mut tokens));
       match tokens.next() {
-        Token::EoF | Token::NewLine => {}
+        Token::NewLine => {}
         token => syntax_err!("unexpected {token}")
       }
     }

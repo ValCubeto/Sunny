@@ -1,9 +1,6 @@
 use std::fmt;
-use crate::eval::{parse::types::join, tokenize::{
-  keywords::Keyword,
-  tokens::{ Operator, Token, Tokens }
-}};
 use crate::eval::parse::{
+  types::join,
   constants::Variable,
   expressions::Expr,
   items::{ Entity, Item, Metadata },
@@ -11,7 +8,12 @@ use crate::eval::parse::{
   values::Value,
   statement::Statement
 };
+use crate::eval::tokenize::{
+  keywords::Keyword as Kw,
+  tokens::{ Operator as Op, Token as Tk, Tokens }
+};
 
+// #region params
 fn display_param(name: &str, typing: &Typing, default_val: &dyn fmt::Display) -> String {
   let mut string = name.to_owned();
   if !matches!(typing, Typing::Undefined) {
@@ -45,7 +47,6 @@ impl fmt::Display for GenericParam {
 pub struct Param {
   pub name: String,
   pub typing: Typing,
-  // Default value
   pub default_val: Expr,
 }
 
@@ -54,6 +55,7 @@ impl fmt::Display for Param {
     write!(f, "{}", display_param(&self.name, &self.typing, &self.default_val))
   }
 }
+// #endregion params
 
 #[allow(unused)]
 #[derive(Debug)]
@@ -75,73 +77,94 @@ impl Function {
     if metadata.is_unsafe {
       syntax_err!("unsafe functions not yet implemented");
     }
-    if metadata.is_const {
-      syntax_err!("const functions not yet implemented");
+    if metadata.is_static {
+      syntax_err!("static functions not yet implemented");
     }
 
-    let mut generics: Vec<GenericParam> = Vec::new();
-    tokens.skip_newline();
-    match tokens.peek() {
-      Token::Op(Operator::Diamond) => {
-        // empty generics
+    let mut generics = Vec::new();
+    match tokens.peek_token() {
+      // empty generics
+      Tk::Op(Op::Diamond) => {
         tokens.next();
       }
-      Token::Op(Operator::LeftAngle) => {
+      Tk::Op(Op::LeftAngle) => {
         tokens.next();
-        loop {
-          tokens.skip_newline();
-          match tokens.next() {
-            Token::Op(Operator::RightAngle) => break,
-            Token::Ident(ident) => {
-              let typing = match tokens.peek() {
-                Token::Colon => {
-                  tokens.next();
-                  Typing::parse(tokens)
-                }
-                _ => Typing::Undefined
-              };
-              let default_val = match tokens.peek() {
-                Token::Op(Operator::Equal) => {
-                  tokens.next();
-                  Typing::parse(tokens)
-                }
-                // _ => Typing::Undefined
-                other => {
-                  debug!(other);
-                  Typing::Undefined
-                }
-              };
-              generics.push(GenericParam {
-                name: ident.clone(),
-                typing,
-                default_val
-              });
+        while let Tk::Ident(name) = tokens.peek_token() {
+          tokens.next();
+          let typing = match tokens.peek_token() {
+            Tk::Colon => {
+              tokens.next();
+              Typing::parse(tokens)
             }
-            _ => break
+            _ => Typing::Undefined
+          };
+          let default_val = match tokens.peek_token() {
+            Tk::Op(Op::Equal) => {
+              tokens.next();
+              Typing::parse(tokens)
+            }
+            _ => Typing::Undefined
+          };
+          generics.push(GenericParam {
+            name: name.clone(),
+            typing,
+            default_val
+          });
+          if let Tk::Comma | Tk::NewLine = tokens.peek() {
+            tokens.next();
+          } else {
+            break;
           }
         }
       }
       _ => {}
     }
+    match tokens.next_token() {
+      Tk::Op(Op::RightAngle) => {}
+      other => syntax_err!("unexpected {other}")
+    }
     let mut params = Vec::new();
-    tokens.skip_newline();
-    match tokens.next() {
-      Token::LeftParen => {
+    match tokens.next_token() {
+      Tk::LeftParen => {
         #[allow(clippy::never_loop)]
         loop {
-          match tokens.peek() {
-            Token::NewLine => continue,
-            Token::RightParen => break,
-            Token::Ident(_name) => {
-              syntax_err!("function parameters not yet implemented");
+          match tokens.peek_token() {
+            Tk::NewLine => continue,
+            Tk::RightParen => break,
+            Tk::Ident(name) => {
+              tokens.next();
+              let typing = match tokens.peek_token() {
+                Tk::Colon => {
+                  tokens.next();
+                  Typing::parse(tokens)
+                }
+                _ => Typing::Undefined
+              };
+              let default_val = match tokens.peek_token() {
+                Tk::Op(Op::Equal) => {
+                  tokens.next();
+                  Expr::parse(tokens)
+                }
+                _ => Expr::None
+              };
+              params.push(Param {
+                name: name.clone(),
+                typing,
+                default_val
+              });
+              if let Tk::Comma | Tk::NewLine = tokens.peek() {
+                tokens.next();
+              } else {
+                break;
+              }
             }
-            Token::LeftBrace => {
+            Tk::LeftBrace => {
               syntax_err!("parameter destructuring not yet implemented");
             }
-            Token::LeftParen => {
+            Tk::LeftParen => {
               syntax_err!("parameter destructuring not yet implemented");
             }
-            Token::LeftBracket => {
+            Tk::LeftBracket => {
               syntax_err!("parameter destructuring not yet implemented");
             }
             _ => syntax_err!("expected parameter list")
@@ -150,32 +173,29 @@ impl Function {
       }
       _ => syntax_err!("expected parameters")
     }
-    if !matches!(tokens.next(), Token::RightParen) {
+    if !matches!(tokens.next_token(), Tk::RightParen) {
       syntax_err!("unclosed parenthesis");
     }
 
-    tokens.skip_newline();
-    let output = match tokens.peek() {
-      Token::Arrow => {
+    let output = match tokens.peek_token() {
+      Tk::Arrow => {
         tokens.next();
         Typing::parse(tokens)
       }
       _ => Typing::Undefined
     };
 
-    tokens.skip_newline();
-    if matches!(tokens.peek(), Token::Keyword(Keyword::Takes)) {
+    if matches!(tokens.peek_token(), Tk::Keyword(Kw::Takes)) {
       tokens.next();
       syntax_err!("self takes not yet implemented");
-      // tokens.skip_newline();
     }
 
     let mut body = Vec::new();
-    if matches!(tokens.next(), Token::LeftBrace) {
+    if matches!(tokens.next_token(), Tk::LeftBrace) {
       body = Statement::parse(tokens);
-      let token = tokens.next();
-      if !matches!(token, Token::RightBrace) {
-        syntax_err!("unexpected {token}");
+      match tokens.next_token() {
+        Tk::NewLine | Tk::Semicolon => {}
+        other => syntax_err!("unexpected {other}")
       }
     }
     let function = Function {

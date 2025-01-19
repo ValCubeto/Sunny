@@ -52,7 +52,7 @@ pub struct Metadata {
   pub mutable: bool,
   pub is_unsafe: bool,
   pub is_async: bool,
-  pub is_const: bool,
+  pub is_static: bool,
 }
 
 #[allow(unused)]
@@ -64,7 +64,7 @@ impl Metadata {
       mutable: false,
       is_unsafe: false,
       is_async: false,
-      is_const: false
+      is_static: false,
     }
   }
 }

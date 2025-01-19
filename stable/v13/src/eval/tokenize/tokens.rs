@@ -7,68 +7,87 @@ use super::numbers::Number;
 use super::strings::FString;
 use super::{ Position, COLUMN, LINE, TOK_LEN };
 
-pub struct Tokens<'a>(PeekMoreIterator<Iter<'a, (Position, Token)>>);
+type TokensIterator<'a> = PeekMoreIterator<Iter<'a, (Position, Token)>>;
+
+pub struct Tokens<'a>(TokensIterator<'a>);
 impl<'a> Tokens<'a> {
-  pub fn new(tokens: PeekMoreIterator<Iter<'a, (Position, Token)>>) -> Self {
+  pub fn new(tokens: TokensIterator<'a>) -> Self {
     Tokens(tokens)
   }
-  pub fn try_next(&mut self) -> Option<&'a Token> {
+
+  pub fn try_next_token(&mut self) -> Option<&'a Token> {
+    self.0.next().map(|(pos, token)| -> &'a Token {
+      unsafe {
+        LINE = pos.line;
+        COLUMN = pos.column;
+        TOK_LEN = pos.tok_len;
+      }
+      token
+    })
+  }
+  pub fn next_or(&mut self, msg: &str) -> &'a Token {
     match self.0.next() {
-      None => None,
+      None => syntax_err!("{msg}"),
       Some((pos, token)) => {
         unsafe {
           LINE = pos.line;
           COLUMN = pos.column;
           TOK_LEN = pos.tok_len;
         }
-        Some(token)
+        token
       }
     }
   }
+  #[inline(always)]
   pub fn next(&mut self) -> &'a Token {
-    self.try_next().unwrap_or_else(|| {
-      syntax_err!("unexpected end of input");
-    })
+    self.next_or("unexpected end of input")
   }
-  pub fn next_or(&mut self, msg: &str) -> &'a Token {
-    self.try_next().unwrap_or_else(|| {
-      syntax_err!("{msg}");
-    })
+  pub fn next_token_or(&mut self, msg: &str) -> &'a Token {
+    self.skip_newline();
+    self.next_or(msg)
   }
-  pub fn try_peek(&mut self) -> Option<&'a Token> {
-    self.0.peek().map(|p| &p.1)
+  pub fn next_token(&mut self) -> &'a Token {
+    self.skip_newline();
+    self.next()
   }
-  pub fn peek(&mut self) -> &'a Token {
-    self.try_peek().unwrap_or_else(|| {
-      syntax_err!("unexpected end of input");
-    })
-  }
+
   pub fn peek_or(&mut self, msg: &str) -> &'a Token {
-    self.try_peek().unwrap_or_else(|| {
-      syntax_err!("{msg}");
-    })
+    match self.0.peek() {
+      None => syntax_err!("{msg}"),
+      Some((_, token)) => token
+    }
   }
+  #[inline(always)]
+  pub fn peek(&mut self) -> &'a Token {
+    self.peek_or("unexpected end of input")
+  }
+  pub fn peek_token(&mut self) -> &'a Token {
+    self.skip_newline();
+    self.peek()
+  }
+  pub fn peek_token_or(&mut self, msg: &str) -> &'a Token {
+    self.skip_newline();
+    self.peek_or(msg)
+  }
+
+  #[inline(always)]
+  pub fn skip_newline(&mut self) {
+    if matches!(self.peek(), Token::NewLine) {
+      self.next();
+    }
+  }
+
   pub fn peek_amount(&mut self, amount: usize) -> Vec<Option<&'a Token>> {
     let mut tokens = Vec::with_capacity(amount);
     let mut pairs = self.0.peek_amount(amount).iter();
     while let Some(Some((_, token))) = pairs.next() {
       tokens.push(Some(token));
     }
+    // Fill the rest with None
     for _i in tokens.len()..=tokens.capacity() {
       tokens.push(None);
     }
     tokens
-  }
-  pub fn skip_newline(&mut self) {
-    if matches!(self.peek(), Token::NewLine) {
-      self.next();
-    }
-  }
-  /// Skip both new lines and semicolons
-  pub fn skip_separator(&mut self) {
-    if matches!(self.peek(), Token::NewLine | Token::Semicolon) {
-      self.next();
-    }
   }
 }
 
@@ -334,8 +353,6 @@ pub enum Token {
   Arrow,
   /// `=>`
   FatArrow,
-  /// End of file
-  EoF
 }
 
 impl fmt::Display for Token {
@@ -362,8 +379,7 @@ impl fmt::Display for Token {
       Self::Semicolon => write!(f, "semicolon"),
       Self::Colon => write!(f, "colon"),
       Self::Arrow => write!(f, "arrow"),
-      Self::FatArrow => write!(f, "fat arrow"),
-      Self::EoF => write!(f, "end of file")
+      Self::FatArrow => write!(f, "fat arrow")
     }
   }
 }

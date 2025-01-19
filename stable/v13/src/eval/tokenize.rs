@@ -404,7 +404,6 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
     } // match
     chars.save_pos();
   } // while
-  push!(Tk::EoF);
   tokens
 }
 
