@@ -55,5 +55,6 @@ PassedParams = '(' CommaSep<PassedParam> ')'
 SingleType = Ref Generics
 Type = SingleType | SingleType '[]' | '{{' CommaSep<SingleType> '}}'
 FunType = 'fun'? Params ('->' Type)?
-Typing = Type | Type '+' Type | Type 'for' Type | FunType
+Typing = Type | Typing '+' Typing | Type 'for' Type | FunType
+
 Const = 'const' Ident ':' Typing '=' Value
