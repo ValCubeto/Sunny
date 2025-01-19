@@ -14,7 +14,7 @@ use crate::eval::tokenize::{
 };
 
 // #region params
-fn display_param(name: &str, typing: &Typing, default_val: &dyn fmt::Display) -> String {
+pub fn display_param(name: &str, typing: &Typing, default_val: &dyn fmt::Display) -> String {
   let mut string = name.to_owned();
   if !matches!(typing, Typing::Undefined) {
     string.push_str(": ");
@@ -26,20 +26,6 @@ fn display_param(name: &str, typing: &Typing, default_val: &dyn fmt::Display) ->
     string.push_str(&default_val);
   }
   string
-}
-
-#[allow(unused)]
-#[derive(Debug)]
-pub struct GenericParam {
-  pub name: String,
-  pub typing: Typing,
-  pub default_val: Typing,
-}
-
-impl fmt::Display for GenericParam {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "{}", display_param(&self.name, &self.typing, &self.default_val))
-  }
 }
 
 #[allow(unused)]
@@ -81,48 +67,7 @@ impl Function {
       syntax_err!("static functions not yet implemented");
     }
 
-    let mut generics = Vec::new();
-    match tokens.peek_token() {
-      // empty generics
-      Tk::Op(Op::Diamond) => {
-        tokens.next();
-      }
-      Tk::Op(Op::LeftAngle) => {
-        tokens.next();
-        while let Tk::Ident(name) = tokens.peek_token() {
-          tokens.next();
-          let typing = match tokens.peek_token() {
-            Tk::Colon => {
-              tokens.next();
-              Typing::parse(tokens)
-            }
-            _ => Typing::Undefined
-          };
-          let default_val = match tokens.peek_token() {
-            Tk::Op(Op::Equal) => {
-              tokens.next();
-              Typing::parse(tokens)
-            }
-            _ => Typing::Undefined
-          };
-          generics.push(GenericParam {
-            name: name.clone(),
-            typing,
-            default_val
-          });
-          if let Tk::Comma | Tk::NewLine = tokens.peek() {
-            tokens.next();
-          } else {
-            break;
-          }
-        }
-      }
-      _ => {}
-    }
-    match tokens.next_token() {
-      Tk::Op(Op::RightAngle) => {}
-      other => syntax_err!("unexpected {other}")
-    }
+    let generics = parse_generics(tokens);
     let mut params = Vec::new();
     match tokens.next_token() {
       Tk::LeftParen => {

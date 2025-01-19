@@ -1,41 +1,91 @@
-use std::fmt::{ self, Write };
-use hashbrown::HashMap;
-use crate::eval::tokenize::{
-  keywords::Keyword,
-  tokens::{ Operator, Token, Tokens },
+use std::fmt;
+use crate::eval::{
+  tokenize::{
+    keywords::Keyword as Kw,
+    tokens::{ Operator as Op, Token as Tk, Tokens },
+  },
+  parse::functions::{ Function, display_param }
 };
-use crate::eval::parse::functions::Function;
+
+#[allow(unused)]
+#[derive(Debug, Clone)]
+pub struct GenericParam {
+  pub name: String,
+  pub typing: Typing,
+  pub default_val: Typing,
+}
+
+impl fmt::Display for GenericParam {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(f, "{}", display_param(&self.name, &self.typing, &self.default_val))
+  }
+}
+
+pub fn parse_generics(tokens: &mut Tokens) -> Vec<GenericParam> {
+  let mut generics = Vec::new();
+  match tokens.peek_token() {
+    // empty generics
+    Tk::Op(Op::Diamond) => {
+      tokens.next();
+    }
+    Tk::Op(Op::LeftAngle) => {
+      tokens.next();
+      while let Tk::Ident(name) = tokens.peek_token() {
+        tokens.next();
+        let typing = match tokens.peek_token() {
+          Tk::Colon => {
+            tokens.next();
+            Typing::parse(tokens)
+          }
+          _ => Typing::Undefined
+        };
+        let default_val = match tokens.peek_token() {
+          Tk::Op(Op::Equal) => {
+            tokens.next();
+            Typing::parse(tokens)
+          }
+          _ => Typing::Undefined
+        };
+        generics.push(GenericParam {
+          name: name.clone(),
+          typing,
+          default_val
+        });
+        if let Tk::Comma | Tk::NewLine = tokens.peek() {
+          tokens.next();
+        } else {
+          break;
+        }
+      }
+    }
+    _ => {}
+  }
+  match tokens.next_token() {
+    Tk::Op(Op::RightAngle) => generics,
+    other => syntax_err!("unexpected {other}")
+  }
+}
 
 #[allow(unused)]
 #[derive(Debug, Clone)]
 pub struct Type {
   /// `path::to::Type`
   pub name: Vec<String>,
-  pub generics: HashMap<String, Typing>,
+  pub generics: Vec<GenericParam>,
 }
 
 impl fmt::Display for Type {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     write!(f, "{}", self.name.join("::"))?;
     if !self.generics.is_empty() {
-      f.write_char('<')?;
-      let mut generics = self.generics.iter();
-      // Safety: generics is not empty
-      let (key, value) = generics.next().unwrap();
-      if key.chars().all(|ch| ch.is_ascii_digit()) {
-        write!(f, "{value}")?;
-      } else {
-        write!(f, "{key}: {value}")?;
-      }
-      for (key, value) in generics {
-        // it will stop as soon as it finds a non-digit character
+      let generics = self.generics.iter().map(|(key, value)| {
         if key.chars().all(|ch| ch.is_ascii_digit()) {
-          write!(f, ", {value}")?;
+          format!("{value}")
         } else {
-          write!(f, ", {key}: {value}")?;
+          format!("{key}: {value}")
         }
-      }
-      f.write_char('>')?;
+      });
+      write!(f, "<{}>", generics.collect::<Vec<_>>().join(", "))?;
     }
     Ok(())
   }
@@ -46,7 +96,7 @@ impl fmt::Display for Type {
 /// # Valid forms
 /// (undefined)
 /// T
-/// T<A: T = T, B: T = T>
+/// T<A: T, B = T, C: T = T>
 /// T | T
 /// T + T
 /// T for T
@@ -56,7 +106,7 @@ pub enum Typing {
   Single(Type),
   Tuple(Vec<Typing>),
   // List(Box<Typing>),
-  // Map(Box<Typing>, Box<Typing>),
+  // Map(Box<Typing>, Box<Typing>), ?????????????????????????
   Or(Vec<Typing>),
   And(Vec<Typing>),
   Impl(Type, Type),
@@ -69,52 +119,48 @@ pub enum Typing {
 impl Typing {
   pub fn parse(tokens: &mut Tokens) -> Typing {
     // Skip leading `|`
-    if matches!(tokens.peek_token(), Token::Op(Operator::Pipe)) {
+    if matches!(tokens.peek_token(), Tk::Op(Op::Pipe)) {
       tokens.next();
     }
 
     let mut name = Vec::with_capacity(1);
     match tokens.peek_token() {
-      Token::Ident(ident) => {
+      Tk::Ident(ident) => {
         tokens.next();
         name.push(ident.clone());
-        while let Token::Op(Operator::DoubleColon) = tokens.peek_token() {
+        while let Tk::Op(Op::DoubleColon) = tokens.peek_token() {
           tokens.next();
           match tokens.next_token() {
-            Token::Ident(ident) => name.push(ident.clone()),
+            Tk::Ident(ident) => name.push(ident.clone()),
             _ => syntax_err!("expected type name")
           }
         }
       }
-      Token::Keyword(Keyword::Fun) => {
+      Tk::Keyword(Kw::Fun) => {
         tokens.next();
         syntax_err!("functions as types not yet implemented");
       }
-      Token::Op(Operator::LeftAngle) => {
+      Tk::Op(Op::LeftAngle) => {
         tokens.next();
         syntax_err!("`<T>` syntax not yet implemented");
       }
-      Token::Keyword(Keyword::Impl) => {
+      Tk::Keyword(Kw::Impl) => {
         tokens.next();
         syntax_err!("`impl T` syntax not yet implemented");
       }
       _ => {}
     }
 
-    let mut generics = HashMap::new();
-    if let Token::Op(Operator::LeftAngle) = tokens.peek() {
-      tokens.next();
-      syntax_err!("`{}<...>` syntax not yet implemented", name.join("::"));
-    }
-    if let Token::Keyword(Keyword::For) = tokens.peek() {
+    let generics = parse_generics(tokens);
+    if let Tk::Keyword(Kw::For) = tokens.peek() {
       tokens.next();
       syntax_err!("`{} for T` syntax not yet implemented", name.join("::"));
     }
-    if let Token::Op(Operator::Pipe) = tokens.peek() {
+    if let Tk::Op(Op::Pipe) = tokens.peek() {
       tokens.next();
       syntax_err!("`{} | T` syntax not yet implemented", name.join("::"));
     }
-    if let Token::Op(Operator::Plus) = tokens.peek() {
+    if let Tk::Op(Op::Plus) = tokens.peek() {
       tokens.next();
       syntax_err!("`{} + T` syntax not yet implemented", name.join("::"));
     }
@@ -128,7 +174,7 @@ impl Typing {
   }
 }
 
-/// Joins a list of displayable items
+/// Join a list of displayable items
 pub fn join<T: fmt::Display>(iter: impl Iterator<Item = T>, sep: &str) -> String {
   iter.map(|ty| ty.to_string()).collect::<Vec<_>>().join(sep)
 }
