@@ -1,3 +1,5 @@
+// This is a Dart file because of the syntax highlighting
+
 // a, b, c
 CommaSep<T> = T ((',' | '\n') T)* ','?
 
@@ -52,9 +54,20 @@ Params = '(' CommaSep<Param> ')'
 PassedParam = (Ident ':')? Expr
 PassedParams = '(' CommaSep<PassedParam> ')'
 
-SingleType = Ref Generics
-Type = SingleType | SingleType '[]' | '{{' CommaSep<SingleType> '}}'
-FunType = 'fun'? Params ('->' Type)?
-Typing = Type | Typing '+' Typing | Type 'for' Type | FunType
+FunType = 'fun'? Params '->' Type
+Type = Ref Generics | FunType
+Typing = SingleType | SingleType '[' (Int | Ref)? ']' | Type '+' Type
 
 Const = 'const' Ident ':' Typing '=' Value
+State = 'state' Ident ':' Typing '=' Value
+
+Function = 'fun' Ident Generics Params ('->' Type)? ('takes' '&'? Ident)? Block
+UnsafeFunction = 'unsafe' Function
+AsyncFunction = 'async' 'unsafe'? Function
+StaticFunction = 'static' 'unsafe'? Function
+
+SingleTypePattern = List | Tuple | Map | String | Number | Char | Ref | Construct
+TypePattern = SingleTypePattern ('|' SingleTypePattern)*
+MatchCase = TypePattern '=>' Expr
+Match = 'match' Expr '{' CommaSep<MatchCase> '}'
+MatchExpr = Expr 'is' TypePattern

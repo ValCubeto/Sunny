@@ -71,7 +71,18 @@ impl Metadata {
 
 impl fmt::Display for Metadata {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    f.write_str(if self.hidden { "hidden" } else { "shared" })?;
-    f.write_str(if self.mutable { " mutable" } else { " constant" })
+    let mut meta = Vec::new();
+    if self.is_unsafe {
+      meta.push("unsafe");
+    }
+    if self.is_static {
+      meta.push("static");
+    }
+    if self.is_async {
+      meta.push("async");
+    }
+    meta.push(if self.hidden { "hidden" } else { "shared" });
+    meta.push(if self.mutable { "mutable" } else { "constant" });
+    write!(f, "{}", meta.join(" "))
   }
 }

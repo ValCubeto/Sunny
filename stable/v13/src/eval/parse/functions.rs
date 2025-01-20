@@ -13,6 +13,8 @@ use crate::eval::tokenize::{
   tokens::{ Operator as Op, Token as Tk, Tokens }
 };
 
+use super::types::GenericParam;
+
 // #region params
 pub fn display_param(name: &str, typing: &Typing, default_val: &dyn fmt::Display) -> String {
   let mut string = name.to_owned();
@@ -57,6 +59,9 @@ impl Function {
 // Some functions have no name
   pub fn parse(mut metadata: Metadata, tokens: &mut Tokens, name: String) -> Entity {
     metadata.mutable = false;
+    if metadata.is_async && metadata.is_static {
+      syntax_err!("a function cannot be both async and static");
+    }
     if metadata.is_async {
       syntax_err!("async functions not yet implemented");
     }

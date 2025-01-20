@@ -77,6 +77,16 @@ impl<'a> Tokens<'a> {
     }
   }
 
+  #[inline]
+  pub fn comma_sep(&mut self) -> bool {
+    if let Token::Comma | Token::NewLine = self.peek() {
+      self.next();
+      true
+    } else {
+      false
+    }
+  }
+
   pub fn peek_amount(&mut self, amount: usize) -> Vec<Option<&'a Token>> {
     let mut tokens = Vec::with_capacity(amount);
     let mut pairs = self.0.peek_amount(amount).iter();
