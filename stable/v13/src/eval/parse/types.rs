@@ -15,6 +15,12 @@ pub struct GenericParam {
   pub default_val: Typing,
 }
 
+impl fmt::Display for GenericParam {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(f, "{}", display_param(&self.name, &self.typing, &self.default_val))
+  }
+}
+
 pub fn parse_generics(tokens: &mut Tokens) -> Vec<GenericParam> {
   let mut generics = Vec::new();
   match tokens.peek_token() {
@@ -31,14 +37,14 @@ pub fn parse_generics(tokens: &mut Tokens) -> Vec<GenericParam> {
             tokens.next();
             Typing::parse(tokens)
           }
-          _ => Typing::undefined()
+          _ => Typing::Undefined
         };
         let default_val = match tokens.peek_token() {
           Tk::Op(Op::Equal) => {
             tokens.next();
             Typing::parse(tokens)
           }
-          _ => Typing::undefined()
+          _ => Typing::Undefined
         };
         generics.push(GenericParam {
           name: name.clone(),
@@ -58,10 +64,12 @@ pub fn parse_generics(tokens: &mut Tokens) -> Vec<GenericParam> {
   }
 }
 
+
 #[allow(unused)]
 #[derive(Debug, Clone)]
-pub enum Type {
+pub enum Typing {
   Undefined,
+  Never,
   /// `path::to::Type<A: X, B = Y>`
   Ref {
     name: Vec<String>,
@@ -69,60 +77,27 @@ pub enum Type {
   },
   /// `fun (A, B) -> C`
   Function {
-    args: Vec<Typing>,
-    output: Box<Type>
-  }
+    args: Vec<Self>,
+    output: Box<Self>
+  },
+  /// (A, B, C)
+  Tuple(Vec<Self>),
+  /// A + B + C
+  And(Vec<Self>),
+  /// T[]
+  List(Box<Self>),
+  // /// I for T
+  // ImplFor(Box<Self>, Box<Self>)
 }
-
-impl Type {
-  pub fn parse(tokens: &mut Tokens) -> Type {
-    match tokens.next_token() {
-      Tk::Ident(ident) => {
-        let mut name = Vec::with_capacity(1);
-        name.push(ident.clone());
-        while let Tk::Op(Op::DoubleColon) = tokens.peek_token() {
-          tokens.next();
-          match tokens.next_token() {
-            Tk::Ident(ident) => name.push(ident.clone()),
-            _ => syntax_err!("expected identifier")
-          }
-        }
-        Type::Ref {
-          name,
-          generics: parse_generics(tokens)
-        }
-      }
-      Tk::Keyword(Kw::Fun) => {
-        syntax_err!("functions as types not yet implemented");
-      }
-      _ => syntax_err!("expected type")
-    }
-  }
-  pub fn from_function(function: &Function) -> Self {
-    Type::Function {
-      args: function.params.iter().map(|p| p.typing.clone()).collect(),
-      output: Box::new(function.output.clone())
-    }
-  }
-}
-
-#[allow(unused)]
-#[derive(Debug, Clone)]
-pub enum Typing {
-  Never,
-  Single(Type),
-  Tuple(Vec<Typing>),
-  List(Box<Typing>),
-  And(Vec<Typing>),
-  ImplFor(Type, Type),
-}
-
+// <fun (A, B) -> C>[][][]
+// List(List(List(Fun)))
 impl Typing {
-  #[inline]
-  pub fn undefined() -> Self {
-    Typing::Single(Type::Undefined)
-  }
   pub fn parse(tokens: &mut Tokens) -> Typing {
+    let mut ty = Self::parse_single(tokens);
+    while let Tk::Op(Op::Plus) = tokens.peek_token() {
+      tokens.next();
+      ty = Self::And(ty, Self::parse_single(tokens));
+    }
     match tokens.peek_token() {
       Tk::LeftParen => {
         let mut types = Vec::new();
@@ -142,8 +117,36 @@ impl Typing {
         }
         Typing::Tuple(types)
       }
-      Tk::Ident(..) | Tk::Keyword(Kw::Fun) => Typing::Single(Type::parse(tokens)),
-      other => syntax_err!("unexpected {other}")
+      _ => Self::parse_single(tokens)
+    }
+  }
+  pub fn parse_single(tokens: &mut Tokens) -> Self {
+    match tokens.next_token() {
+      Tk::Ident(ident) => {
+        let mut name = Vec::with_capacity(1);
+        name.push(ident.clone());
+        while let Tk::Op(Op::DoubleColon) = tokens.peek_token() {
+          tokens.next();
+          match tokens.next_token() {
+            Tk::Ident(ident) => name.push(ident.clone()),
+            _ => syntax_err!("expected identifier")
+          }
+        }
+        Self::Ref {
+          name,
+          generics: parse_generics(tokens)
+        }
+      }
+      Tk::Keyword(Kw::Fun) => {
+        syntax_err!("functions as types not yet implemented");
+      }
+      _ => syntax_err!("expected type")
+    }
+  }
+  pub fn from_function(function: &Function) -> Self {
+    Self::Function {
+      args: function.params.iter().map(|p| p.typing.clone()).collect(),
+      output: Box::new(function.output.clone())
     }
   }
 }
@@ -153,34 +156,20 @@ pub fn join<T: fmt::Display>(iter: impl Iterator<Item = T>, sep: &str) -> String
   iter.map(|ty| ty.to_string()).collect::<Vec<_>>().join(sep)
 }
 
-impl fmt::Display for GenericParam {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "{}", display_param(&self.name, &self.typing, &self.default_val))
-  }
-}
-
-impl fmt::Display for TypeRef {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "{}", self.name.join("::"))?;
-    if !self.generics.is_empty() {
-      write!(f, "<{}>", join(self.generics.iter(), ", "))?;
-    }
-    Ok(())
-  }
-}
-
-impl fmt::Display for FunctionType {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "fun ({}) -> {}", join(self.args.iter(), ", "), self.output)
-  }
-}
-
 impl fmt::Display for Typing {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
+      Self::Undefined => Ok(()),
       Self::Never => write!(f, "never"),
+      Self::Ref { name, generics } => {
+        write!(f, "{}", name.join("::"))?;
+        if !generics.is_empty() {
+          write!(f, "<{}>", join(generics.iter(), ", "))?;
+        }
+        Ok(())
+      }
+      Self::Function { args, output } => write!(f, "fun ({}) -> {}", join(args.iter(), ", "), output),
       Self::List(ty) => write!(f, "{ty}[]"),
-      Self::Single(ty) => write!(f, "{ty}"),
       Self::Tuple(tys) => write!(f, "({})", join(tys.iter(), ", ")),
       Self::And(tys) => write!(f, "{}", join(tys.iter(), " + ")),
       Self::ImplFor(idea, ty) => write!(f, "{idea} for {ty}"),
