@@ -89,22 +89,16 @@ pub enum Typing {
   // /// I for T
   // ImplFor(Box<Self>, Box<Self>)
 }
-// <fun (A, B) -> C>[][][]
-// List(List(List(Fun)))
+
+// <fun (A, B) -> C[]>[]
 impl Typing {
   pub fn parse(tokens: &mut Tokens) -> Typing {
-    let mut ty = Self::parse_single(tokens);
-    while let Tk::Op(Op::Plus) = tokens.peek_token() {
-      tokens.next();
-      ty = Self::And(ty, Self::parse_single(tokens));
-    }
     match tokens.peek_token() {
       Tk::LeftParen => {
         let mut types = Vec::new();
         tokens.next();
-        while let Tk::Ident(..) = tokens.peek_token() {
-          let ty = Typing::parse(tokens);
-          types.push(ty);
+        loop {
+          types.push(Typing::parse(tokens));
           if !tokens.comma_sep() {
             break;
           }

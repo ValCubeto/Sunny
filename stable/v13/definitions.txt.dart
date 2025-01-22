@@ -7,6 +7,8 @@ CommaSep<T> = T ((',' | '\n') T)* ','?
 Ident = ('a'..='z' | 'A'..='Z' | '_') ('a'..='z' | 'A'..='Z' | '_' | '0'..='9')*
 // a::b::c.d.e
 Ref = Ident ('::' Ident)* ('.' Ident)*
+// a, [a, b], {x, y}, (i, j)
+VarName = Ident | '[' CommaSep<VarName> ']' | '{' CommaSep<VarName> '}' | '(' CommaSep<VarName> ')'
 // x(a, b: c)
 Call = Ref PassedParams
 
@@ -28,40 +30,39 @@ Char = 'b'? '\'' _ '\''
 // $$"abc\n123"$$
 SimpleString = ('$'*) '"' _* '"' ('$'*)
 // r"abc"
-Raw_String = 'r' SimpleString
+RawString = 'r' SimpleString
 // f"abc{123}"
-Format_String = 'f' SimpleString
+FormatString = 'f' SimpleString
 // c"abc"
 CString = 'c' SimpleString
-String = SimpleString | Raw_String | Format_String | CString
+String = SimpleString | RawString | FormatString | CString
 
 List = '[' CommaSep<Expr> ']'
 Tuple = '(' CommaSep<Expr> ')'
 // 1: "uno" | a.b.c
 Entry = Expr ':' Expr | Ref
-Map = '{{' CommaSep<Entry> '}}'
-Construct = Ref ('{' CommaSep<Entry> '}' | Tuple | Map)
-
+Construct = Ref (Tuple | '{' CommaSep<Entry> '}')
 Value = Number | Char | String | Map | List | Tuple | Ref | Construct
+
+Const = 'const' Ident ':' Typing '=' Value
+State = 'state' Ident ':' Typing '=' Value
 
 Generic = Ident (':' Typing)? ('=' Typing)?
 Generics = ('<' CommaSep<Generic> '>')?
 PassedGeneric = (Ident ':')? Typing
 PassedGenerics = ('<' CommaSep<PassedGeneric> '>')?
 
-Param = Ident (':' Typing)? ('=' Expr)?
+FunType = 'async'? 'fun'? '(' CommaSep<Typing> ')' '->' Typing
+SingleType = Ref Generics | FunType
+// L[T; LEN], I + J
+Typing = SingleType | SingleType? '[' SingleType (';' Expr)? ']' | SingleType '+' SingleType
+
+Param = VarName (':' Typing)? ('=' Expr)?
 Params = '(' CommaSep<Param> ')'
 PassedParam = (Ident ':')? Expr
 PassedParams = '(' CommaSep<PassedParam> ')'
 
-FunType = 'fun'? Params '->' Type
-Type = Ref Generics | FunType
-Typing = SingleType | SingleType '[' (Int | Ref)? ']' | Type '+' Type
-
-Const = 'const' Ident ':' Typing '=' Value
-State = 'state' Ident ':' Typing '=' Value
-
-Function = 'fun' Ident Generics Params ('->' Type)? ('takes' '&'? Ident)? Block
+Function = 'fun' Ident Generics Params ('->' Typing)? ('takes' '&'? 'self')? Block
 UnsafeFunction = 'unsafe' Function
 AsyncFunction = 'async' 'unsafe'? Function
 StaticFunction = 'static' 'unsafe'? Function
@@ -71,3 +72,8 @@ TypePattern = SingleTypePattern ('|' SingleTypePattern)*
 MatchCase = TypePattern '=>' Expr
 Match = 'match' Expr '{' CommaSep<MatchCase> '}'
 MatchExpr = Expr 'is' TypePattern
+
+Loop = 'loop' Block
+While = 'while' Expr Block
+DoWhile = 'do' While
+For = 'for' VarName 'in' Expr Block
