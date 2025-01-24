@@ -107,7 +107,7 @@ pub struct FString {
 }
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ParsedFString {
   pub literals: Vec<String>,
   pub inserted: Vec<Expr>

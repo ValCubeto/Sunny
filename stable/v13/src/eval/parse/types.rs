@@ -7,6 +7,8 @@ use crate::eval::{
   parse::functions::{ Function, display_param }
 };
 
+use super::expressions::Expr;
+
 #[allow(unused)]
 #[derive(Debug, Clone)]
 pub struct GenericParam {
@@ -70,10 +72,14 @@ pub fn parse_generics(tokens: &mut Tokens) -> Vec<GenericParam> {
 pub enum Typing {
   Undefined,
   Never,
-  /// `path::to::Type<A: X, B = Y>`
+  /// `&T`
+  Ptr(Box<Self>),
+  /// `T?`
+  Maybe(Box<Self>),
+  /// `path::to::T<A: X, B = Y>`
   Ref {
     name: Vec<String>,
-    generics: Vec<GenericParam>,
+    generics: Vec<GenericParam>
   },
   /// `fun (A, B) -> C`
   Function {
@@ -85,20 +91,37 @@ pub enum Typing {
   /// A + B + C
   And(Vec<Self>),
   /// T[]
-  List(Box<Self>),
+  List(Box<Self>, Box<Expr>),
   // /// I for T
   // ImplFor(Box<Self>, Box<Self>)
 }
 
-// <fun (A, B) -> C[]>[]
 impl Typing {
   pub fn parse(tokens: &mut Tokens) -> Typing {
-    match tokens.peek_token() {
+    let mut typing = Self::parse_single(tokens);
+    loop {
+      match tokens.peek_token() {
+        Tk::Op(Op::Plus) => {
+          tokens.next();
+          syntax_err!("multiple implementations not yet implemented");
+        }
+        Tk::Keyword(Kw::For) => {
+          tokens.next();
+          syntax_err!("implementations not yet implemented");
+        }
+        _ => break
+      }
+    }
+    typing
+  }
+  pub fn parse_single(tokens: &mut Tokens) -> Self {
+    match tokens.next_token() {
+      // (A, B)
       Tk::LeftParen => {
-        let mut types = Vec::new();
         tokens.next();
-        loop {
-          types.push(Typing::parse(tokens));
+        let mut types = Vec::new();
+        while !matches!(tokens.peek_token(), Tk::RightParen) {
+          types.push(Self::parse(tokens));
           if !tokens.comma_sep() {
             break;
           }
@@ -111,11 +134,30 @@ impl Typing {
         }
         Typing::Tuple(types)
       }
-      _ => Self::parse_single(tokens)
-    }
-  }
-  pub fn parse_single(tokens: &mut Tokens) -> Self {
-    match tokens.next_token() {
+      Tk::LeftBracket => {
+        tokens.next();
+        let ty = Self::parse(tokens);
+        let len = match tokens.peek_token() {
+          Tk::Semicolon => {
+            tokens.next();
+            Expr::parse(tokens)
+          }
+          _ => Expr::None
+        };
+        match tokens.next_token() {
+          Tk::RightBracket => Typing::List(Box::new(ty), Box::new(len)),
+          other => syntax_err!("unexpected {other}")
+        }
+      }
+      // <T>
+      Tk::Op(Op::LeftAngle) => {
+        tokens.next();
+        let ty = Self::parse_single(tokens);
+        match tokens.next_token() {
+          Tk::Op(Op::RightAngle) => ty,
+          other => syntax_err!("unexpected {other}")
+        }
+      }
       Tk::Ident(ident) => {
         let mut name = Vec::with_capacity(1);
         name.push(ident.clone());
@@ -155,6 +197,8 @@ impl fmt::Display for Typing {
     match self {
       Self::Undefined => Ok(()),
       Self::Never => write!(f, "never"),
+      Self::Ptr(ty) => write!(f, "&{ty}"),
+      Self::Maybe(ty) => write!(f, "{ty}?"),
       Self::Ref { name, generics } => {
         write!(f, "{}", name.join("::"))?;
         if !generics.is_empty() {
@@ -162,11 +206,17 @@ impl fmt::Display for Typing {
         }
         Ok(())
       }
-      Self::Function { args, output } => write!(f, "fun ({}) -> {}", join(args.iter(), ", "), output),
-      Self::List(ty) => write!(f, "{ty}[]"),
+      Self::Function { args, output } => write!(f, "({}) -> {}", join(args.iter(), ", "), output),
+      Self::List(ty, len) => {
+        if matches!(len.as_ref(), Expr::None) {
+          write!(f, "[{ty}]")
+        } else {
+          write!(f, "[{ty}; {len}]")
+        }
+      }
       Self::Tuple(tys) => write!(f, "({})", join(tys.iter(), ", ")),
       Self::And(tys) => write!(f, "{}", join(tys.iter(), " + ")),
-      Self::ImplFor(idea, ty) => write!(f, "{idea} for {ty}"),
+      // Self::ImplFor(idea, ty) => write!(f, "{idea} for {ty}"),
     }
   }
 }

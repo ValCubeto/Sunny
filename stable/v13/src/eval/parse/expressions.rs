@@ -1,17 +1,17 @@
 use std::fmt;
 use crate::eval::{
   tokenize::tokens::{ Token as Tk, Tokens },
-  parse::{ types::Type, values::Value }
+  parse::{ types::Typing, values::Value }
 };
 
 type E = Box<Expr>;
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
   None,
   Single(Value),
-  Type(Type),
+  Type(Typing),
 
   /// `!a`
   Not(E),
@@ -129,7 +129,7 @@ impl fmt::Display for Expr {
 /// Parse expressions using a binding power algorithm
 fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
   // left-hand side
-  let mut lhs = match tokens.next() {
+  let mut lhs = match tokens.next_token() {
     Tk::Ident(ident) => Expr::Single(Value::Ident(ident.clone())),
     Tk::String(string) => Expr::Single(Value::String(string.clone())),
     Tk::FString(fstring) => Expr::Single(Value::FString(fstring.to_parsed())),
@@ -149,7 +149,6 @@ fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
       op.prefix_expr(rhs)
     }
     Tk::NewLine => return parse_expr_bp(tokens, min_bp),
-    Tk::EoF => syntax_err!("expected value"),
     token => syntax_err!("unexpected {token}")
   };
   loop {

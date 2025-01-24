@@ -1,6 +1,6 @@
 use std::fmt;
 use crate::eval::parse::{
-  types::join,
+  types::{ GenericParam, join, parse_generics },
   constants::Variable,
   expressions::Expr,
   items::{ Entity, Item, Metadata },
@@ -12,8 +12,6 @@ use crate::eval::tokenize::{
   keywords::Keyword as Kw,
   tokens::{ Operator as Op, Token as Tk, Tokens }
 };
-
-use super::types::GenericParam;
 
 // #region params
 pub fn display_param(name: &str, typing: &Typing, default_val: &dyn fmt::Display) -> String {
@@ -31,7 +29,7 @@ pub fn display_param(name: &str, typing: &Typing, default_val: &dyn fmt::Display
 }
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Param {
   pub name: String,
   pub typing: Typing,
@@ -46,17 +44,18 @@ impl fmt::Display for Param {
 // #endregion params
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Function {
   pub name: String,
   pub params: Vec<Param>,
   pub generics: Vec<GenericParam>,
   pub output: Typing,
   pub body: Vec<Statement>,
+  pub self_taking: SelfTaking
 }
 
 impl Function {
-// Some functions have no name
+  // Some functions have no name
   pub fn parse(mut metadata: Metadata, tokens: &mut Tokens, name: String) -> Entity {
     metadata.mutable = false;
     if metadata.is_async && metadata.is_static {
@@ -73,13 +72,13 @@ impl Function {
     }
 
     let generics = parse_generics(tokens);
+
     let mut params = Vec::new();
     match tokens.next_token() {
       Tk::LeftParen => {
         #[allow(clippy::never_loop)]
         loop {
           match tokens.peek_token() {
-            Tk::NewLine => continue,
             Tk::RightParen => break,
             Tk::Ident(name) => {
               tokens.next();
@@ -102,9 +101,7 @@ impl Function {
                 typing,
                 default_val
               });
-              if let Tk::Comma | Tk::NewLine = tokens.peek() {
-                tokens.next();
-              } else {
+              if !tokens.comma_sep() {
                 break;
               }
             }
@@ -127,18 +124,20 @@ impl Function {
       syntax_err!("unclosed parenthesis");
     }
 
-    let output = match tokens.peek_token() {
+    let output = match tokens.next_token() {
       Tk::Arrow => {
-        tokens.next();
-        Typing::parse(tokens)
+        Typing::parse_single(tokens)
       }
-      _ => Typing::Undefined
+      _ => syntax_err!("expected return type")
     };
 
-    if matches!(tokens.peek_token(), Tk::Keyword(Kw::Takes)) {
-      tokens.next();
-      syntax_err!("self takes not yet implemented");
-    }
+    let self_taking = match tokens.peek_token() {
+      Tk::Keyword(Kw::Takes) => {
+        tokens.next();
+        syntax_err!("self takes not yet implemented");
+      }
+      _ => SelfTaking::None
+    };
 
     let mut body = Vec::new();
     if matches!(tokens.next_token(), Tk::LeftBrace) {
@@ -153,7 +152,8 @@ impl Function {
       params,
       generics,
       output,
-      body
+      body,
+      self_taking
     };
     Entity {
       metadata,
@@ -164,6 +164,16 @@ impl Function {
       })
     }
   }
+}
+
+#[allow(unused)]
+#[derive(Debug, Clone)]
+pub enum SelfTaking {
+  None,
+  /// `&self`
+  Ref,
+  /// `self`
+  Take
 }
 
 impl fmt::Display for Function {

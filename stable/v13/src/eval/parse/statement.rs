@@ -5,7 +5,7 @@ use crate::eval::tokenize::{
 };
 
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Statement {
   Expr(Expr),
   Assign(Expr, Expr),
@@ -21,7 +21,6 @@ impl Statement {
   pub fn parse(tokens: &mut Tokens) -> Vec<Statement> {
     let mut body = Vec::new();
     match tokens.peek_token() {
-      Tk::EoF => syntax_err!("unexpected end of file"),
       Tk::RightBrace => {},
       Tk::Keyword(Kw::Let) => {
         syntax_err!("let statements not yet implemented");
