@@ -13,6 +13,8 @@ use crate::eval::tokenize::{
   tokens::{ Operator as Op, Token as Tk, Tokens }
 };
 
+use super::statement::Block;
+
 // #region params
 pub fn display_param(name: &str, typing: &Typing, default_val: &dyn fmt::Display) -> String {
   let mut string = name.to_owned();
@@ -50,7 +52,7 @@ pub struct Function {
   pub params: Vec<Param>,
   pub generics: Vec<GenericParam>,
   pub output: Typing,
-  pub body: Vec<Statement>,
+  pub body: Block,
   pub self_taking: SelfTaking
 }
 
@@ -74,52 +76,54 @@ impl Function {
     let generics = parse_generics(tokens);
 
     let mut params = Vec::new();
-    match tokens.next_token() {
-      Tk::LeftParen => {
-        #[allow(clippy::never_loop)]
-        loop {
-          match tokens.peek_token() {
-            Tk::RightParen => break,
-            Tk::Ident(name) => {
+    if !matches!(tokens.next_token(), Tk::LeftParen) {
+      syntax_err!("expected parameters");
+    }
+    #[allow(clippy::never_loop)]
+    loop {
+      match tokens.peek_token() {
+        Tk::RightParen => break,
+        Tk::Ident(name) => {
+          tokens.next();
+          let typing = match tokens.peek_token() {
+            Tk::Colon => {
               tokens.next();
-              let typing = match tokens.peek_token() {
-                Tk::Colon => {
-                  tokens.next();
-                  Typing::parse(tokens)
-                }
-                _ => Typing::Undefined
-              };
-              let default_val = match tokens.peek_token() {
-                Tk::Op(Op::Equal) => {
-                  tokens.next();
-                  Expr::parse(tokens)
-                }
-                _ => Expr::None
-              };
-              params.push(Param {
-                name: name.clone(),
-                typing,
-                default_val
-              });
-              if !tokens.comma_sep() {
-                break;
-              }
+              Typing::parse(tokens)
             }
-            Tk::LeftBrace => {
-              syntax_err!("parameter destructuring not yet implemented");
+            _ => Typing::Undefined
+          };
+          let default_val = match tokens.peek_token() {
+            Tk::Op(Op::Equal) => {
+              tokens.next();
+              Expr::parse(tokens)
             }
-            Tk::LeftParen => {
-              syntax_err!("parameter destructuring not yet implemented");
-            }
-            Tk::LeftBracket => {
-              syntax_err!("parameter destructuring not yet implemented");
-            }
-            _ => syntax_err!("expected parameter list")
+            _ => Expr::None
+          };
+          params.push(Param {
+            name: name.clone(),
+            typing,
+            default_val
+          });
+          if !tokens.comma_sep() {
+            break;
           }
         }
-      }
-      _ => syntax_err!("expected parameters")
-    }
+        Tk::LeftBrace => {
+          syntax_err!("parameter destructuring not yet implemented");
+        }
+        Tk::LeftParen => {
+          syntax_err!("parameter destructuring not yet implemented");
+        }
+        Tk::LeftBracket => {
+          syntax_err!("parameter destructuring not yet implemented");
+        }
+        other => {
+          tokens.next();
+          syntax_err!("unexpected {other}")
+        }
+      } // match peek
+    } // loop
+
     if !matches!(tokens.next_token(), Tk::RightParen) {
       syntax_err!("unclosed parenthesis");
     }
@@ -139,11 +143,11 @@ impl Function {
       _ => SelfTaking::None
     };
 
-    let mut body = Vec::new();
+    let mut body = Block(Vec::new());
     if matches!(tokens.next_token(), Tk::LeftBrace) {
-      body = Statement::parse(tokens);
+      body = Statement::parse_block(tokens);
       match tokens.next_token() {
-        Tk::NewLine | Tk::Semicolon => {}
+        Tk::RightBrace => {}
         other => syntax_err!("unexpected {other}")
       }
     }
@@ -186,6 +190,6 @@ impl fmt::Display for Function {
     if !matches!(self.output, Typing::Undefined) {
       write!(f, " -> {}", self.output)?;
     }
-    Ok(())
+    write!(f, " {}", self.body)
   }
 }

@@ -1,37 +1,4 @@
-shared
-fun
-main
-<
-T
-:
-Display
-=
-String,
-K
-=
-Default
->
-(
-t
-:
-T
-=
-1
-+
-1
-,
-k
-=
-K
-::
-Item
-)
-->
-path
-::
-to
-::
-T
-{
-println
+shared fun main() -> [A; 2 * path.to * 2] {
+  std::terminal::1 = 1 + 1 * 2;
+  1::a
 }

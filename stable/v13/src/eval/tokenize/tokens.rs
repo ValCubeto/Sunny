@@ -7,15 +7,16 @@ use super::numbers::Number;
 use super::strings::FString;
 use super::{ Position, COLUMN, LINE, TOK_LEN };
 
-type TokensIterator<'a> = PeekMoreIterator<Iter<'a, (Position, Token)>>;
+type TokenIterator<'a> = PeekMoreIterator<Iter<'a, (Position, Token)>>;
 
-pub struct Tokens<'a>(TokensIterator<'a>);
+pub struct Tokens<'a>(TokenIterator<'a>);
 impl<'a> Tokens<'a> {
-  pub fn new(tokens: TokensIterator<'a>) -> Self {
+  pub fn new(tokens: TokenIterator<'a>) -> Self {
     Tokens(tokens)
   }
 
   pub fn try_next_token(&mut self) -> Option<&'a Token> {
+    self.skip_newline();
     self.0.next().map(|(pos, token)| -> &'a Token {
       unsafe {
         LINE = pos.line;
@@ -51,7 +52,8 @@ impl<'a> Tokens<'a> {
     self.next()
   }
 
-  pub fn peek_or(&mut self, msg: &str) -> &'a Token {
+  #[inline(always)]
+  fn peek_or(&mut self, msg: &str) -> &'a Token {
     match self.0.peek() {
       None => syntax_err!("{msg}"),
       Some((_, token)) => token
@@ -61,43 +63,53 @@ impl<'a> Tokens<'a> {
   pub fn peek(&mut self) -> &'a Token {
     self.peek_or("unexpected end of input")
   }
+  #[inline(always)]
   pub fn peek_token(&mut self) -> &'a Token {
     self.skip_newline();
     self.peek()
   }
-  pub fn peek_token_or(&mut self, msg: &str) -> &'a Token {
-    self.skip_newline();
-    self.peek_or(msg)
-  }
 
   #[inline(always)]
   pub fn skip_newline(&mut self) {
-    if matches!(self.peek(), Token::NewLine) {
+    if let Token::NewLine = self.peek() {
       self.next();
     }
   }
 
   #[inline]
   pub fn comma_sep(&mut self) -> bool {
-    if let Token::Comma | Token::NewLine = self.peek() {
-      self.next();
-      true
-    } else {
-      false
+    match self.peek() {
+      Token::Comma => {
+        self.next();
+        true
+      }
+      Token::NewLine => {
+        self.next();
+        if let Token::Comma = self.peek() {
+          self.next();
+        }
+        true
+      }
+      _ => false
     }
   }
 
-  pub fn peek_amount(&mut self, amount: usize) -> Vec<Option<&'a Token>> {
-    let mut tokens = Vec::with_capacity(amount);
-    let mut pairs = self.0.peek_amount(amount).iter();
-    while let Some(Some((_, token))) = pairs.next() {
-      tokens.push(Some(token));
+  #[inline]
+  pub fn semicolon_sep(&mut self) -> bool {
+    match self.peek() {
+      Token::Semicolon => {
+        self.next();
+        true
+      }
+      Token::NewLine => {
+        self.next();
+        if let Token::Semicolon = self.peek() {
+          self.next();
+        }
+        true
+      }
+      _ => false
     }
-    // Fill the rest with None
-    for _i in tokens.len()..=tokens.capacity() {
-      tokens.push(None);
-    }
-    tokens
   }
 }
 
@@ -223,7 +235,7 @@ impl Operator {
     Some(match self {
       Self::Plus | Self::Minus => (5, 6),
       Self::Star | Self::Slash | Self::Percent => (7, 8),
-      Self::Dot => (14, 13),
+      Self::Dot | Self::DoubleColon => (13, 14),
       _ => return None
     })
   }
@@ -257,6 +269,7 @@ impl Operator {
       Self::Percent => Expr::Mod(lhs, rhs),
       Self::Diamond => Expr::Cmp(lhs, rhs),
       Self::Dot => Expr::GetField(lhs, rhs),
+      Self::DoubleColon => Expr::GetItem(lhs, rhs),
       Self::DoubleAmpersand => Expr::LogicalAnd(lhs, rhs),
       Self::DoublePipe => Expr::LogicalOr(lhs, rhs),
       Self::Ampersand => Expr::And(lhs, rhs),

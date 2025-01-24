@@ -22,29 +22,28 @@ pub fn parse_static(metadata: Metadata, tokens: &mut Tokens) -> Entity {
   if metadata.is_unsafe {
     syntax_err!("invalid unsafe modifier");
   }
-  tokens.skip_newline();
-  let ident = match tokens.next() {
+
+  let ident = match tokens.next_token() {
     Token::Ident(ident) => ident,
     _ => syntax_err!("expected identifier")
   };
-  tokens.skip_newline();
-  if !matches!(tokens.next(), Token::Colon) {
+
+  if !matches!(tokens.next_token(), Token::Colon) {
     syntax_err!("expected type");
   };
-  tokens.skip_newline();
+
   let typing = Typing::parse(tokens);
-  tokens.skip_newline();
-  if !matches!(tokens.next(), Token::Op(Operator::Equal)) {
+  if !matches!(tokens.next_token(), Token::Op(Operator::Equal)) {
     syntax_err!("expected value");
   };
-  tokens.skip_newline();
+
   let value = Expr::parse(tokens);
 
-  match tokens.peek() {
-    Token::NewLine | Token::Semicolon | Token::EoF => {}
-    other => {
+  match tokens.next_token() {
+    Token::Semicolon => {}
+    _ => {
       tokens.next();
-      syntax_err!("expected operator or end of statement, found {other}");
+      syntax_err!("expected operator or end of statement");
     }
   }
 
@@ -69,6 +68,6 @@ pub struct Variable {
 
 impl fmt::Display for Variable {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "var {}: {} = {}", self.name, self.typing, self.value)
+    write!(f, "{}: {} = {}", self.name, self.typing, self.value)
   }
 }

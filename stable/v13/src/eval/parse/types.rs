@@ -26,10 +26,6 @@ impl fmt::Display for GenericParam {
 pub fn parse_generics(tokens: &mut Tokens) -> Vec<GenericParam> {
   let mut generics = Vec::new();
   match tokens.peek_token() {
-    // empty generics
-    Tk::Op(Op::Diamond) => {
-      tokens.next();
-    }
     Tk::Op(Op::LeftAngle) => {
       tokens.next();
       while let Tk::Ident(name) = tokens.peek_token() {
@@ -57,12 +53,17 @@ pub fn parse_generics(tokens: &mut Tokens) -> Vec<GenericParam> {
           break;
         }
       }
+      match tokens.next_token() {
+        Tk::Op(Op::RightAngle) => generics,
+        other => syntax_err!("unexpected {other}")
+      }
     }
-    _ => {}
-  }
-  match tokens.next_token() {
-    Tk::Op(Op::RightAngle) => generics,
-    other => syntax_err!("unexpected {other}")
+    // empty generics
+    Tk::Op(Op::Diamond) => {
+      tokens.next();
+      generics
+    }
+    _ => generics
   }
 }
 
@@ -97,28 +98,46 @@ pub enum Typing {
 }
 
 impl Typing {
-  pub fn parse(tokens: &mut Tokens) -> Typing {
+  pub fn parse(tokens: &mut Tokens) -> Self {
+    #[allow(unused_mut)]
     let mut typing = Self::parse_single(tokens);
-    loop {
-      match tokens.peek_token() {
-        Tk::Op(Op::Plus) => {
-          tokens.next();
-          syntax_err!("multiple implementations not yet implemented");
-        }
-        Tk::Keyword(Kw::For) => {
-          tokens.next();
-          syntax_err!("implementations not yet implemented");
-        }
-        _ => break
-      }
-    }
+    // loop {
+    //   match tokens.peek_token() {
+    //     Tk::Op(Op::Plus) => {
+    //       tokens.next();
+    //       syntax_err!("multiple implementations not yet implemented");
+    //     }
+    //     Tk::Keyword(Kw::For) => {
+    //       tokens.next();
+    //       syntax_err!("implementations not yet implemented");
+    //     }
+    //     _ => break
+    //   }
+    // }
     typing
   }
   pub fn parse_single(tokens: &mut Tokens) -> Self {
     match tokens.next_token() {
+      Tk::Keyword(Kw::Never) => Self::Never,
+      Tk::Ident(ident) => {
+        let mut name = vec![ident.clone()];
+        while let Tk::Op(Op::DoubleColon) = tokens.peek_token() {
+          tokens.next();
+          match tokens.next_token() {
+            Tk::Ident(ident) => name.push(ident.clone()),
+            _ => syntax_err!("expected identifier")
+          }
+        }
+        Self::Ref {
+          name,
+          generics: parse_generics(tokens)
+        }
+      }
+      Tk::Keyword(Kw::Fun) => {
+        syntax_err!("functions as types not yet implemented");
+      }
       // (A, B)
       Tk::LeftParen => {
-        tokens.next();
         let mut types = Vec::new();
         while !matches!(tokens.peek_token(), Tk::RightParen) {
           types.push(Self::parse(tokens));
@@ -135,7 +154,6 @@ impl Typing {
         Typing::Tuple(types)
       }
       Tk::LeftBracket => {
-        tokens.next();
         let ty = Self::parse(tokens);
         let len = match tokens.peek_token() {
           Tk::Semicolon => {
@@ -151,30 +169,11 @@ impl Typing {
       }
       // <T>
       Tk::Op(Op::LeftAngle) => {
-        tokens.next();
         let ty = Self::parse_single(tokens);
         match tokens.next_token() {
           Tk::Op(Op::RightAngle) => ty,
           other => syntax_err!("unexpected {other}")
         }
-      }
-      Tk::Ident(ident) => {
-        let mut name = Vec::with_capacity(1);
-        name.push(ident.clone());
-        while let Tk::Op(Op::DoubleColon) = tokens.peek_token() {
-          tokens.next();
-          match tokens.next_token() {
-            Tk::Ident(ident) => name.push(ident.clone()),
-            _ => syntax_err!("expected identifier")
-          }
-        }
-        Self::Ref {
-          name,
-          generics: parse_generics(tokens)
-        }
-      }
-      Tk::Keyword(Kw::Fun) => {
-        syntax_err!("functions as types not yet implemented");
       }
       _ => syntax_err!("expected type")
     }
