@@ -4,7 +4,7 @@ use crate::eval::parse::expressions::Expr;
 use crate::eval::tokenize::{
   tokenize,
   skip_spaces,
-  tokens::{ Token, Tokens },
+  tokens::{ Token, TokenIter },
   CharsIter,
   Position
 };
@@ -99,7 +99,6 @@ pub fn parse_string(chars: &mut CharsIter) -> (String, usize) {
   syntax_err!("unclosed string");
 }
 
-#[allow(unused)]
 #[derive(Debug, Clone)]
 pub struct FString {
   pub literals: Vec<String>,
@@ -213,7 +212,7 @@ impl FString {
   pub fn to_parsed(&self) -> ParsedFString {
     let mut inserted = Vec::with_capacity(self.inserted.len());
     for tokens in self.inserted.iter() {
-      let mut tokens = Tokens::new(tokens.iter().peekmore());
+      let mut tokens = TokenIter::new(tokens.iter().peekmore());
       inserted.push(Expr::parse(&mut tokens));
       match tokens.next() {
         Token::NewLine => {}

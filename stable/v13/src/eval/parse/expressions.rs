@@ -1,18 +1,21 @@
 use std::fmt;
 use crate::eval::{
-  tokenize::tokens::{ Token as Tk, Tokens },
+  tokenize::tokens::{ Token as Tk, TokenIter },
   parse::{ types::Typing, values::Value }
 };
 
+use super::types::join;
+
 type E = Box<Expr>;
 
-#[allow(unused)]
 #[derive(Debug, Clone)]
 pub enum Expr {
   None,
   Single(Value),
-  Type(Typing),
+  PassGenerics(E, Vec<(String, Typing)>),
 
+  /// `...a`
+  Spread(E),
   /// `!a`
   Not(E),
   /// `-a`
@@ -65,11 +68,6 @@ pub enum Expr {
   /// `a <> b`
   Cmp(E, E),
 
-  /// `a .. b`
-  ExclusiveRange(E, E),
-  /// `a ... b`
-  InclusiveRange(E, E),
-
   /// `a :: b`
   GetItem(E, E),
   /// `a . b`
@@ -78,7 +76,7 @@ pub enum Expr {
 
 impl Expr {
   /// None if there are no tokens
-  pub fn parse(tokens: &mut Tokens) -> Expr {
+  pub fn parse(tokens: &mut TokenIter) -> Expr {
     parse_expr_bp(tokens, 0)
   }
 
@@ -92,8 +90,9 @@ impl fmt::Display for Expr {
     match self {
       Self::None => Ok(()),
       Self::Single(value) => write!(f, "{value}"),
-      Self::Type(ty) => write!(f, "{ty}"),
+      Self::PassGenerics(expr, generics) => write!(f, "{expr}<{}>", join(generics.iter().map(|(name, ty)| format!("{name}: {ty}")), ", ")),
       Self::Not(expr) => write!(f, "(!{expr})"),
+      Self::Spread(expr) => write!(f, "...{expr}"),
       Self::Neg(expr) => write!(f, "(-{expr})"),
       Self::Pos(expr) => write!(f, "(+{expr})"),
       Self::Deref(expr) => write!(f, "(*{expr})"),
@@ -118,8 +117,6 @@ impl fmt::Display for Expr {
       Self::LeftShift(lhs, rhs) => write!(f, "({lhs} << {rhs})"),
       Self::RightShift(lhs, rhs) => write!(f, "({lhs} >> {rhs})"),
       Self::Cmp(lhs, rhs) => write!(f, "({lhs} <> {rhs})"),
-      Self::ExclusiveRange(lhs, rhs) => write!(f, "({lhs} .. {rhs})"),
-      Self::InclusiveRange(lhs, rhs) => write!(f, "({lhs} ... {rhs})"),
       Self::GetItem(lhs, rhs) => write!(f, "({lhs}::{rhs})"),
       Self::GetField(lhs, rhs) => write!(f, "({lhs}.{rhs})"),
     }
@@ -127,7 +124,7 @@ impl fmt::Display for Expr {
 }
 
 /// Parse expressions using a binding power algorithm
-fn parse_expr_bp(tokens: &mut Tokens, min_bp: u8) -> Expr {
+fn parse_expr_bp(tokens: &mut TokenIter, min_bp: u8) -> Expr {
   // left-hand side
   let mut lhs = match tokens.next_token() {
     Tk::Ident(ident) => Expr::Single(Value::Ident(ident.clone())),

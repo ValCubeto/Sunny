@@ -68,8 +68,10 @@ pub struct Position {
   pub tok_len: usize,
 }
 
-pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
-  let mut tokens: Vec<(Position, Tk)> = Vec::new();
+pub type Tokens = Vec<(Position, Tk)>;
+
+pub fn tokenize(input: String) -> Tokens {
+  let mut tokens: Tokens = Vec::new();
   let mut chars = CharsIter::new(input.chars().peekmore());
   /// `push(token: Token, len: usize = 1)`
   macro_rules! push {
@@ -203,12 +205,10 @@ pub fn tokenize(input: String) -> Vec<(Position, Tk)> {
       '.' => {
         if chars.peek() == Some('.') {
           chars.next();
-          if chars.peek() == Some('.') {
-            chars.next();
-            push!(Tk::Op(Op::TripleDot), 3);
-            continue;
+          if chars.next() != Some('.') {
+            syntax_err!("expected a dot here");
           }
-          push!(Tk::Op(Op::DoubleDot), 2);
+          push!(Tk::Op(Op::TripleDot), 3);
           continue;
         }
         push!(Tk::Op(Op::Dot));

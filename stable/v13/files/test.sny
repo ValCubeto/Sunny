@@ -1,4 +1,4 @@
-shared fun main() -> [A; 2 * path.to * 2] {
+shared fun main() -> () {
   std::terminal::1 = 1 + 1 * 2;
   1::a
 }

@@ -1,7 +1,6 @@
 use std::fmt;
 use super::constants::Variable;
 
-#[allow(unused)]
 #[derive(Debug)]
 /// Any statement
 pub enum Item {
@@ -15,7 +14,6 @@ pub enum Item {
   // Macro,
 }
 
-#[allow(unused)]
 #[derive(Debug)]
 pub struct Entity {
   pub metadata: Metadata,
@@ -24,7 +22,6 @@ pub struct Entity {
 
 impl fmt::Display for Item {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    #[allow(unreachable_patterns)]
     match self {
       Item::Variable(variable) => write!(f, "{variable}"),
       // Item::Struct => write!(f, "struct"),
@@ -34,7 +31,6 @@ impl fmt::Display for Item {
       // Item::TypeDef => write!(f, "typedef"),
       // Item::Import => write!(f, "import"),
       // Item::Macro => write!(f, "macro"),
-      _ => unimplemented!()
     }
   }
 }
@@ -55,7 +51,6 @@ pub struct Metadata {
   pub is_static: bool,
 }
 
-#[allow(unused)]
 impl Metadata {
   #[inline]
   pub fn default() -> Self {

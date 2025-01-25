@@ -6,7 +6,7 @@ type Flags = HashMap<String, String>;
 #[allow(unused)]
 #[derive(Debug)]
 pub struct ParsedArgs {
-  /// The first argument, the name of the executable
+  /// The first argument, the path of the executable
   pub this: String,
   /// The second argument, the command
   pub command: String,
@@ -78,7 +78,7 @@ fn add_flag(arg: String, flags: &mut Flags) {
   let key = split.next().unwrap();
   if !VALID_FLAGS.contains(&key) {
     // Cannot use standard argument error yet because of
-    // possible modifiers on the flags themselves
+    // possible modifiers on the flags (e.g. --no-color)
     eprintln!("Warning: invalid flag {key:?}");
   }
   let value = split.next().unwrap_or_default().to_owned();

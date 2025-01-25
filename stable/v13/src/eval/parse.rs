@@ -10,14 +10,14 @@ use functions::Function;
 use items::{ Entity, Metadata };
 use peekmore::PeekMore;
 use crate::eval::tokenize::{
-  tokens::{ Token as Tk, Tokens },
+  tokens::{ Token as Tk, TokenIter },
   keywords::Keyword as Kw,
   Position
 };
 
 pub fn parse_mod(tokens: Vec<(Position, Tk)>) -> Vec<Entity> {
   let mut items = Vec::new();
-  let mut tokens = Tokens::new(tokens.iter().peekmore());
+  let mut tokens = TokenIter::new(tokens.iter().peekmore());
   // This is for a feature that changes the metadata for all following items
   let mut common_meta = Metadata::default();
   while let Some(token) = tokens.try_next_token() {
@@ -28,7 +28,7 @@ pub fn parse_mod(tokens: Vec<(Position, Tk)>) -> Vec<Entity> {
   items
 }
 
-fn match_token(metadata: &mut Metadata, token: &Tk, tokens: &mut Tokens) -> Option<Entity> {
+fn match_token(metadata: &mut Metadata, token: &Tk, tokens: &mut TokenIter) -> Option<Entity> {
   Some(match token {
     Tk::Keyword(Kw::Mod) => {
       match tokens.next_token() {

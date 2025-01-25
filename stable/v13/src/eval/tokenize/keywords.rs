@@ -56,7 +56,6 @@ pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
   (token, len)
 }
 
-#[allow(unused)]
 #[derive(Debug, Clone, PartialEq)]
 pub enum Keyword {
   /// `mod`

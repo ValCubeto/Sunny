@@ -1,5 +1,5 @@
 use std::fmt;
-use crate::eval::tokenize::tokens::{ Operator, Token, Tokens };
+use crate::eval::tokenize::tokens::{ Operator, Token, TokenIter };
 use crate::eval::parse::{
   expressions::Expr,
   items::{ Entity, Item, Metadata },
@@ -15,7 +15,7 @@ const ( <ident>, ... ): <type> = <expr> <end>
 */
 
 /// Parse `const` or `state` items
-pub fn parse_static(metadata: Metadata, tokens: &mut Tokens) -> Entity {
+pub fn parse_static(metadata: Metadata, tokens: &mut TokenIter) -> Entity {
   if metadata.is_async {
     syntax_err!("invalid async modifier");
   }
@@ -57,7 +57,6 @@ pub fn parse_static(metadata: Metadata, tokens: &mut Tokens) -> Entity {
   }
 }
 
-#[allow(unused)]
 #[derive(Debug)]
 /// Any `const`, `state`, `let`, or `var`
 pub struct Variable {

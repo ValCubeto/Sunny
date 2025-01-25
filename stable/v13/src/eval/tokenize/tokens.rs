@@ -9,10 +9,10 @@ use super::{ Position, COLUMN, LINE, TOK_LEN };
 
 type TokenIterator<'a> = PeekMoreIterator<Iter<'a, (Position, Token)>>;
 
-pub struct Tokens<'a>(TokenIterator<'a>);
-impl<'a> Tokens<'a> {
+pub struct TokenIter<'a>(TokenIterator<'a>);
+impl<'a> TokenIter<'a> {
   pub fn new(tokens: TokenIterator<'a>) -> Self {
-    Tokens(tokens)
+    TokenIter(tokens)
   }
 
   pub fn try_next_token(&mut self) -> Option<&'a Token> {
@@ -113,7 +113,6 @@ impl<'a> Tokens<'a> {
   }
 }
 
-#[allow(unused)]
 #[derive(Debug, Clone)]
 /// # LEVEL 1
 /// `a = b` <br>
@@ -164,8 +163,6 @@ pub enum Operator {
   Question,
   /// `!`
   Bang,
-  /// `..`
-  DoubleDot,
   /// `...`
   TripleDot,
   /// `::`
@@ -300,7 +297,6 @@ impl fmt::Display for Operator {
       Self::Pipe => "pipe",
       Self::Question => "question mark",
       Self::Bang => "bang",
-      Self::DoubleDot => "double dot",
       Self::TripleDot => "triple dot",
       Self::DoubleColon => "double colon",
       Self::DoubleEqual => "double equal",
@@ -332,7 +328,6 @@ impl fmt::Display for Operator {
   }
 }
 
-#[allow(unused)]
 #[derive(Debug, Clone)]
 /// I should create an Operator enum
 pub enum Token {
@@ -404,13 +399,5 @@ impl fmt::Display for Token {
       Self::Arrow => write!(f, "arrow"),
       Self::FatArrow => write!(f, "fat arrow")
     }
-  }
-}
-
-#[allow(unused)]
-impl Token {
-  #[inline]
-  pub fn ptr(self) -> Box<Token> {
-    Box::new(self)
   }
 }

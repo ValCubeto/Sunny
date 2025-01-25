@@ -10,7 +10,7 @@ use crate::eval::parse::{
 };
 use crate::eval::tokenize::{
   keywords::Keyword as Kw,
-  tokens::{ Operator as Op, Token as Tk, Tokens }
+  tokens::{ Operator as Op, Token as Tk, TokenIter }
 };
 
 use super::statement::Block;
@@ -30,7 +30,6 @@ pub fn display_param(name: &str, typing: &Typing, default_val: &dyn fmt::Display
   string
 }
 
-#[allow(unused)]
 #[derive(Debug, Clone)]
 pub struct Param {
   pub name: String,
@@ -58,7 +57,7 @@ pub struct Function {
 
 impl Function {
   // Some functions have no name
-  pub fn parse(mut metadata: Metadata, tokens: &mut Tokens, name: String) -> Entity {
+  pub fn parse(mut metadata: Metadata, tokens: &mut TokenIter, name: String) -> Entity {
     metadata.mutable = false;
     if metadata.is_async && metadata.is_static {
       syntax_err!("a function cannot be both async and static");
@@ -79,7 +78,6 @@ impl Function {
     if !matches!(tokens.next_token(), Tk::LeftParen) {
       syntax_err!("expected parameters");
     }
-    #[allow(clippy::never_loop)]
     loop {
       match tokens.peek_token() {
         Tk::RightParen => break,

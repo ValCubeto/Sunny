@@ -2,14 +2,13 @@ use std::fmt;
 use crate::eval::{
   tokenize::{
     keywords::Keyword as Kw,
-    tokens::{ Operator as Op, Token as Tk, Tokens },
+    tokens::{ Operator as Op, Token as Tk, TokenIter },
   },
   parse::functions::{ Function, display_param }
 };
 
 use super::expressions::Expr;
 
-#[allow(unused)]
 #[derive(Debug, Clone)]
 pub struct GenericParam {
   pub name: String,
@@ -23,7 +22,7 @@ impl fmt::Display for GenericParam {
   }
 }
 
-pub fn parse_generics(tokens: &mut Tokens) -> Vec<GenericParam> {
+pub fn parse_generics(tokens: &mut TokenIter) -> Vec<GenericParam> {
   let mut generics = Vec::new();
   match tokens.peek_token() {
     Tk::Op(Op::LeftAngle) => {
@@ -67,8 +66,6 @@ pub fn parse_generics(tokens: &mut Tokens) -> Vec<GenericParam> {
   }
 }
 
-
-#[allow(unused)]
 #[derive(Debug, Clone)]
 pub enum Typing {
   Undefined,
@@ -98,11 +95,15 @@ pub enum Typing {
 }
 
 impl Typing {
-  pub fn parse(tokens: &mut Tokens) -> Self {
-    #[allow(unused_mut)]
+  pub fn parse(tokens: &mut TokenIter) -> Self {
     let mut typing = Self::parse_single(tokens);
     // loop {
     //   match tokens.peek_token() {
+    //     // Allow nested options
+    //     Tk::Op(Op::Question) => {
+    //       tokens.next();
+    //       syntax_err!("optional types not yet implemented");
+    //     }
     //     Tk::Op(Op::Plus) => {
     //       tokens.next();
     //       syntax_err!("multiple implementations not yet implemented");
@@ -116,9 +117,10 @@ impl Typing {
     // }
     typing
   }
-  pub fn parse_single(tokens: &mut Tokens) -> Self {
+  pub fn parse_single(tokens: &mut TokenIter) -> Self {
     match tokens.next_token() {
       Tk::Keyword(Kw::Never) => Self::Never,
+      Tk::Op(Op::Ampersand) => Self::Ptr(Box::new(Self::parse_single(tokens))),
       Tk::Ident(ident) => {
         let mut name = vec![ident.clone()];
         while let Tk::Op(Op::DoubleColon) = tokens.peek_token() {
@@ -139,17 +141,11 @@ impl Typing {
       // (A, B)
       Tk::LeftParen => {
         let mut types = Vec::new();
-        while !matches!(tokens.peek_token(), Tk::RightParen) {
+        while !matches!(tokens.next_token(), Tk::RightParen) {
           types.push(Self::parse(tokens));
           if !tokens.comma_sep() {
             break;
           }
-        }
-        match tokens.peek_token() {
-          Tk::RightParen => {
-            tokens.next();
-          }
-          other => syntax_err!("unexpected {other}")
         }
         Typing::Tuple(types)
       }

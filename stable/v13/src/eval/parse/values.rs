@@ -2,7 +2,6 @@ use std::fmt;
 use crate::eval::tokenize::{ numbers::Number, strings::ParsedFString };
 use super::functions::Function;
 
-#[allow(unused)]
 #[derive(Debug, Clone)]
 /// An intermediate value, not evaluated yet
 pub enum Value {

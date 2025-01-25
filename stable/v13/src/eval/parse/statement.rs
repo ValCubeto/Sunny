@@ -3,7 +3,7 @@ use std::fmt;
 use crate::eval::parse::expressions::Expr;
 use crate::eval::tokenize::{
   keywords::Keyword as Kw,
-  tokens::{ Operator as Op, Token as Tk, Tokens }
+  tokens::{ Operator as Op, Token as Tk, TokenIter }
 };
 
 #[allow(unused)]
@@ -25,7 +25,7 @@ pub enum Statement {
 }
 
 impl Statement {
-  pub fn parse_block(tokens: &mut Tokens) -> Block {
+  pub fn parse_block(tokens: &mut TokenIter) -> Block {
     let mut body = Vec::new();
     loop {
       match Self::parse_single(tokens) {
@@ -38,7 +38,7 @@ impl Statement {
     }
     Block(body)
   }
-  pub fn parse_single(tokens: &mut Tokens) -> Statement {
+  pub fn parse_single(tokens: &mut TokenIter) -> Statement {
     match tokens.peek_token() {
       Tk::RightBrace | Tk::RightBracket | Tk::RightParen => Statement::None,
       Tk::Keyword(Kw::Let) => {
@@ -92,7 +92,8 @@ impl Statement {
                   Statement::Expr(expr)
                 } else {
                   tokens.next();
-                  syntax_err!("unexpected {other} (it may be a bug while parsing the expression)");
+                  note!("it may be a bug while parsing the expression");
+                  syntax_err!("unexpected {other}");
                 }
               }
             }

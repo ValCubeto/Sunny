@@ -7,23 +7,20 @@ use crate::strings::EXTENSION;
 use crate::eval::eval;
 
 pub fn run(args: ParsedArgs) {
-  let cwd = match current_dir() {
-    Ok(cwd) => cwd,
-    Err(why) => sys_err!("failed to get the current directory ({why})")
-  };
+  let cwd = current_dir().unwrap_or_else(|why| {
+    sys_err!("failed to get the current directory ({why})");
+  });
   let file_path = parse_file_path(&cwd, &args.input);
   debug_msg!("Working with file {}", cwd.join(&file_path).display());
   unsafe {
     FILE = args.input.clone();
   }
   let ctx = Ctx::new(cwd, args);
-  let contents = match fs::read_to_string(&file_path) {
-    Ok(contents) => contents,
-    Err(why) => sys_err!("failed to read file \"{}\" ({why})", file_path.display())
-  };
+  let contents = fs::read_to_string(&file_path).unwrap_or_else(|why| {
+    sys_err!("failed to read file \"{}\" ({why})", file_path.display());
+  });
   unsafe {
-    CONTENTS = contents.trim_end_matches([' ', '\t']).to_owned();
-    CONTENTS.push(' ');
+    CONTENTS = contents.trim().to_owned();
   }
   eval(contents, ctx);
 }
