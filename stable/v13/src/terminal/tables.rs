@@ -61,10 +61,33 @@ where
     let entries: Vec<(String, String)> = self.map.iter()
       .map(|(k, v)| (k.to_string(), v.to_string()))
       .collect();
-    let len_left = entries.iter().map(|(k, _)| k.len()).max().unwrap_or(1);
-    let len_right = entries.iter().map(|(_, v)| v.len()).max().unwrap_or(1);
-    let mut len = len_left + len_right + 1;
-    todo!("i give up");
+    let mut len_left = entries.iter().map(|(k, _)| k.len()).max().unwrap_or(1);
+    let mut len_right = entries.iter().map(|(_, v)| v.len()).max().unwrap_or(1);
+    let mut len = len_left + len_right + 3;
+    if let Some(title) = self.title {
+      if title.len() > len {
+        len = title.len();
+        len_left = len / 2 - 1;
+        len_right = len / 2 - 1;
+      }
+      println!(
+        "{} {} {}",
+        VERTICAL,
+        pad(title, len, Align::Center),
+        VERTICAL
+      );
+    }
+    for (k, v) in entries {
+      println!(
+        "{} {} {} {} {}",
+        VERTICAL,
+        pad(&k, len_left, self.align),
+        VERTICAL,
+        pad(&v, len_right, self.align),
+        VERTICAL
+      )
+    }
+    println!();
   }
 }
 

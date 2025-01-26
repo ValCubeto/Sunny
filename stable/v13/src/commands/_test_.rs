@@ -85,7 +85,7 @@ fn table() {
   | three | tres |
   */
   Table {
-    title: Some("Stringsssssssssss"),
+    title: Some("Strings"),
     map: &map3,
     apply: None,
     align: Align::Right
