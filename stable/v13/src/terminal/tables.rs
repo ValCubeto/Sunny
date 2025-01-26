@@ -9,8 +9,8 @@ macro_rules! def_consts {
 }
 
 def_consts! {
-  UP_LEFT = "┐";
-  UP_RIGHT = "┌";
+  UP_RIGHT = "┐";
+  UP_LEFT = "┌";
   DOWN_LEFT = "└";
   DOWN_RIGHT = "┘";
   HORIZONTAL = "─";
@@ -29,8 +29,17 @@ pub enum Align {
   Center,
   Right
 }
+impl fmt::Display for Align {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    match self {
+      Align::Left => write!(f, "left"),
+      Align::Center => write!(f, "center"),
+      Align::Right => write!(f, "right")
+    }
+  }
+}
 
-type ApplyFn = fn (String, String) -> (String, String);
+type ApplyFn = fn (&String) -> String;
 
 pub struct Table<'a, K, V>
 where
@@ -40,7 +49,8 @@ where
   pub title: Option<&'a str>,
   pub map: &'a HashMap<K, V>,
   /// To apply a style that doesn't change the length of the string
-  pub apply: Option<ApplyFn>,
+  pub left_modifier: Option<ApplyFn>,
+  pub right_modifier: Option<ApplyFn>,
   pub align: Align
 }
 
@@ -57,6 +67,27 @@ where
   K: fmt::Display,
   V: fmt::Display
 {
+  pub fn new(title: Option<&'a str>, map: &'a HashMap<K, V>) -> Self {
+    Self {
+      title,
+      map,
+      left_modifier: None,
+      right_modifier: None,
+      align: Align::Left
+    }
+  }
+  pub fn left_modifier(mut self, left_modifier: ApplyFn) -> Self {
+    self.left_modifier = Some(left_modifier);
+    self
+  }
+  pub fn right_modifier(mut self, right_modifier: ApplyFn) -> Self {
+    self.right_modifier = Some(right_modifier);
+    self
+  }
+  pub fn align(mut self, align: Align) -> Self {
+    self.align = align;
+    self
+  }
   pub fn print(&self) {
     let entries: Vec<(String, String)> = self.map.iter()
       .map(|(k, v)| (k.to_string(), v.to_string()))
@@ -64,40 +95,81 @@ where
     let mut len_left = entries.iter().map(|(k, _)| k.len()).max().unwrap_or(1);
     let mut len_right = entries.iter().map(|(_, v)| v.len()).max().unwrap_or(1);
     let mut len = len_left + len_right + 3;
+
     if let Some(title) = self.title {
+      let title = format!("{title} ({})", self.align);
       if title.len() > len {
         len = title.len();
         len_left = len / 2 - 1;
         len_right = len / 2 - 1;
+        if title.len() % 2 == 0 {
+          len_right -= 1;
+        }
       }
+      println!(
+        "{}{}{}",
+        UP_LEFT,
+        HORIZONTAL.repeat(len + 2),
+        UP_RIGHT,
+      );
       println!(
         "{} {} {}",
         VERTICAL,
-        pad(title, len, Align::Center),
+        pad(&title, len, Align::Center),
         VERTICAL
       );
+      println!(
+        "{}{}{}{}{}",
+        VERTICAL_LEFT,
+        HORIZONTAL.repeat(len_left + 2),
+        HORIZONTAL_UP,
+        HORIZONTAL.repeat(len_right + 2),
+        VERTICAL_RIGHT
+      );
+    } else {
+      println!(
+        "{}{}{}{}{}",
+        UP_LEFT,
+        HORIZONTAL.repeat(len_left + 2),
+        HORIZONTAL_UP,
+        HORIZONTAL.repeat(len_right + 2),
+        UP_RIGHT
+      );
     }
-    for (k, v) in entries {
+
+    for (mut k, mut v) in entries {
+      let mut left = pad(&k, len_left, self.align);
+      let mut right = pad(&v, len_right, self.align);
+      if let Some(left_modifier) = self.left_modifier {
+        left = left.replace(&k, &left_modifier(&k));
+      }
+      if let Some(right_modifier) = self.right_modifier {
+        right = right.replace(&v, &right_modifier(&v));
+      }
       println!(
         "{} {} {} {} {}",
         VERTICAL,
-        pad(&k, len_left, self.align),
+        left,
         VERTICAL,
-        pad(&v, len_right, self.align),
+        right,
         VERTICAL
       )
     }
-    println!();
+    println!(
+      "{}{}{}{}{}",
+      DOWN_LEFT,
+      HORIZONTAL.repeat(len_left + 2),
+      HORIZONTAL_DOWN,
+      HORIZONTAL.repeat(len_right + 2),
+      DOWN_RIGHT
+    );
   }
 }
 
 fn pad(string: &str, len: usize, align: Align) -> String {
   match align {
-    Align::Left => format!("{string:->len$}"),
-    Align::Center => {
-      // align to center using rust fmt
-      format!("{string:-^len$}")
-    },
-    Align::Right => format!("{string:-<len$}")
+    Align::Left   => format!("{string: <len$}"),
+    Align::Center => format!("{string: ^len$}"),
+    Align::Right  => format!("{string: >len$}")
   }
 }
