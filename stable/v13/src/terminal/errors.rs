@@ -19,7 +19,7 @@ macro_rules! note {
 pub fn quit(ename: &str, msg: &str, file: &str, line: u32, column: u32) -> ! {
   eprintln!("{}: {}", ename.error(), msg);
   for note in unsafe { NOTES.clone() }.trim_end().lines() {
-    eprintln!("{}: {}", "Note", note);
+    eprintln!("  {}: {}", "note".note(), note);
   }
   unsafe {
     let mut lines = CONTENTS.lines();

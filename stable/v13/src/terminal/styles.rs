@@ -72,7 +72,6 @@ macro_rules! other_fn {
   ($(fn $fn_name:ident ( & $self:ident $(,)? $($arg:ident : $argtype:ty),* ) { $fn:expr })*) => {
     $(
       #[inline(always)]
-      /// Applies the given style
       fn $fn_name(&$self, $($arg: $argtype),*) -> String {
         if unsafe { crate::COLORING } {
           $fn
@@ -131,6 +130,9 @@ pub trait Stylize: fmt::Display {
     fn deprecated(&self) {
       self.italics().strikethrough()
     }
+    fn note(&self) {
+      self.blue().bold()
+    }
 
     fn rgb(&self, rgb: (u8, u8, u8)) {
       format!("\u{1b}[38;2;{};{};{}m{}\u{1b}[39m", rgb.0, rgb.1, rgb.2, self)
@@ -139,22 +141,22 @@ pub trait Stylize: fmt::Display {
       format!("\u{1b}[48;2;{};{};{}m{}\u{1b}[49m", rgb.0, rgb.1, rgb.2, self)
     }
 
-    fn rgb_orange(&self) {
+    fn orange(&self) {
       self.rgb(ORANGE)
     }
-    fn rgb_bg_orange(&self) {
+    fn bg_orange(&self) {
       self.rgb_bg(ORANGE)
     }
-    fn rgb_blueberry(&self) {
+    fn blueberry(&self) {
       self.rgb(BLUEBERRY)
     }
-    fn rgb_bg_blueberry(&self) {
+    fn bg_blueberry(&self) {
       self.rgb_bg(BLUEBERRY)
     }
-    fn rgb_pink(&self) {
+    fn pink(&self) {
       self.rgb(PINK)
     }
-    fn rgb_bg_pink(&self) {
+    fn bg_pink(&self) {
       self.rgb_bg(PINK)
     }
   );

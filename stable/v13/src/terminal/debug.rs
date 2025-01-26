@@ -23,13 +23,12 @@ macro_rules! debug_msg {
 
 #[macro_export]
 macro_rules! debug {
-  ($arg:expr $(, $arg2:expr),* $(,)?) => {{ 
+  ($($arg:expr),+ $(,)?) => {{ 
     #[allow(unused_imports)]
     use $crate::terminal::Stylize;
     #[allow(unused_mut)]
     let mut msg = vec![
-      format!("{} = {:#?}", stringify!($arg).bold(), $arg),
-      $( format!("{} = {:#?}", stringify!($arg2).bold(), $arg2) ),*
+      $( format!("{} = {:#?}", stringify!($arg).bold(), $arg)),+
     ];
     debug_msg!("{}", msg.join("; "));
   }};
