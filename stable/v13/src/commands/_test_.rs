@@ -3,8 +3,8 @@ use crate::args::ParsedArgs;
 pub fn _test_(args: ParsedArgs) {
   match args.input.as_str() {
     "colors" => colors(),
-    "table" => table(),
-    other => eprintln!("no such test {other:?}")
+    "tables" => tables(),
+    other => eprintln!("No such test {other:?}")
   }
 }
 
@@ -59,10 +59,10 @@ fn colors() {
   println!("{}", "Note".note());
   println!("{}", "Deprecated".deprecated());
   println!("Lorem ipsum {}, consectetur adipiscing elit...", format!("dolor {} amet", "sit".bright_green()).bg_orange());
-  println!("\x1b[32mHello world\x1b[39m");
+  debug_todo!("colors for Windows");
 }
 
-fn table() {
+fn tables() {
   use hashbrown::HashMap;
   use crate::terminal::{ Stylize, Table, Align };
 
