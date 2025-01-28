@@ -53,14 +53,14 @@ def_consts! {
   BG_END = "\u{1b}[49m";
 
   // #FF7832
-  ORANGE = "\u{1b}[38;2;255;120;50m";
-  BG_ORANGE = "\u{1b}[48;2;255;120;50m";
+  ORANGE = "\u{1b}[38;2;255;126;0m";
+  BG_ORANGE = "\u{1b}[48;2;255;126;0m";
   // #5050FF
   BLUEBERRY = "\u{1b}[38;2;80;80;255m";
   BG_BLUEBERRY = "\u{1b}[48;2;80;80;255m";
-  // #FF14A5 (deep pink)
-  PINK = "\u{1b}[38;2;255;20;165m";
-  BG_PINK = "\u{1b}[48;2;255;20;165m";
+  //#ff14a5 (deep pink)
+  PINK = "\u{1b}[38;2;255;0;126";
+  BG_PINK = "\u{1b}[48;2;255;20;126";
 }
 
 macro_rules! color_fn {
