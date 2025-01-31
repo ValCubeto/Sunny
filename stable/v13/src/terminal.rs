@@ -6,10 +6,10 @@ mod debug;
 mod errors;
 mod styles;
 mod tables;
-mod io;
+mod info;
 
 pub use debug::*;
 pub use errors::*;
 pub use styles::*;
 pub use tables::*;
-pub use io::*;
+pub use info::*;

@@ -4,6 +4,7 @@ pub fn _test_(args: ParsedArgs) {
   match args.input.as_str() {
     "colors" => colors(),
     "tables" => tables(),
+    "termsize" => termsize(),
     other => eprintln!("No such test {other:?}")
   }
 }
@@ -107,4 +108,12 @@ fn tables() {
     .right_modifier(Stylize::bg_blueberry)
     .align(Align::Center)
     .print();
+}
+
+fn termsize() {
+  let (width, height) = match crate::terminal::stdout_size() {
+    Some(size) => size,
+    None => internal_err!("Couldn't get the size of the terminal")
+  };
+  println!("stdout size: {width}x{height}");
 }
