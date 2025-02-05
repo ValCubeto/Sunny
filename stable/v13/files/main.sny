@@ -1,3 +1,138 @@
+
+typedef List<T> = rust { Box<[T]> }
+typedef Name = rust { Box<str> }
+typedef PAth = rust { *const OsStr }
+
+// line and column are usually where the name is
+struct Location {
+  file: Path,
+  line: u32,
+  column: u32
+}
+
+struct Located<T> {
+  location: Location,
+  value: T
+}
+
+use std::{
+  a,
+  b::{ c, d as e }
+}
+
+
+
+mod modules {
+  struct Module {
+    name: Name,
+    entities: List<Located<Entity>>,
+  }
+  enum Entity {
+    Import(Import)
+    Module(Box<Self>),
+    Variable(variables::Variable),
+    Function(functions::Function)
+  }
+}
+
+mod imports {
+  struct Import {
+  }
+}
+
+mod types {
+  enum Typing {
+    None
+    Never
+  }
+}
+
+mod values {
+  enum Value {
+    String(Name),
+    FString(strings::FString)
+  }
+  mod strings {
+    enum FStringComponent {
+      Literal(Name),
+      Format(Expr)
+    }
+    struct FString {
+      components: List<FStringComponent>
+    }
+  }
+}
+
+mod expressions {
+  enum Expression {
+    Identifier(Name)
+  }
+}
+
+mod functions {
+  bitset FunctionMeta {
+    Shared,    // 1
+    TakesSelf, // 2
+    Unsafe,    // 3
+    Async,     // 4
+    Static     // 5
+  }
+
+  struct Generic {
+    name: Name,
+    typing: types::Typing,
+    /// Default
+    value: types::Typing
+  }
+  struct Param {
+    name: Name,
+    typing: types::Typing,
+    /// Default
+    value: expressions::Expression
+  }
+  typedef Generics = List<Generic>
+  typedef Params = List<Param>
+
+  struct Function {
+    meta: FunctionMeta,
+    name: Name,
+    generics: Generics,
+    params: Params,
+    output: Typing,
+    body: List<Statement>
+  }
+
+  mod statements {
+    enum Statement {
+      Call {
+        value: expressions::Expression,
+        args: Params
+      }
+    }
+  }
+}
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+main = Function {
+  meta: FunctionMeta { Shared, TakesSelf },
+  name: "main",
+  generics: [],
+  params: [],
+  output: None,
+  body: [
+    Call {
+      value: Ident("println"),
+      args: {
+        "0": Value(String("Hello, world!"))
+      }
+    }
+  ]
+}
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 fun main() {
+  // Call(Ident("println"), Value(String("Hello, world!"))) 
   println("Hello, world!")
 }

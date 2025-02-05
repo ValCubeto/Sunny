@@ -22,7 +22,7 @@
 // typedef
 // struct enum bitset interface 
 // class extends where impl
-// argstruct fun unsafe defer return
+// arglist fun unsafe defer return
 // async await
 // loop while for in break continue
 // if else
