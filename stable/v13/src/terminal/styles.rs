@@ -1,4 +1,5 @@
 use std::fmt;
+use std::sync::atomic::Ordering::Relaxed;
 
 macro_rules! def_consts {
   ($($name:ident = $value:expr ;)*) => {
@@ -58,9 +59,9 @@ def_consts! {
   // #5050FF
   BLUEBERRY = "\u{1b}[38;2;80;80;255m";
   BG_BLUEBERRY = "\u{1b}[48;2;80;80;255m";
-  //#ff14a5 (deep pink)
-  PINK = "\u{1b}[38;2;255;0;126";
-  BG_PINK = "\u{1b}[48;2;255;20;126";
+  //rgb(255, 0, 200) (deep pink)
+  PINK = "\u{1b}[38;2;255;0;200m";
+  BG_PINK = "\u{1b}[48;2;255;0;200m";
 }
 
 macro_rules! color_fn {
@@ -70,7 +71,7 @@ macro_rules! color_fn {
       /// Returns a `String` with the given style to display.
       /// Does nothing if the --no-color flag is passed.
       fn $fn_name(&self) -> String {
-        if unsafe { crate::COLORING } {
+        if crate::COLORING.load(Relaxed) {
           format!("{}{}{}", $start, self, $end)
         } else {
           format!("{}", self)
@@ -84,7 +85,7 @@ macro_rules! other_fn {
     $(
       #[inline(always)]
       fn $fn_name(&$self, $($arg: $argtype),*) -> String {
-        if unsafe { crate::COLORING } {
+        if crate::COLORING.load(Relaxed) {
           $fn
         } else {
           format!("{}", $self)
@@ -92,6 +93,12 @@ macro_rules! other_fn {
       }
     )*
   }
+}
+
+pub struct Rgb {
+  pub red: u8,
+  pub green: u8,
+  pub blue: u8,
 }
 
 pub trait Stylize: fmt::Display {
@@ -136,15 +143,13 @@ pub trait Stylize: fmt::Display {
     fn bg_bright_white() => (BG_BRIGHT_WHITE, BG_END);
 
     fn orange() => (ORANGE, FOREGROUND_END);
+    fn bg_orange() => (BG_ORANGE, BG_END);
     fn blueberry() => (BLUEBERRY, FOREGROUND_END);
     fn bg_blueberry() => (BG_BLUEBERRY, BG_END);
     fn pink() => (PINK, FOREGROUND_END);
     fn bg_pink() => (BG_PINK, BG_END);
   }
   other_fn!(
-    fn bg_orange(&self) {
-      format!("{}{}{}", BG_ORANGE, self, BG_END).bright_white()
-    }
     fn error(&self) {
       self.red().bold()
     }
@@ -163,13 +168,24 @@ pub trait Stylize: fmt::Display {
     fn note(&self) {
       self.blue().bold()
     }
-    fn rgb(&self, rgb: (u8, u8, u8)) {
-      format!("\u{1b}[38;2;{};{};{}m{}{}", rgb.0, rgb.1, rgb.2, self, FOREGROUND_END)
+    fn rgb(&self, color: Rgb) {
+      format!(
+        "\u{1b}[38;2;{};{};{}m{}{}",
+        color.red, color.green, color.blue,
+        self,
+        FOREGROUND_END
+      )
     }
-    fn rgb_bg(&self, rgb: (u8, u8, u8)) {
-      format!("\u{1b}[48;2;{};{};{}m{}{}", rgb.0, rgb.1, rgb.2, self, BG_END)
+    fn rgb_bg(&self, color: Rgb) {
+      format!(
+        "\u{1b}[48;2;{};{};{}m{}{}",
+        color.red, color.green, color.blue,
+        self,
+        BG_END
+      )
     }
   );
 }
 
-impl<T: fmt::Display> Stylize for T {}
+impl Stylize for &str {}
+impl Stylize for String {}

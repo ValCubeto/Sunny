@@ -216,7 +216,7 @@ impl FString {
       inserted.push(Expr::parse(&mut tokens));
       match tokens.next() {
         Token::NewLine => {}
-        token => syntax_err!("unexpected {token}")
+        token => syntax_err!("unexpected {}", token.to_string())
       }
     }
     ParsedFString {

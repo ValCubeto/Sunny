@@ -1,4 +1,4 @@
-use_item!(help, version, run, init, _test_);
+use_item!(help, version, run, init, __test);
 use crate::args::ParsedArgs;
 
 pub fn run_cmd(args: ParsedArgs) {
@@ -7,7 +7,7 @@ pub fn run_cmd(args: ParsedArgs) {
     "version" => version(),
     "run" => run(args),
     "init" => init(),
-    "_test_" => _test_(args),
+    "__test" => __test(args),
     other => argument_err!("no such command {other:?}"),
   }
 }

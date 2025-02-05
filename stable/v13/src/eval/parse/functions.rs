@@ -117,7 +117,7 @@ impl Function {
         }
         other => {
           tokens.next();
-          syntax_err!("unexpected {other}")
+          syntax_err!("unexpected {}", other.to_string())
         }
       } // match peek
     } // loop
@@ -126,11 +126,12 @@ impl Function {
       syntax_err!("unclosed parenthesis");
     }
 
-    let output = match tokens.next_token() {
+    let output = match tokens.peek_token() {
       Tk::Arrow => {
+        tokens.next();
         Typing::parse_single(tokens)
       }
-      _ => syntax_err!("expected return type")
+      _ => Typing::Undefined
     };
 
     let self_taking = match tokens.peek_token() {
@@ -146,7 +147,7 @@ impl Function {
       body = Statement::parse_block(tokens);
       match tokens.next_token() {
         Tk::RightBrace => {}
-        other => syntax_err!("unexpected {other}")
+        other => syntax_err!("unexpected {}", other.to_string())
       }
     }
     let function = Function {

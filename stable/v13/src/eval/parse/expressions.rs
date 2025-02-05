@@ -12,7 +12,10 @@ type E = Box<Expr>;
 pub enum Expr {
   None,
   Single(Value),
-  PassGenerics(E, Vec<(String, Typing)>),
+  /// `T<A: B>`
+  PassGenerics(E, Vec<(Box<str>, Typing)>),
+  /// `x(a: b)`
+  Call(E, Vec<(Box<str>, E)>),
 
   /// `...a`
   Spread(E),
@@ -22,10 +25,10 @@ pub enum Expr {
   Neg(E),
   /// `+a`
   Pos(E),
-  /// `*a`
-  Deref(E),
   /// `&a`
   Ref(E),
+  /// `*a`
+  Deref(E),
   /// `a?`
   Try(E),
 
@@ -90,6 +93,16 @@ impl fmt::Display for Expr {
     match self {
       Self::None => Ok(()),
       Self::Single(value) => write!(f, "{value}"),
+      Self::Call(expr, args) => {
+        let args = args.iter().map(|(name, expr)| {
+          if name.is_empty() {
+            expr.to_string()
+          } else {
+            format!("{name}: {expr}")
+          }
+        });
+        write!(f, "{expr}({})", join(args, ", "))
+      }
       Self::PassGenerics(expr, generics) => write!(f, "{expr}<{}>", join(generics.iter().map(|(name, ty)| format!("{name}: {ty}")), ", ")),
       Self::Not(expr) => write!(f, "(!{expr})"),
       Self::Spread(expr) => write!(f, "...{expr}"),
@@ -146,10 +159,15 @@ fn parse_expr_bp(tokens: &mut TokenIter, min_bp: u8) -> Expr {
       op.prefix_expr(rhs)
     }
     Tk::NewLine => return parse_expr_bp(tokens, min_bp),
-    token => syntax_err!("unexpected {token}")
+    token => syntax_err!("unexpected {}", token.to_string())
   };
   loop {
     let op = match tokens.peek_token() {
+      Tk::LeftParen => {
+        tokens.next();
+        lhs = Expr::Call(lhs.ptr(), parse_call_args(tokens));
+        continue;
+      }
       Tk::Op(op) => op,
       _ => return lhs
     };
@@ -173,4 +191,26 @@ fn parse_expr_bp(tokens: &mut TokenIter, min_bp: u8) -> Expr {
     break;
   }
   lhs
+}
+
+fn parse_call_args(tokens: &mut TokenIter) -> Vec<(Box<str>, Box<Expr>)> {
+  let mut args = Vec::new();
+  while !matches!(tokens.peek_token(), Tk::RightParen) {
+    let lhs = Expr::parse(tokens);
+    if let Expr::Single(Value::Ident(name)) = &lhs {
+      if let Tk::Colon = tokens.peek_token() {
+        tokens.next();
+        let rhs = Expr::parse(tokens);
+        args.push((name.clone().into_boxed_str(), rhs.ptr()));
+      }
+    }
+    args.push((Box::from(""), lhs.ptr()));
+    if !tokens.comma_sep() {
+      break;
+    }
+  }
+  if let Tk::RightParen = tokens.next_token() {
+    return args;
+  }
+  syntax_err!("unclosed parenthesis");
 }

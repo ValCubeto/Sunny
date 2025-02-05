@@ -14,15 +14,13 @@
 // && ||
 // == != <> <= >=
 // = += -= *= /= %= ^= &= |= &&= ||= >>= <<=
-// =>
-
-const '\u{ 65 }' = "po"
+// -> =>
 
 // hidden shared
 // const state
 // let var
 // typedef
-// struct enum bitset idea 
+// struct enum bitset interface 
 // class extends where impl
 // argstruct fun unsafe defer return
 // async await

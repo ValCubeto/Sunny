@@ -1,8 +1,9 @@
 use std::path::PathBuf;
+use std::sync::Mutex;
 use crate::args::ParsedArgs;
 
-pub static mut FILE: String = String::new();
-pub static mut CONTENTS: String = String::new();
+pub static FILE: Mutex<String> = Mutex::new(String::new());
+pub static CONTENTS: Mutex<String> = Mutex::new(String::new());
 
 #[allow(unused)]
 pub struct Ctx {

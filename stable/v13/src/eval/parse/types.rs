@@ -54,7 +54,7 @@ pub fn parse_generics(tokens: &mut TokenIter) -> Vec<GenericParam> {
       }
       match tokens.next_token() {
         Tk::Op(Op::RightAngle) => generics,
-        other => syntax_err!("unexpected {other}")
+        other => syntax_err!("unexpected {}", other.to_string())
       }
     }
     // empty generics
@@ -72,8 +72,6 @@ pub enum Typing {
   Never,
   /// `&T`
   Ptr(Box<Self>),
-  /// `T?`
-  Maybe(Box<Self>),
   /// `path::to::T<A: X, B = Y>`
   Ref {
     name: Vec<String>,
@@ -160,7 +158,7 @@ impl Typing {
         };
         match tokens.next_token() {
           Tk::RightBracket => Typing::List(Box::new(ty), Box::new(len)),
-          other => syntax_err!("unexpected {other}")
+          other => syntax_err!("unexpected {}", other.to_string())
         }
       }
       // <T>
@@ -168,7 +166,7 @@ impl Typing {
         let ty = Self::parse_single(tokens);
         match tokens.next_token() {
           Tk::Op(Op::RightAngle) => ty,
-          other => syntax_err!("unexpected {other}")
+          other => syntax_err!("unexpected {}", other.to_string())
         }
       }
       _ => syntax_err!("expected type")
@@ -193,7 +191,6 @@ impl fmt::Display for Typing {
       Self::Undefined => Ok(()),
       Self::Never => write!(f, "never"),
       Self::Ptr(ty) => write!(f, "&{ty}"),
-      Self::Maybe(ty) => write!(f, "{ty}?"),
       Self::Ref { name, generics } => {
         write!(f, "{}", name.join("::"))?;
         if !generics.is_empty() {
@@ -210,8 +207,7 @@ impl fmt::Display for Typing {
         }
       }
       Self::Tuple(tys) => write!(f, "({})", join(tys.iter(), ", ")),
-      Self::And(tys) => write!(f, "{}", join(tys.iter(), " + ")),
-      // Self::ImplFor(idea, ty) => write!(f, "{idea} for {ty}"),
+      Self::And(tys) => write!(f, "{}", join(tys.iter(), " + "))
     }
   }
 }

@@ -1,6 +1,6 @@
 use crate::args::ParsedArgs;
 
-pub fn _test_(args: ParsedArgs) {
+pub fn __test(args: ParsedArgs) {
   match args.input.as_str() {
     "colors" => colors(),
     "tables" => tables(),
@@ -15,7 +15,8 @@ fn colors() {
   println!("{}", "Italics".italics());
   println!("{}", "Underline".underline());
   println!("{}", "Strikethrough".strikethrough());
-
+  println!();
+  println!("{}", "Console black".black());
   println!("{}", "Console red".red());
   println!("{}", "Console green".green());
   println!("{}", "Console yellow".yellow());
@@ -23,6 +24,8 @@ fn colors() {
   println!("{}", "Console magenta".magenta());
   println!("{}", "Console cyan".cyan());
   println!("{}", "Console white".white());
+  println!();
+  println!("{}", "Console bright black".bright_black());
   println!("{}", "Console bright red".bright_red());
   println!("{}", "Console bright green".bright_green());
   println!("{}", "Console bright yellow".bright_yellow());
@@ -30,7 +33,8 @@ fn colors() {
   println!("{}", "Console bright magenta".bright_magenta());
   println!("{}", "Console bright cyan".bright_cyan());
   println!("{}", "Console bright white".bright_white());
-
+  println!();
+  println!("{}", "Console BG black".bg_black());
   println!("{}", "Console BG red".bg_red());
   println!("{}", "Console BG green".bg_green());
   println!("{}", "Console BG yellow".bg_yellow());
@@ -38,6 +42,8 @@ fn colors() {
   println!("{}", "Console BG magenta".bg_magenta());
   println!("{}", "Console BG cyan".bg_cyan());
   println!("{}", "Console BG white".bg_white());
+  println!();
+  println!("{}", "Console BG bright black".bg_bright_black());
   println!("{}", "Console BG bright red".bg_bright_red());
   println!("{}", "Console BG bright green".bg_bright_green());
   println!("{}", "Console BG bright yellow".bg_bright_yellow());
@@ -45,22 +51,20 @@ fn colors() {
   println!("{}", "Console BG bright magenta".bg_bright_magenta());
   println!("{}", "Console BG bright cyan".bg_bright_cyan());
   println!("{}", "Console BG bright white".bg_bright_white());
-
+  println!();
   println!("{}", "RGB orange".orange());
-  println!("{}", "RGB BG orange".bg_orange());
   println!("{}", "RGB blueberry".blueberry());
-  println!("{}", "RGB BG blueberry".bg_blueberry());
   println!("{}", "RGB pink".pink());
+  println!("{}", "RGB BG orange".bg_orange());
+  println!("{}", "RGB BG blueberry".bg_blueberry());
   println!("{}", "RGB BG pink".bg_pink());
-
+  println!();
   println!("{}", "Error".error());
   println!("{}", "Success".success());
   println!("{}", "Warning".warning());
   println!("{}", "Info".info());
   println!("{}", "Note".note());
   println!("{}", "Deprecated".deprecated());
-  println!("Lorem ipsum {}, consectetur adipiscing elit...", format!("dolor {} amet", "sit".bright_green()).bg_orange());
-  debug_todo!("colors for Windows");
 }
 
 fn tables() {

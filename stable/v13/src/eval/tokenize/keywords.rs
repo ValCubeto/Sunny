@@ -60,6 +60,7 @@ pub fn parse_word(chars: &mut CharsIter, ch: char) -> (Token, usize) {
 pub enum Keyword {
   /// `mod`
   Mod,
+
   /// `use`
   Use,
   /// `as`
@@ -88,20 +89,18 @@ pub enum Keyword {
   Enum,
   /// `bitset`
   BitSet,
-  /// `idea`
-  Idea,
+  /// `interface`
+  Interface,
 
   /// `class`
   Class,
-  /// `extends`
-  Extends,
   /// `where`
   Where,
   /// `impl`
   Impl,
 
-  /// `argstruct`
-  ArgStruct,
+  /// `arglist`
+  ArgList,
   /// `fun`
   Fun,
   /// `takes`
@@ -170,12 +169,11 @@ impl fmt::Display for Keyword {
       Self::Struct => "struct",
       Self::Enum => "enum",
       Self::BitSet => "bitset",
-      Self::Idea => "idea",
+      Self::Interface => "interface",
       Self::Class => "class",
-      Self::Extends => "extends",
       Self::Where => "where",
       Self::Impl => "impl",
-      Self::ArgStruct => "argstruct",
+      Self::ArgList => "arglist",
       Self::Fun => "fun",
       Self::Defer => "defer",
       Self::Return => "return",
@@ -217,9 +215,9 @@ impl Keyword {
       "class" => Self::Class,
       "struct" => Self::Struct,
       "enum" => Self::Enum,
-      "idea" => Self::Idea,
+      "interface" => Self::Interface,
       "impl" => Self::Impl,
-      "argstruct" => Self::ArgStruct,
+      "arglist" => Self::ArgList,
       "where" => Self::Where,
       "fun" => Self::Fun,
       "return" => Self::Return,
@@ -234,7 +232,6 @@ impl Keyword {
       "match" => Self::Match,
       "is" => Self::Is,
       "macro" => Self::Macro,
-      "extends" => Self::Extends,
       "bitset" => Self::BitSet,
       "defer" => Self::Defer,
       "unsafe" => Self::Unsafe,

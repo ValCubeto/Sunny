@@ -12,23 +12,23 @@ pub fn run(args: ParsedArgs) {
   });
   let file_path = parse_file_path(&cwd, &args.input);
   debug_msg!("Working with file {}", cwd.join(&file_path).display());
-  unsafe {
-    FILE = args.input.clone();
-  }
+  FILE.lock()
+    .expect("Couldn't lock FILE")
+    .clone_from(&args.input);
   let ctx = Ctx::new(cwd, args);
   let contents = fs::read_to_string(&file_path).unwrap_or_else(|why| {
     sys_err!("failed to read file \"{}\" ({why})", file_path.display());
   });
-  unsafe {
-    CONTENTS = contents.trim().to_owned();
-  }
+  CONTENTS.lock()
+    .expect("Couldn't lock CONTENTS")
+    .clone_from(&contents.trim().to_owned());
   eval(contents, ctx);
 }
 
 fn parse_file_path(cwd: &Path, input: &str) -> PathBuf {
   if input.is_empty() {
     debug_todo!("read from Sunny.toml");
-    argument_err!("No input file specified");
+    argument_err!("no input file specified");
   }
   let path = input.trim();
   let mut path = PathBuf::from(path);

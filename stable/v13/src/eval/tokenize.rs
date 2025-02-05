@@ -2,16 +2,18 @@ pub mod keywords;
 pub mod tokens;
 pub mod numbers;
 pub mod strings;
-use std::str::Chars;
+
+use std::{str::Chars, sync::atomic::Ordering};
+use std::sync::atomic::AtomicUsize;
 use keywords::parse_word;
 use numbers::{ Number, parse_bin, parse_hex, parse_number };
 use peekmore::{ PeekMore, PeekMoreIterator };
 use strings::{ parse_char, parse_raw_string, parse_string, FString };
 use tokens::{ Operator as Op, Token as Tk };
 
-pub static mut LINE: usize = 1;
-pub static mut COLUMN: usize = 1;
-pub static mut TOK_LEN: usize = 1;
+pub static LINE: AtomicUsize = AtomicUsize::new(1);
+pub static COLUMN: AtomicUsize = AtomicUsize::new(1);
+pub static TOK_LEN: AtomicUsize = AtomicUsize::new(1);
 
 pub struct CharsIter<'a> {
   iterator: PeekMoreIterator<Chars<'a>>,
@@ -26,10 +28,8 @@ impl<'a> CharsIter<'a> {
   }
   /// Save the current position at the start of a token
   pub fn save_pos(&mut self) {
-    unsafe {
-      self.saved_pos.line = LINE;
-      self.saved_pos.column = COLUMN;
-    }
+    self.saved_pos.line = LINE.load(Ordering::Relaxed);
+    self.saved_pos.column = COLUMN.load(Ordering::Relaxed);
   }
   /// Does not update the position
   pub fn next_raw(&mut self) -> Option<char> {
@@ -37,12 +37,12 @@ impl<'a> CharsIter<'a> {
   }
   pub fn advance_cursor(&mut self, curr: Option<char>) {
     match curr {
-      Some('\n') => unsafe {
-        COLUMN = 1;
-        LINE += 1;
+      Some('\n') => {
+        COLUMN.store(1, Ordering::Relaxed);
+        LINE.fetch_add(1, Ordering::Relaxed);
       }
-      Some(_) => unsafe {
-        COLUMN += 1;
+      Some(..) => {
+        COLUMN.fetch_add(1, Ordering::Relaxed);
       }
       None => {}
     }
@@ -109,7 +109,7 @@ pub fn tokenize(input: String) -> Tokens {
           let (fstring, len) = FString::parse(&mut chars);
           push!(Tk::FString(fstring), len + 3);
         }
-        Some(_) | None => {
+        Some(..) | None => {
           let (word, len) = parse_word(&mut chars, ch);
           push!(word, len);
         }
@@ -120,7 +120,7 @@ pub fn tokenize(input: String) -> Tokens {
           let (raw_string, len) = parse_raw_string(&mut chars);
           push!(Tk::String(raw_string), len + 3);
         }
-        Some(_) | None => {
+        Some(..) | None => {
           let (word, len) = parse_word(&mut chars, ch);
           push!(word, len);
         }
@@ -395,10 +395,7 @@ pub fn tokenize(input: String) -> Tokens {
         push!(Tk::Number(num), len);
       }
       _ => {
-        unsafe {
-          // I'm lazy to call peek() and then next_char() on each case
-          COLUMN -= 1;
-        }
+        COLUMN.fetch_sub(1, Ordering::Relaxed);
         syntax_err!("unexpected token {ch:?}")
       }
     } // match

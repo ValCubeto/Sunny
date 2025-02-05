@@ -5,6 +5,7 @@ use crate::eval::tokenize::{
   keywords::Keyword as Kw,
   tokens::{ Operator as Op, Token as Tk, TokenIter }
 };
+use crate::terminal::note;
 
 #[allow(unused)]
 #[derive(Debug, Clone)]
@@ -87,13 +88,17 @@ impl Statement {
                 tokens.next();
                 Statement::Assign(expr, Expr::parse(tokens))
               }
+              Tk::RightBrace => {
+                tokens.next();
+                Statement::Expr(expr)
+              }
               other => {
                 if tokens.semicolon_sep() {
                   Statement::Expr(expr)
                 } else {
                   tokens.next();
-                  note!("it may be a bug while parsing the expression");
-                  syntax_err!("unexpected {other}");
+                  note("it may be a bug while parsing the expression");
+                  syntax_err!("unexpected {}", other.to_string());
                 }
               }
             }

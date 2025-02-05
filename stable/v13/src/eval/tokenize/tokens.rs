@@ -1,7 +1,9 @@
 use std::slice::Iter;
 use std::fmt;
+use std::sync::atomic::Ordering;
 use peekmore::PeekMoreIterator;
 use crate::eval::parse::expressions::Expr;
+use crate::eval::parse::values::Value;
 use super::keywords::Keyword;
 use super::numbers::Number;
 use super::strings::FString;
@@ -17,12 +19,10 @@ impl<'a> TokenIter<'a> {
 
   pub fn try_next_token(&mut self) -> Option<&'a Token> {
     self.skip_newline();
-    self.0.next().map(|(pos, token)| -> &'a Token {
-      unsafe {
-        LINE = pos.line;
-        COLUMN = pos.column;
-        TOK_LEN = pos.tok_len;
-      }
+    self.0.next().map(|(pos, token)| {
+      LINE.store(pos.line, Ordering::Relaxed);
+      COLUMN.store(pos.column, Ordering::Relaxed);
+      TOK_LEN.store(pos.tok_len, Ordering::Relaxed);
       token
     })
   }
@@ -30,11 +30,9 @@ impl<'a> TokenIter<'a> {
     match self.0.next() {
       None => syntax_err!("{msg}"),
       Some((pos, token)) => {
-        unsafe {
-          LINE = pos.line;
-          COLUMN = pos.column;
-          TOK_LEN = pos.tok_len;
-        }
+        LINE.store(pos.line, Ordering::Relaxed);
+        COLUMN.store(pos.column, Ordering::Relaxed);
+        TOK_LEN.store(pos.tok_len, Ordering::Relaxed);
         token
       }
     }
@@ -43,10 +41,12 @@ impl<'a> TokenIter<'a> {
   pub fn next(&mut self) -> &'a Token {
     self.next_or("unexpected end of input")
   }
+  #[inline(always)]
   pub fn next_token_or(&mut self, msg: &str) -> &'a Token {
     self.skip_newline();
     self.next_or(msg)
   }
+  #[inline(always)]
   pub fn next_token(&mut self) -> &'a Token {
     self.skip_newline();
     self.next()
@@ -76,7 +76,6 @@ impl<'a> TokenIter<'a> {
     }
   }
 
-  #[inline]
   pub fn comma_sep(&mut self) -> bool {
     match self.peek() {
       Token::Comma => {
@@ -94,7 +93,6 @@ impl<'a> TokenIter<'a> {
     }
   }
 
-  #[inline]
   pub fn semicolon_sep(&mut self) -> bool {
     match self.peek() {
       Token::Semicolon => {
@@ -225,7 +223,7 @@ impl Operator {
   pub fn prefix_bp(&self) -> u8 {
     match self {
       Self::Plus | Self::Minus | Self::Bang | Self::Ampersand | Self::Star => 9,
-      _ => syntax_err!("unexpected {self}")
+      _ => syntax_err!("unexpected {}", self.to_string())
     }
   }
   pub fn infix_bp(&self) -> Option<(u8, u8)> {
@@ -245,47 +243,72 @@ impl Operator {
       Self::Bang => Expr::Not(rhs),
       Self::Ampersand => Expr::Ref(rhs),
       Self::Star => Expr::Deref(rhs),
-      _ => syntax_err!("unexpected {self}")
+      _ => syntax_err!("unexpected {}", self.to_string())
     }
   }
   pub fn postfix_expr(&self, lhs: Expr) -> Expr {
     let lhs = lhs.ptr();
     match self {
       Self::Question => Expr::Try(lhs),
-      _ => syntax_err!("unexpected {self}")
+      _ => syntax_err!("unexpected {}", self.to_string())
     }
   }
   pub fn infix_expr(&self, lhs: Expr, rhs: Expr) -> Expr {
     let lhs = lhs.ptr();
     let rhs = rhs.ptr();
     match self {
+      // `a + b`
       Self::Plus => Expr::Add(lhs, rhs),
+      // `a - b`
       Self::Minus => Expr::Sub(lhs, rhs),
+      // `a * b`
       Self::Star => Expr::Mul(lhs, rhs),
+      // `a / b`
       Self::Slash => Expr::Div(lhs, rhs),
+      // `a % b`
       Self::Percent => Expr::Mod(lhs, rhs),
+      // `a <> b`
       Self::Diamond => Expr::Cmp(lhs, rhs),
-      Self::Dot => Expr::GetField(lhs, rhs),
-      Self::DoubleColon => Expr::GetItem(lhs, rhs),
+      // `a && b`
       Self::DoubleAmpersand => Expr::LogicalAnd(lhs, rhs),
+      // `a || b`
       Self::DoublePipe => Expr::LogicalOr(lhs, rhs),
+      // `a & b`
       Self::Ampersand => Expr::And(lhs, rhs),
+      // `a | b`
       Self::Pipe => Expr::Or(lhs, rhs),
+      // `a ^ b`
       Self::Caret => Expr::Xor(lhs, rhs),
+      // `a == b`
       Self::Equal => Expr::Equal(lhs, rhs),
+      // `a != b`
       Self::NotEqual => Expr::NotEqual(lhs, rhs),
+      // `a <= b`
       Self::LessOrEqual => Expr::LessEqual(lhs, rhs),
+      // `a >= b`
       Self::GreaterOrEqual => Expr::GreaterEqual(lhs, rhs),
+      // `a << b`
       Self::DoubleLeftAngle => Expr::LeftShift(lhs, rhs),
+      // `a >> b`
       Self::DoubleRightAngle => Expr::RightShift(lhs, rhs),
-      _ => syntax_err!("unexpected {self}")
+      // `a.b`
+      Self::Dot => match rhs.as_ref() {
+        Expr::Ref(..) | Expr::Single(Value::String(..)) => Expr::GetField(lhs, rhs),
+        _ => syntax_err!("field names must be strings or valid identifiers")
+      }
+      // `a::b`
+      Self::DoubleColon => match rhs.as_ref() {
+        Expr::Ref(..) | Expr::Single(Value::String(..)) => Expr::GetItem(lhs, rhs),
+        _ => syntax_err!("item names must be strings or valid identifiers")
+      }
+      _ => syntax_err!("unexpected {}", self.to_string())
     }
   }
 }
 
 impl fmt::Display for Operator {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    let name = match self {
+    f.write_str(match self {
       Self::Plus => "plus sign",
       Self::Minus => "minus sign",
       Self::Star => "star",
@@ -322,9 +345,8 @@ impl fmt::Display for Operator {
       Self::LeftAngle => "left angle",
       Self::RightAngle => "right angle",
       Self::Dot => "dot",
-      Self::Diamond => "diamond",
-    };
-    f.write_str(name)
+      Self::Diamond => "diamond"
+    })
   }
 }
 
@@ -379,25 +401,25 @@ impl fmt::Display for Token {
       Self::Keyword(kw) => write!(f, "keyword {kw}"),
       Self::Ident(ident) => write!(f, "identifier {ident:?}"),
       Self::MacroName(name) => write!(f, "macro name {name:?}!"),
-      Self::String(_) => write!(f, "string literal"),
-      Self::FString(_) => write!(f, "format string literal"),
-      Self::Char(_) => write!(f, "char literal"),
-      Self::Number(_) => write!(f, "number literal"),
-      Self::Op(op) => write!(f, "{op}"),
-      Self::NewLine => write!(f, "new line"),
-      Self::LeftParen => write!(f, "left parenthesis"),
-      Self::RightParen => write!(f, "right parenthesis"),
-      Self::LeftBrace => write!(f, "left brace"),
-      Self::RightBrace => write!(f, "right brace"),
-      Self::DoubleLeftBrace => write!(f, "double left brace"),
-      Self::DoubleRightBrace => write!(f, "double right brace"),
-      Self::LeftBracket => write!(f, "left bracket"),
-      Self::RightBracket => write!(f, "right bracket"),
-      Self::Comma => write!(f, "comma"),
-      Self::Semicolon => write!(f, "semicolon"),
-      Self::Colon => write!(f, "colon"),
-      Self::Arrow => write!(f, "arrow"),
-      Self::FatArrow => write!(f, "fat arrow")
+      Self::Op(op) => op.fmt(f),
+      Self::String(..) => f.write_str("string literal"),
+      Self::FString(..) => f.write_str("format string literal"),
+      Self::Char(..) => f.write_str("char literal"),
+      Self::Number(..) => f.write_str("number literal"),
+      Self::NewLine => f.write_str("new line"),
+      Self::LeftParen => f.write_str("left parenthesis"),
+      Self::RightParen => f.write_str("right parenthesis"),
+      Self::LeftBrace => f.write_str("left brace"),
+      Self::RightBrace => f.write_str("right brace"),
+      Self::DoubleLeftBrace => f.write_str("double left brace"),
+      Self::DoubleRightBrace => f.write_str("double right brace"),
+      Self::LeftBracket => f.write_str("left bracket"),
+      Self::RightBracket => f.write_str("right bracket"),
+      Self::FatArrow => f.write_str("fat arrow"),
+      Self::Comma => f.write_str("comma"),
+      Self::Semicolon => f.write_str("semicolon"),
+      Self::Colon => f.write_str("colon"),
+      Self::Arrow => f.write_str("arrow"),
     }
   }
 }

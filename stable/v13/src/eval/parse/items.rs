@@ -5,12 +5,12 @@ use super::constants::Variable;
 /// Any statement
 pub enum Item {
   Variable(Variable),
+  // Import,
   // Struct,
   // Enum,
   // BitSet,
-  // Idea,
+  // Interface,
   // TypeDef,
-  // Import,
   // Macro,
 }
 
@@ -27,7 +27,6 @@ impl fmt::Display for Item {
       // Item::Struct => write!(f, "struct"),
       // Item::Enum => write!(f, "enum"),
       // Item::BitSet => write!(f, "bitset"),
-      // Item::Idea => write!(f, "idea"),
       // Item::TypeDef => write!(f, "typedef"),
       // Item::Import => write!(f, "import"),
       // Item::Macro => write!(f, "macro"),
