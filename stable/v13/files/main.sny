@@ -1,138 +1,414 @@
 
 typedef List<T> = rust { Box<[T]> }
 typedef Name = rust { Box<str> }
-typedef PAth = rust { *const OsStr }
+typedef Path = rust { Arc<OsStr> }
 
-// line and column are usually where the name is
+struct Command {
+  name: Name,
+  description: Name,
+  flags: List<Flag>
+}
+
+struct Flag {
+  name: Name,
+  alias: Name,
+  description: Name,
+  take_value: Bool
+}
+
+let flags = [
+  Flag {
+    name: "no-color",
+    alias: "",
+    description: "Disables color output",
+    take_value: False
+  },
+  Flag {
+    name: "debug",
+    alias: "d",
+    description: "Enables debug mode",
+    take_value: False
+  }
+]
+
+let commands: List<Command> = [
+  Command {
+    name: "version",
+    description: "Prints the version of the compiler",
+    flags: []
+  },
+  Command {
+    name: "help",
+    description: "Prints this message",
+    flags: []
+  },
+  Command {
+    name: "tokenize",
+    description: "Parses the tokens of the given file, then prints them",
+    flags: []
+  },
+  Command {
+    name: "build-ast",
+    description: "Builds an AST from the given file, then prints it",
+    flags: []
+  }
+]
+
+struct PassedFlag {
+  name: Name,
+  value: Name
+}
+
+struct ParsedArgv {
+  this: Path,
+  command: Name,
+  input: Name,
+  flags: List<PassedFlag>,
+  args: List<Name>
+}
+
+struct Program {
+  cwd: Path,
+  args: ParsedArgv,
+  modules: List<Module>
+}
+
 struct Location {
-  file: Path,
   line: u32,
-  column: u32
+  column: u32,
+  len: u8
 }
 
 struct Located<T> {
+  /// line and column are usually where the name is.
+  /// for example, in `struct Point { ... }`, the location is at `Point`
   location: Location,
   value: T
 }
 
-use std::{
-  a,
-  b::{ c, d as e }
-}
-
-
-
-mod modules {
-  struct Module {
-    name: Name,
-    entities: List<Located<Entity>>,
-  }
-  enum Entity {
-    Import(Import)
-    Module(Box<Self>),
-    Variable(variables::Variable),
-    Function(functions::Function)
-  }
-}
-
-mod imports {
-  struct Import {
-  }
-}
-
-mod types {
-  enum Typing {
-    None
-    Never
-  }
-}
-
-mod values {
-  enum Value {
+mod tokens {
+  typedef Tokens = List<Located<Token>>
+  enum Token {
+    EoF,
+    NewLine,
+    Identifier(Name),
     String(Name),
-    FString(strings::FString)
+    Char(Char),
+    Keyword(Keyword),
+    Punctuation(Punctuation),
+    Operator(Operator),
+    FString(FString),
+    Number(Number),
+  }
+  mod words {
+    enum Keyword {}
+  }
+  mod punctuation {
+    enum Punctuation {}
+  }
+  mod operators {
+    enum Operator {}
   }
   mod strings {
     enum FStringComponent {
       Literal(Name),
-      Format(Expr)
+      Format {
+        tokens: Tokens,
+        options: Name
+      }
     }
     struct FString {
       components: List<FStringComponent>
     }
   }
-}
-
-mod expressions {
-  enum Expression {
-    Identifier(Name)
-  }
-}
-
-mod functions {
-  bitset FunctionMeta {
-    Shared,    // 1
-    TakesSelf, // 2
-    Unsafe,    // 3
-    Async,     // 4
-    Static     // 5
-  }
-
-  struct Generic {
-    name: Name,
-    typing: types::Typing,
-    /// Default
-    value: types::Typing
-  }
-  struct Param {
-    name: Name,
-    typing: types::Typing,
-    /// Default
-    value: expressions::Expression
-  }
-  typedef Generics = List<Generic>
-  typedef Params = List<Param>
-
-  struct Function {
-    meta: FunctionMeta,
-    name: Name,
-    generics: Generics,
-    params: Params,
-    output: Typing,
-    body: List<Statement>
-  }
-
-  mod statements {
-    enum Statement {
-      Call {
-        value: expressions::Expression,
-        args: Params
-      }
+  mod numbers {
+    enum Number {
+      Integer(Name),
+      Float(Name),
+      Binary(Name),
+      Hex(Name),
+      /// +n`.`d`e`+n`.`d
+      Exp(Box<Number>, Box<Number>)
     }
   }
 }
+
+mod ast {
+  mod modules {
+    struct Module {
+      path: Path,
+      name: Name,
+      entities: List<Located<Entity>>,
+    }
+    enum Entity {
+      Module(Box<Self>),
+      Import(Import)
+      Variable(Variable),
+      Function(Function)
+    }
+  }
+
+  mod imports {
+    /* 
+      use std::{ a, b::{ c, d as e } }
+      Import { path: ["std", "a"], alias: "a" }
+      Import { path: ["std", "b", "c"], alias: "c" }
+      Import { path: ["std", "b", "d"], alias: "e" }
+    */
+    struct Import {
+      path: List<Name>,
+      alias: Name
+    }
+  }
+
+  mod types {
+    enum Typing {
+      None
+      Never
+    }
+  }
+
+  mod values {
+    enum Value {
+      /// `"a"`
+      String(Name),
+      /// `f"a"`
+      FString(FString),
+      /// `(a, b, c)`
+      Tuple(List<Expression>),
+      /// `[a, b, c]`
+      List(List<Expression>),
+    }
+    mod strings {
+      enum FStringComponent {
+        Literal(Name),
+        Format {
+          expr: Expr,
+          options: Name
+        }
+      }
+      struct FString {
+        components: List<FStringComponent>
+      }
+    }
+  }
+
+  mod expressions {
+    typedef Expr = Box<Expression>
+    enum Expression {
+      None,
+      Identifier(Name),
+      Value(Value),
+
+      /// Identifier or Int<br>
+      /// `a.b` | `a.1`
+      GetProp(Expr, Name),
+      /// Identifier or String<br>
+      /// `a::b` | `a::"b"`
+      GetItem(Expr, Name),
+
+      /// `-a`
+      Neg(Expr),
+      /// `!a`
+      Not(Expr),
+      /// `a?`
+      Try(Expr),
+      /// `&a`
+      Ref(Expr),
+      /// `*a`
+      Deref(Expr),
+      /// `a.await`
+      Await(Expr),
+
+      /// `a + b`
+      Add(Expr, Expr),
+      /// `a - b`
+      Sub(Expr, Expr),
+      /// `a * b`
+      Mul(Expr, Expr),
+      /// `a / b`
+      Div(Expr, Expr),
+      /// `a % b`
+      Mod(Expr, Expr),
+      /// `a && b`
+      And(Expr, Expr),
+      /// `a || b`
+      Or(Expr, Expr),
+      /// `a < b`
+      Less(Expr, Expr),
+      /// `a > b`
+      Greater(Expr, Expr),
+      /// `a == b`
+      Equal(Expr, Expr),
+      /// `a != b`
+      NotEqual(Expr, Expr),
+      /// `a <= b`
+      LessEqual(Expr, Expr),
+      /// `a >= b`
+      GreaterEqual(Expr, Expr),
+
+      /// `a & b`
+      BitAnd(Expr, Expr),
+      /// `a | b`
+      BitOr(Expr, Expr),
+      /// `a ^ b`
+      BitXOr(Expr, Expr),
+      /// `a << b`
+      ShiftLeft(Expr, Expr),
+      /// `a >> b`
+      ShiftRight(Expr, Expr),
+
+      /// `a as b`
+      Cast(Expr, Typing),
+
+      /// `a |> (b, c)
+      Tunnel(Expr, Expr),
+    }
+  }
+
+  mod variables {
+    bitset VariableMeta {
+      Shared,
+      Mutable,
+    }
+    struct Variable {
+      meta: VariableMeta,
+      name: Name,
+      value: Expression,
+    }
+  }
+
+  mod functions {
+    bitset FunctionMeta {
+      Shared,
+      TakesSelf,
+      Unsafe,
+      Async, 
+      Constant
+    }
+    struct Generic {
+      name: Name,
+      typing: Typing,
+      default: Typing
+    }
+    enum ParamName {
+      /// x
+      Single(Name),
+      /// (x, y)
+      Tuple(List<Name>),
+      /// [x, y, ...]
+      List(List<Name>),
+      /// { x, y, ... }
+      Struct(List<Name>)
+    }
+    struct Param {
+      name: ParamName,
+      typing: Typing,
+      default: Expression
+    }
+    struct Argument {
+      name: Name,
+      value: Expression
+    }
+    typedef Generics = List<Located<Generic>>
+    typedef Params = List<Located<Param>>
+    typedef Arguments = List<Located<Argument>>
+    typedef Block = List<Located<Statement>>
+
+    struct Function {
+      meta: FunctionMeta,
+      name: Name,
+      generics: Generics,
+      params: Params,
+      output: Typing,
+      body: Block
+    }
+
+    mod statements {
+      enum Statement {
+        Break,
+        Continue,
+        Expr(Expression),
+        Call {
+          value: Expression,
+          args: Arguments
+        }
+        Assign(Expression, Expression),
+        Return(Expression),
+        If {
+          cond: Expression,
+          yes: Block,
+          no: Block
+        },
+        While {
+          cond: Expression,
+          body: Block
+        }
+        For {
+          key: Expression,
+          iter: Expression,
+          body: Block
+        }
+      }
+    }
+  }
+} // mod ast
+
+mod runtime {}
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-main = Function {
-  meta: FunctionMeta { Shared, TakesSelf },
-  name: "main",
-  generics: [],
-  params: [],
-  output: None,
-  body: [
-    Call {
-      value: Ident("println"),
-      args: {
-        "0": Value(String("Hello, world!"))
-      }
-    }
-  ]
-}
+Program {
+  cwd: Path("/home/valen/Dev/Sunny/stable/v13"),
+  args: ParsedArgv {
+    this: Path("target/debug/sunny"),
+    command: "build-ast",
+    input: "files/main.sny",
+    flags: [],
+    args: []
+  },
+  modules: [
+    Module {
+      path: Path("files/main.sny"),
+      name: "main",
+      position: Position,
+      source: String,
+      tokens: [],
+      entities: [
+        Located {
+          location: Location { line: 1, column: 5, len: 4 },
+          value: Entity::Function {
+            meta: FunctionMeta,
+            name: "main",
+            generics: [],
+            params: [],
+            output: Typing::None,
+            body: [
+              Located {
+                location: Location { line: 2, column: 2, len: 7 },
+                value: Statement::Call {
+                  value: Expression::Identifier("println"),
+                  args: [
+                    Located {
+                      location: Location { line: 2, column: 11, len: 15 },
+                      value: Argument {
+                        name: "",
+                        value: Expression::Value(Value::String("Hello, world!"))
+                      }
+                    } // Located
+                  ] // args
+                } // Statement::Call
+              } // Located
+            ] // body
+          } // Entity::Function
+        } // Located
+      ] // entities
+    } // Module
+  ] // modules
+} // Program
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 fun main() {
-  // Call(Ident("println"), Value(String("Hello, world!"))) 
   println("Hello, world!")
 }

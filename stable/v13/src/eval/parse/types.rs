@@ -13,12 +13,12 @@ use super::expressions::Expr;
 pub struct GenericParam {
   pub name: String,
   pub typing: Typing,
-  pub default_val: Typing,
+  pub default: Typing,
 }
 
 impl fmt::Display for GenericParam {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(f, "{}", display_param(&self.name, &self.typing, &self.default_val))
+    write!(f, "{}", display_param(&self.name, &self.typing, &self.default))
   }
 }
 
@@ -36,7 +36,7 @@ pub fn parse_generics(tokens: &mut TokenIter) -> Vec<GenericParam> {
           }
           _ => Typing::Undefined
         };
-        let default_val = match tokens.peek_token() {
+        let default = match tokens.peek_token() {
           Tk::Op(Op::Equal) => {
             tokens.next();
             Typing::parse(tokens)
@@ -46,7 +46,7 @@ pub fn parse_generics(tokens: &mut TokenIter) -> Vec<GenericParam> {
         generics.push(GenericParam {
           name: name.clone(),
           typing,
-          default_val
+          default
         });
         if !tokens.comma_sep() {
           break;
