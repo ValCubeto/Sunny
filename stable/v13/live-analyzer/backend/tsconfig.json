@@ -1,3 +1,7 @@
 {
-  "comment": "Without this file, the types are not acquired properly"
+  "compilerOptions": {
+    "types": [
+      "bun-types"
+    ]
+  }
 }

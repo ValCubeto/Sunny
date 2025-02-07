@@ -8,6 +8,31 @@ const INPUT_PATH = "./cache/input.sny"
 const STDOUT_PATH = "./cache/stdout.log"
 const STDERR_PATH = "./cache/stderr.log"
 
+// const STYLES = new Response(await Bun.file("../frontend/index.css").bytes(), {
+//   headers: { "Content-Type": "text/css" }
+// })
+
+// Bun.serve({
+//   port: 8080,
+//   hostname: "127.0.0.1",
+//   websocket: null,
+//   static: {
+//     "/": new Response(await Bun.file("../frontend/index.html").bytes(), {
+//       headers: {
+//         "Content-Type": "text/html"
+//       }
+//     }),
+//     "/index.html": Response.redirect("/"),
+//     "/index.js": new Response(await Bun.file("../frontend/index.js").bytes(), {
+//       headers: {
+//         "Content-Type": "text/javascript"
+//       }
+//     }),
+//     "/index.css": STYLES
+//   },
+//   fetch(request: Request) {}
+// })
+
 const server = createServer((req: IncomingMessage, res: ServerResponse) => {
   switch (req.url) {
     case "/":
