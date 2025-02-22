@@ -73,16 +73,11 @@ struct Program {
   modules: List<Module>
 }
 
-struct Location {
-  line: u32,
-  column: u32,
-  len: u8
-}
-
 struct Located<T> {
+  /// line, column, and len can be calculated again later.
   /// line and column are usually where the name is.
   /// for example, in `struct Point { ... }`, the location is at `Point`
-  location: Location,
+  start_index: uint32,
   value: T
 }
 
